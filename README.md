@@ -66,12 +66,12 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
     
 ## TODO: Future direction
 
-### c1.1 - Modernized toolchain
+### v1.1 - Modernized toolchain
 - [x] Move toybox code into its own git repository
 - [x] Seperate Makefiles for toybox and ChromaGrid
 - [x] Unified Makefile target for Atari target and macOS host
     - [x] Move game loop to `machine_c::with_machine(...)`
-    - [ ] Add new Xcode project with external build system
+    - [x] Add new Xcode project with external build system
 - [ ] Update to gcc 15.2 mintelf toolchain
     - [ ] Use link time optimizations
     - [ ] Update sources to C++20

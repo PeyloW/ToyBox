@@ -11,12 +11,13 @@ CFLAGS=-c -L$(TOYBOX)/build -ltoybox -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
 ifeq ($(HOST),sdl2)
+	HB_PATH=/opt/homebrew/bin
 	INFO=Building for sdl2 host
 	CC=clang++
 	AR=ar
 	FLAGS+=-O0 -g -DTOYBOX_HOST=sdl2
-	CFLAGS+=-std=c++11 $(shell sdl2-config --cflags)
-	LDFLAGS+=$(shell sdl2-config --libs)
+	CFLAGS+=-std=c++11 $(shell $(HB_PATH)/sdl2-config --cflags)
+	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
 else
 	INFO=Building for atari target
 	CC=/opt/cross-mint-OLD/bin/m68k-atari-mint-c++
