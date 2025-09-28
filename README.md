@@ -45,7 +45,7 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
 
 ### c1.1 - Modernized toolchain
 - [x] Move toybox code into its own git repository
-- [ ] Seperate Makefiles for toybox and ChromaGrid
+- [x] Seperate Makefiles for toybox and ChromaGrid
 - [ ] Unified Makefile target for Atari target and macOS host
     - [ ] Move game loop to `machine_c::with_machine(...)`
     - [ ] Move macOS Xcode setup to external build system
