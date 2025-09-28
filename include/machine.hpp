@@ -26,15 +26,17 @@ namespace toybox {
         typedef enum _packed {
             unknown,
 #if TOYBOX_TARGET_ATARI
-            st, ste, tt, falcon
+            st, ste, falcon
 #elif TOYBOY_TARGET_AMIGA
-            osc, ecs, aga
+            osc, aga
 #else
 #   error "Unsupported target"
 #endif
         } type_e;
         
         static machine_c &shared();
+        
+        static int with_machine(int argc, const char * argv[], int (*)(machine_c &machine));
         
         type_e type() const __pure;
         size_s screen_size() const __pure;
@@ -50,6 +52,7 @@ namespace toybox {
         void set_active_palette(const palette_c *palette);
         
     private:
+        static machine_c *_shared_machine;
         machine_c();
         virtual ~machine_c();
 #if TOYBOX_TARGET_ATARI

@@ -84,8 +84,13 @@ extern "C" {
 #endif
 }
 
+#ifndef TOYBOX_HOST
 // Required for inplace new
 extern void* operator new (size_t count, void *p) noexcept;
+#else
+#include <new>
+#endif
+
 namespace toybox {
     typedef decltype(nullptr) nullptr_t;
 }

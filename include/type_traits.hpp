@@ -10,8 +10,6 @@
 
 #include "cincludes.hpp"
 
-extern void* operator new (size_t count, void *p) noexcept;
-
 namespace toybox {
     
     /*

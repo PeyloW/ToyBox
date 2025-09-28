@@ -88,17 +88,8 @@ sound_c::sound_c(const char *path) :
             }
             assert(data.offset == 0);
             assert(chunk.size - 8 == common.num_sample_frames);
-#ifndef __M68000__
-            // For target we hack, and make _sample point to full AIFF file.
-            _length = form.size + 8;
-            _sample.reset((int8_t *)_malloc(_length));
-            file.seek(0, stream_c::beg);
-            file.read(_sample.get(), _length);
-            return;
-#else
             _sample.reset((int8_t *)_malloc(_length));
             file.read(_sample.get(), _length);
-#endif
         } else {
 #ifndef __M68000__
             printf("Skipping '%c%c%c%c'\n", (chunk.id >> 24) & 0xff, (chunk.id >> 16) & 0xff, (chunk.id >> 8) & 0xff, chunk.id & 0xff);

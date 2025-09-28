@@ -89,7 +89,9 @@ int asset_manager_c::add_asset_def(const asset_def_s &def) {
 unique_ptr_c<char> asset_manager_c::data_path(const char *file) const {
     unique_ptr_c<char> path((char *)_malloc(128));
     strstream_c str(path.get(), 128);
-#ifdef __M68000__
+#ifdef TOYBOX_HOST
+    str << "data/";
+#else
     str << "data\\";
 #endif
     str << file << ends;

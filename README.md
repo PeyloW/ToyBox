@@ -11,18 +11,41 @@ A minimal C++ framework for writing Atari ST entertainment software.
 
 Toybox should be small, fast and convenient. In order to be small toybox shall use a bare minimum of libcmini, and not inlcude or implement anything not directly needed by a client program. In order to be fast toybox shall rely on C++ compiler optimizations, and rely on error checking on host machine not M68k target. In order to be convenient API shall be designed similar to C++ standard library and/or boost.
 
-Types uses suffixes:
+All code must compile with GCC 4.6.4 with c++0x _(Experimental C++11)_ enabled, no standard libraries linked!
 
-* `_t` - Plain typedef of POD
-* `_e` - Enumeration
-* `_s` - Struct
-* `_c` - Class
+Make no assumption of integer/pointer size. Host may use 32 bit integers, target **must** use 16 bit integers. Whenever possible use explicitly sized types, `int16_t` not `short`.
 
-Structs should be primary about member variable, and all members are public.
+Rely on `static_assert` to ensure expected sizes for structs are correct. Asserts are enabled on host, but not Atari target. Asserts with `hard_assert` are used liberly to ensure correctness.
+    
+Types uses suffix, variables does not:
 
-Classes should be primary about member functions, and member variables pribate or protected. To avoid accidental expensive copy operations classes should inherit publicly from `nocopy_c` in order to delete copy construction and assignment.
+* `_t` - POD, plain old type.
+* `_e` - Enumeration.
+* `_s` - Simple structs
+    * Must never implement constructors or destructors.
+    * For direct access to all members.
+* `_c` - Classes
+    * Classes **must** support move semantics.
+    * **Never** assume copy semantics are available.
+        * Most classes explicitly forbig copy semntions by use of `nocopy_c` subclassing.
 
-All member functions and non-POD arguments should be const when possible. Structs and classes with a `sizeof` grater than 4 should be bassed as references. Pass objects as pointer only for out arguments, or to signify that an object is optional.
+Variables use optional prefixes:
+
+* `_` - Private/protected member variable.
+* `s_` - Static variable.
+* `g_` - Global variable.
+
+Variables with no prefix is a local variable, public member, or function argument.
+
+
+#### Known libcmini limitations
+
+libcmini-0.47 used is an older version from 2017, and has a few known issues. It is not being updated as to avoid disruptions before Sommarhack 2024.
+
+* `fread` and `fwrite` does not return number of items, but total bytes on success.
+* `rand()` does not respect `RAND_MAX` with `-mshort`, and can return negative values.
+* `strncmp()` is just very buggy.
+
 
 ### Game life-cycle
 
@@ -46,9 +69,9 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
 ### c1.1 - Modernized toolchain
 - [x] Move toybox code into its own git repository
 - [x] Seperate Makefiles for toybox and ChromaGrid
-- [ ] Unified Makefile target for Atari target and macOS host
-    - [ ] Move game loop to `machine_c::with_machine(...)`
-    - [ ] Move macOS Xcode setup to external build system
+- [x] Unified Makefile target for Atari target and macOS host
+    - [x] Move game loop to `machine_c::with_machine(...)`
+    - [ ] Add new Xcode project with external build system
 - [ ] Update to gcc 15.2 mintelf toolchain
     - [ ] Use link time optimizations
     - [ ] Update sources to C++20

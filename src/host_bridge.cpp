@@ -5,6 +5,8 @@
 //  Created by Fredrik on 2024-04-25.
 //
 
+#ifdef TOYBOX_HOST
+
 #include "host_bridge.hpp"
 
 using namespace toybox;
@@ -21,8 +23,8 @@ host_bridge_c& host_bridge_c::shared() {
     assert(s_bridge);
     return *s_bridge;
 }
-void host_bridge_c::set_shared(host_bridge_c &bridge) {
-    s_bridge = &bridge;
+void host_bridge_c::set_shared(host_bridge_c *bridge) {
+    s_bridge = bridge;
 }
 
 // Host must call on a 50hz interval
@@ -39,3 +41,5 @@ void host_bridge_c::clock_interupt() {
 void host_bridge_c::update_mouse(point_s position, bool left, bool right) {
     g_update_mouse(position, left, right);
 }
+
+#endif

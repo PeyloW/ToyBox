@@ -20,9 +20,12 @@ extern "C" {
     const image_c *g_active_image = nullptr;
 }
 
+
+machine_c *machine_c::_shared_machine = nullptr;
+
 machine_c &machine_c::shared() {
-    static machine_c s_machine;
-    return s_machine;
+    assert(_shared_machine != nullptr);
+    return *_shared_machine;
 }
 
 machine_c::machine_c() {
@@ -38,6 +41,7 @@ machine_c::machine_c() {
 #else
     g_active_palette = new palette_c();
 #endif
+    assert(type() != type_e::unknown && type() >= type_e::ste);
 }
 
 machine_c::~machine_c() {
@@ -48,6 +52,15 @@ machine_c::~machine_c() {
     Super(_old_super);
 #endif
 }
+
+#ifndef TOYBOX_HOST
+int machine_c::with_machine(int argc, const char * argv[], int (*game)(machine_c &machine)) {
+    assert(_shared_machine == nullptr);
+    machine_c machine;
+    _shared_machine = &machine;
+    return game(machine);
+}
+#endif
 
 machine_c::type_e machine_c::type() const {
 #ifdef __M68000__

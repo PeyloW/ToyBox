@@ -61,9 +61,11 @@ extern "C" void __cxa_guard_abort(__guard* g) {
 
 #endif
 
+#ifndef TOYBOX_HOST
 void* operator new (size_t count, void *p) noexcept {
     return p;
 }
 void* operator new[] (size_t count, void *p) {
     return p;
 }
+#endif
