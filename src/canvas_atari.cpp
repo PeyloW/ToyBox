@@ -31,7 +31,7 @@ static const canvas_c::stencil_t *pActiveStencil = nullptr;
 
 __forceinline static void set_active_stencil(struct blitter_s *blitter, const canvas_c::stencil_t *const stencil) {
     if (pActiveStencil != stencil) {
-        memcpy(blitter->halftoneRAM, stencil, 32);
+        memcpy((void *)blitter->halftoneRAM, stencil, 32);
         pActiveStencil = stencil;
     }
 }
@@ -52,7 +52,7 @@ void canvas_c::imp_fill(uint8_t color, rect_s rect) const {
     blitter->dstIncX  = 8;
     blitter->dstIncY = (_image._line_words * 8 - (dst_words_dec_1 * 8));
     const int16_t dst_word_offset = (rect.origin.y * _image._line_words) + (rect.origin.x / 16);
-    uint16_t *dts_bitmap = _image._bitmap + dst_word_offset * 4l;
+    uint16_t *dst_bitmap = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[rect.origin.x & 15];
@@ -85,13 +85,13 @@ void canvas_c::imp_fill(uint8_t color, rect_s rect) const {
         } else {
             blitter->LOP = blitter_s::lop_e::src_or_dst;
         }
-        blitter->pDst   = dts_bitmap;
+        blitter->pDst   = dst_bitmap;
         blitter->countY = rect.size.height;
 
         blitter->start();
 
         color >>= 1;
-        dts_bitmap++;
+        dst_bitmap++;
     }
 
 }
@@ -169,7 +169,7 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
     blitter->dstIncX  = 8;
     blitter->dstIncY = ((_image._line_words - dst_words_dec_1) * 8);
     const uint16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
-    uint16_t *dts_bitmap  = _image._bitmap + dst_word_offset * 4l;
+    uint16_t *dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[at.x & 15];
@@ -208,14 +208,14 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
 
     // Move 4 planes
     for (int i = 4; --i != -1; ) {
-        blitter->pDst   = dts_bitmap;
+        blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_bitmap;
         blitter->countY = rect.size.height;
 
         blitter->start();
 
         src_bitmap++;
-        dts_bitmap++;
+        dst_bitmap++;
     }
 }
 
@@ -240,7 +240,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     blitter->dstIncX  = 8;
     blitter->dstIncY = (_image._line_words * 8 - (dst_words_dec_1 * 8));
     const int16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
-    uint16_t *dts_bitmap  = _image._bitmap + dst_word_offset * 4l;
+    uint16_t *dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[at.x & 15];
@@ -279,13 +279,13 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
 
     // Mask 4 planes
     for (int i = 4; --i != -1; ) {
-        blitter->pDst   = dts_bitmap;
+        blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_maskmap;
         blitter->countY = rect.size.height;
 
         blitter->start();
 
-        dts_bitmap++;
+        dst_bitmap++;
     }
     
     // Update source
@@ -294,21 +294,21 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     uint16_t *src_bitmap = srcImage._bitmap + src_word_offset * 4;
     
     // Update dest
-    dts_bitmap -= 4;
+    dst_bitmap -= 4;
     
     // Update operation flags
     blitter->LOP = blitter_s::lop_e::src_or_dst;
 
     // Draw 4 planes
     for (int i = 4; --i != -1; ) {
-        blitter->pDst   = dts_bitmap;
+        blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_bitmap;
         blitter->countY = rect.size.height;
 
         blitter->start();
 
         src_bitmap++;
-        dts_bitmap++;
+        dst_bitmap++;
     }
 }
 
@@ -333,7 +333,7 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
     blitter->dstIncX  = 8;
     blitter->dstIncY = (_image._line_words * 8 - (dst_words_dec_1 * 8));
     const int16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
-    uint16_t *dts_bitmap  = _image._bitmap + dst_word_offset * 4l;
+    uint16_t *dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[at.x & 15];
@@ -376,14 +376,14 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
         } else {
             blitter->LOP = blitter_s::lop_e::src_or_dst;
         }
-        blitter->pDst   = dts_bitmap;
+        blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_maskmap;
         blitter->countY = rect.size.height;
 
         blitter->start();
 
         color >>= 1;
-        dts_bitmap++;
+        dst_bitmap++;
     }
 }
 

@@ -44,20 +44,20 @@ namespace toybox {
         static const uint8_t hog_bit = (1<<6);
         static const uint8_t busy_bit = (1<<7);
 
-        uint16_t halftoneRAM[16];
-        int16_t srcIncX;
-        int16_t srcIncY;
-        uint16_t *pSrc;
-        uint16_t endMask[3];
-        int16_t dstIncX;
-        int16_t dstIncY;
-        uint16_t *pDst;
-        uint16_t countX;
-        uint16_t countY;
-        hop_e  HOP;
-        lop_e  LOP;
+        volatile uint16_t halftoneRAM[16];
+        volatile int16_t srcIncX;
+        volatile int16_t srcIncY;
+        volatile uint16_t *pSrc;
+        volatile uint16_t endMask[3];
+        volatile int16_t dstIncX;
+        volatile int16_t dstIncY;
+        volatile uint16_t *pDst;
+        volatile uint16_t countX;
+        volatile uint16_t countY;
+        volatile hop_e  HOP;
+        volatile lop_e  LOP;
         volatile uint8_t  mode;
-        uint8_t  skew;
+        volatile uint8_t  skew;
         
         __forceinline uint8_t get_skew() const {
             return skew & skew_mask;
