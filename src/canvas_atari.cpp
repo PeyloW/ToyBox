@@ -8,9 +8,7 @@
 #include "canvas.hpp"
 #include "blitter_atari.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
@@ -403,3 +401,4 @@ void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, p
     }
 }
 
+#endif

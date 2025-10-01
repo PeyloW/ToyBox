@@ -9,7 +9,7 @@
 #define font_hpp
 
 #include "image.hpp"
-#include "memory.h"
+#include "memory.hpp"
 
 namespace toybox {
     

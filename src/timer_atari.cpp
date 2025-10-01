@@ -8,9 +8,7 @@
 #include "timer.hpp"
 #include "machine.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
@@ -83,3 +81,5 @@ uint8_t timer_c::base_freq() const {
             return 0;
     }
 }
+
+#endif

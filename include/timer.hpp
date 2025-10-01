@@ -36,9 +36,9 @@ namespace toybox {
         template<class Commands>
         __forceinline static void with_paused_timers(Commands commands) {
 #ifdef __M68000__
-            __asm__ volatile ("move.w #0x2700,sr" : : : );
+            __asm__ volatile ("move.w #0x2700,%%sr" : : : );
             commands();
-            __asm__ volatile ("move.w #0x2300,sr" : : : );
+            __asm__ volatile ("move.w #0x2300,%%sr" : : : );
 #else
             host_bridge_c::shared().pause_timers();
             commands();

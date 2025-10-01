@@ -9,9 +9,7 @@
 #include "timer.hpp"
 #include "image.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
@@ -164,3 +162,4 @@ void machine_c::set_active_palette(const palette_c *palette) {
 #endif
 }
 
+#endif

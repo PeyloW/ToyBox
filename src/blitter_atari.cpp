@@ -7,9 +7,7 @@
 
 #include "blitter_atari.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
@@ -111,5 +109,7 @@ void blitter_s::start(bool hog) {
         mode = (mode + 1) & 0xf;
     } while (--countY > 0);
 }
+
+#endif
 
 #endif

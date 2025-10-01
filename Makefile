@@ -4,9 +4,9 @@ include common.mk
 SOURCES=$(wildcard src/*.cpp)
 OBJECTS=$(patsubst src/%.cpp,build/%.o,$(SOURCES))
 ifneq ($(HOST),sdl2)
-	ASM_SOURCES=$(wildcard src/*.sx)
+	ASM_SOURCES=$(wildcard src/*.S)
 	SOURCES+=$(ASM_SOURCES)
-	OBJECTS+=$(patsubst src/%.sx,build/%.o,$(ASM_SOURCES))
+	OBJECTS+=$(patsubst src/%.S,build/%.o,$(ASM_SOURCES))
 endif
 
 all: libtoybox.a
@@ -17,7 +17,7 @@ libtoybox.a: $(OBJECTS)
 build/%.o: src/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
-build/%.o: src/%.sx
+build/%.o: src/%.S
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:

@@ -8,24 +8,10 @@
 #include "audio.hpp"
 #include "system_helpers.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
-
-// libcmini (version used) has a buggy strncmp :(
-static int _strncmp(const char *s1, const char *s2, size_t max)
-{
-    int cmp = 0;
-    while (cmp == 0 && max && *s1) {
-        cmp = *(unsigned char *)s1 - *(unsigned char *)s2;
-        s1++; s2++;
-        max--;
-    }
-    return cmp;
-}
 
 ymmusic_c::ymmusic_c(const char *path) {
     fstream_c file(path);
@@ -44,23 +30,23 @@ ymmusic_c::ymmusic_c(const char *path) {
     _track_count = 1;
     _freq = 50;
     char *header_str = (char *)(_sndh + 16);
-    while (_strncmp(header_str, "HDNS", 4) != 0 && ((uint8_t*)header_str < _sndh + 200)) {
+    while (strncmp(header_str, "HDNS", 4) != 0 && ((uint8_t*)header_str < _sndh + 200)) {
         int len = (int)strlen(header_str);
          if (len > 0) {
             if (len > 100) {
                 break;
             }
-            if (_strncmp(header_str, "TITL", 4) == 0) {
+            if (strncmp(header_str, "TITL", 4) == 0) {
                 _title = header_str + 4;
-            } else if (_strncmp(header_str, "COMM", 4) == 0) {
+            } else if (strncmp(header_str, "COMM", 4) == 0) {
                 _composer = header_str + 4;
             } else if (strncmp(header_str, "##", 2) == 0) {
                 _track_count = atoi(header_str + 2);
-            } else if (_strncmp(header_str, "TA", 2) == 0 ||
-                       _strncmp(header_str, "TB", 2) == 0 ||
-                       _strncmp(header_str, "TC", 2) == 0 ||
-                       _strncmp(header_str, "TD", 2) == 0 ||
-                       _strncmp(header_str, "!V", 2) == 0) {
+            } else if (strncmp(header_str, "TA", 2) == 0 ||
+                       strncmp(header_str, "TB", 2) == 0 ||
+                       strncmp(header_str, "TC", 2) == 0 ||
+                       strncmp(header_str, "TD", 2) == 0 ||
+                       strncmp(header_str, "!V", 2) == 0) {
                 _freq = atoi(header_str + 2);
                 assert(_freq != 0);
             }
@@ -74,3 +60,5 @@ ymmusic_c::ymmusic_c(const char *path) {
     codegen_s::make_trampoline(_music_play_code, _sndh + 8, false);
 #endif
 }
+
+#endif

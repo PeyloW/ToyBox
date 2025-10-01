@@ -9,9 +9,7 @@
 #include "machine.hpp"
 #include "timer.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
@@ -37,3 +35,5 @@ mouse_c::~mouse_c() {
     g_keyboard_vectors->mousevec = g_system_mouse_interupt;
 #endif
 }
+
+#endif

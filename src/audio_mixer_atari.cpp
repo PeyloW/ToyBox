@@ -11,9 +11,7 @@
 #include "host_bridge.hpp"
 #endif
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
+#if TOYBOX_TARGET_ATARI
 
 using namespace toybox;
 
@@ -107,3 +105,4 @@ audio_mixer_c::~audio_mixer_c() {
     stop_all();
 };
 
+#endif

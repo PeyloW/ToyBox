@@ -4,8 +4,8 @@ A minimal C++ framework for writing Atari ST entertainment software.
 
 ### Project Requirement
 
-* GCC-4.6.4 with fastcall support (https://github.com/PeyloW/gcc-4.6.4)
-* libcmini-0.47 (https://github.com/freemint/libcmini)
+* GCC-15.2 with fastcall support (https://tho-otto.de/crossmint.php)
+* libcmini tot (https://github.com/freemint/libcmini)
 
 ## Project philosofy
 
@@ -38,14 +38,6 @@ Variables use optional prefixes:
 Variables with no prefix is a local variable, public member, or function argument.
 
 
-#### Known libcmini limitations
-
-libcmini-0.47 used is an older version from 2017, and has a few known issues. It is not being updated as to avoid disruptions before Sommarhack 2024.
-
-* `fread` and `fwrite` does not return number of items, but total bytes on success.
-* `rand()` does not respect `RAND_MAX` with `-mshort`, and can return negative values.
-* `strncmp()` is just very buggy.
-
 
 ### Game life-cycle
 
@@ -72,10 +64,11 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
 - [x] Unified Makefile target for Atari target and macOS host
     - [x] Move game loop to `machine_c::with_machine(...)`
     - [x] Add new Xcode project with external build system
-- [ ] Update to gcc 15.2 mintelf toolchain
-    - [ ] Use link time optimizations
-    - [ ] Update sources to C++20
-- [ ] Update to use libcmini v0.54
+- [x] Update to gcc 15.2 mintelf toolchain
+    - [x] Use link time optimizations
+    - [x] Update to use libcmini top of tree (0.54 too old for elf)
+    - [x] Remove libcmini 0.47 workarounds
+- [ ] Update sources to C++20
 
 
 ### v2.0 - Support horizontally scrolling game played with joystick

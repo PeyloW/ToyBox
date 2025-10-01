@@ -1,13 +1,14 @@
 # Common variables and rules for both toybox and game Makefiles
 
-LIBCMINI=../libcmini
+LIBCMINI=../libcmini-0.54
 LIBCMINIINC=$(LIBCMINI)/include
-LIBCMINILIB=$(LIBCMINI)/mshort/mfastcall
+LIBCMINILIB=$(LIBCMINI)/build/mshort/mfastcall
+LIBCMINIOBJ=$(LIBCMINILIB)/objs
 TOYBOX=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
 FLAGS=-DTOYBOX_TARGET_ATARI=2
-CFLAGS=-c -L$(TOYBOX)/build -ltoybox -I $(TOYBOXINC)
+CFLAGS=-std=c++11 -c -L$(TOYBOX)/build -ltoybox -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
 ifeq ($(HOST),sdl2)
@@ -16,17 +17,17 @@ ifeq ($(HOST),sdl2)
 	CC=clang++
 	AR=ar
 	FLAGS+=-O0 -g -DTOYBOX_HOST=sdl2
-	CFLAGS+=-std=c++11 $(shell $(HB_PATH)/sdl2-config --cflags)
+	CFLAGS+=$(shell $(HB_PATH)/sdl2-config --cflags)
 	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
 else
 	INFO=Building for atari target
-	CC=/opt/cross-mint-OLD/bin/m68k-atari-mint-c++
-	AR=/opt/cross-mint-OLD/bin/m68k-atari-mint-ar
+	CC=/opt/cross-mint/bin/m68k-atari-mintelf-c++
+	AR=/opt/cross-mint/bin/m68k-atari-mintelf-ar
 	FLAGS+=-m68000 -mshort -mfastcall
 	FLAGS+=-g0 -DNDEBUG
 	FLAGS+=-s
 	FLAGS+=-DTOYBOX_DEBUG_CPU=0
-	CFLAGS+=-std=c++0x -Os -fomit-frame-pointer -fno-threadsafe-statics
+	CFLAGS+=-Os -fomit-frame-pointer -fno-threadsafe-statics
 	CFLAGS+=-fno-exceptions -Wno-write-strings -Wno-pointer-arith -fno-rtti
 	CFLAGS+=-I $(LIBCMINIINC)
 	LDFLAGS+=-nostdlib -L$(LIBCMINILIB)/ -lcmini -lgcc

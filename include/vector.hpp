@@ -88,7 +88,7 @@ namespace toybox {
             return ++pos;
         }
         
-        inline void erase(const_iterator pos) {
+        inline iterator erase(const_iterator pos) {
             assert(_size > 0 && pos >= begin() && pos < end());
             destroy_at(pos);
             move(pos + 1, this->end(), pos);

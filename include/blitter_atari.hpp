@@ -11,10 +11,6 @@
 #include "cincludes.hpp"
 #include "types.hpp"
 
-#if !TOYBOX_TARGET_ATARI
-#   error "For Atari target only"
-#endif
-
 namespace toybox {
     
     using namespace toybox;
