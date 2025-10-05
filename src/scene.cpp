@@ -7,7 +7,6 @@
 
 #include "scene.hpp"
 #include "machine.hpp"
-#include "system_helpers.hpp"
 
 using namespace toybox;
 

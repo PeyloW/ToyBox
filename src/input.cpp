@@ -43,7 +43,8 @@ void mouse_c::set_limits(const rect_s &limits) {
 }
 
 static void update_state() {
-    for (int button = 2; --button != -1; ) {
+    int button;
+    do_dbra(button, 1) {
         if (g_mouse_buttons & (1 << button)) {
             g_mouse_button_states[button] = toybox::mouse_c::pressed;
         } else if (g_prev_mouse_butons & (1 << button)) {
@@ -51,7 +52,7 @@ static void update_state() {
         } else {
             g_mouse_button_states[button] = toybox::mouse_c::released;
         }
-    }
+    } while_dbra(button);
     g_prev_mouse_butons = g_mouse_buttons;
 }
 

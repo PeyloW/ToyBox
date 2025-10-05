@@ -70,7 +70,7 @@ g_vbl_interupt:
     move.b  %d1,0xffff8207.w
     move.b  %d0,0xffff8209.w
 .no_active_image:
-    add.l   #1,g_vbl_tick
+    addq.l  #1,g_vbl_tick
     move.w    #0x2400,%sr
     lea     g_vbl_functions, %a2
 .next_func_v:
@@ -104,7 +104,7 @@ g_clock_interupt:
     move.w  0xffff8240.w,-(%sp)
     move.w  #0x011,0xffff8240.w
 #endif
-    add.l   #1,g_clock_tick
+    addq.l   #1,g_clock_tick
     lea     g_clock_functions,%a2
 .next_func_c:
     move.l  timer_func_next(%a2),%d0

@@ -7,6 +7,7 @@
 
 #include "canvas.hpp"
 #include "blitter_atari.hpp"
+#include "algorithm.hpp"
 
 #if TOYBOX_TARGET_ATARI
 
@@ -79,7 +80,8 @@ void canvas_c::imp_fill(uint8_t color, rect_s rect) const {
     
 
     // Color 4 planes
-    for (int i = 4; --i != -1; ) {
+    int i;
+    do_dbra(i, 3) {
         if ((color & 1) == 0) {
             blitter->LOP = blitter_s::lop_e::notsrc_and_dst;
         } else {
@@ -92,7 +94,7 @@ void canvas_c::imp_fill(uint8_t color, rect_s rect) const {
 
         color >>= 1;
         dst_bitmap++;
-    }
+    } while_dbra(i);
 
 }
 
@@ -132,13 +134,17 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
     
     // Operation flags
     if (_stencil) {
+        // TODO: This should be using the stencil mask, but that is buggy on target.
         const bool hog = blitter->countX <= 8;
         const auto countY = blitter->countY;
         blitter->HOP = blitter_s::hop_e::src;
         blitter->LOP = blitter_s::lop_e::src;
         for (int y = 0; y < countY; y++) {
             blitter->countY = 1;
-            blitter->endMask[0] = blitter->endMask[1] = blitter->endMask[2] = ((uint16_t *)_stencil)[y & 0xf];
+            const auto m = ((uint16_t *)_stencil)[y & 0xf];
+            blitter->endMask[0] = m;
+            blitter->endMask[1] = m;
+            blitter->endMask[2] = m;
             blitter->start(hog);
         }
     } else {
@@ -207,7 +213,8 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
     blitter->skew = skew;
 
     // Move 4 planes
-    for (int i = 4; --i != -1; ) {
+    int i;
+    do_dbra(i, 3) {
         blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_bitmap;
         blitter->countY = rect.size.height;
@@ -216,7 +223,7 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
 
         src_bitmap++;
         dst_bitmap++;
-    }
+    } while_dbra(i);
 }
 
 void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
@@ -278,7 +285,8 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     blitter->skew = skew;
 
     // Mask 4 planes
-    for (int i = 4; --i != -1; ) {
+    int i;
+    do_dbra(i, 3) {
         blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_maskmap;
         blitter->countY = rect.size.height;
@@ -286,7 +294,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
         blitter->start();
 
         dst_bitmap++;
-    }
+    } while_dbra(i);
     
     // Update source
     blitter->srcIncX *= 4;
@@ -300,7 +308,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     blitter->LOP = blitter_s::lop_e::src_or_dst;
 
     // Draw 4 planes
-    for (int i = 4; --i != -1; ) {
+    do_dbra(i, 3) {
         blitter->pDst   = dst_bitmap;
         blitter->pSrc   = src_bitmap;
         blitter->countY = rect.size.height;
@@ -309,7 +317,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
 
         src_bitmap++;
         dst_bitmap++;
-    }
+    } while_dbra(i);
 }
 
 void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
@@ -370,7 +378,8 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
     blitter->skew = skew;
 
     // Color 4 planes
-    for (int i = 4; --i != -1; ) {
+    int i;
+    do_dbra(i, 3) {
         if ((color & 1) == 0) {
             blitter->LOP = blitter_s::lop_e::notsrc_and_dst;
         } else {
@@ -384,21 +393,23 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
 
         color >>= 1;
         dst_bitmap++;
-    }
+    } while_dbra(i);
 }
 
 void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
-    for (int y = rect.size.height; --y != -1; ) {
-        for (int x = rect.size.width; --x != -1 ; ) {
+    int y;
+    do_dbra(y, rect.size.height - 1) {
+        int x;
+        do_dbra(x, rect.size.width - 1) {
             int color = srcImage.get_pixel(point_s{(int16_t)(rect.origin.x + x), (int16_t)(rect.origin.y + y)});
             if (!image_c::is_masked(color)) {
                 put_pixel(color, point_s{(int16_t)(at.x + x), (int16_t)(at.y + y)});
             }
-        }
-    }
+        } while_dbra(x);
+    } while_dbra(y);
 }
 
 #endif

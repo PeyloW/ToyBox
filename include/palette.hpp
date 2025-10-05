@@ -10,6 +10,7 @@
 
 #include "cincludes.hpp"
 #include "types.hpp"
+#include "algorithm.hpp"
 
 namespace toybox {
     
@@ -65,11 +66,13 @@ namespace toybox {
         basic_palette_c(uint16_t *cs) { memcpy(colors, cs, sizeof(colors)); }
         basic_palette_c(uint8_t *c) {
             c += 3 * Count;
-            for (int i = Count; --i != -1; ) {
+            int i;
+            do_dbra(i, Count - 1) {
                 c -= 3;
                 colors[i] = color_c(c[0], c[1], c[2]);
-            }
+            } while_dbra(i);
         }
+        const uint16_t *ptr() const __pure { return &this->colors[0].color; }
     };
         
     /**

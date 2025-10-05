@@ -6,7 +6,6 @@
 //
 
 #include "audio.hpp"
-#include "system_helpers.hpp"
 
 #if TOYBOX_TARGET_ATARI
 

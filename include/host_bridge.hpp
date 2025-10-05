@@ -12,7 +12,7 @@
 #ifndef system_host_h
 #define system_host_h
 
-#include "system_helpers.hpp"
+#include "types.hpp"
 
 namespace toybox {
     
@@ -30,7 +30,7 @@ namespace toybox {
         static host_bridge_c& shared();
         static void set_shared(host_bridge_c *bridge);
 
-        // Host must call on a 50hz interval
+        // Host must call on a 50/60hz interval
         void vbl_interupt();
         
         // Host must call on a 200hz interval

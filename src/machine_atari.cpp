@@ -8,6 +8,7 @@
 #include "machine.hpp"
 #include "timer.hpp"
 #include "image.hpp"
+#include "algorithm.hpp"
 
 #if TOYBOX_TARGET_ATARI
 
@@ -103,7 +104,10 @@ void machine_c::free_system_memory() {
     p->next = nullptr;
     p->size = 32000;
     p++;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
     _free(p);
+#pragma GCC diagnostic pop
 }
 #else
 void machine_c::free_system_memory() {}

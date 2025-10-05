@@ -45,13 +45,21 @@ stream_c &stream_c::operator<<(const uint16_t i) {
 }
 stream_c &stream_c::operator<<(const int32_t i) {
     char buf[12];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#ifdef __M68000__
     sprintf(buf, "%ld", i);
+#else
+    sprintf(buf, "%d", i);
+#endif
+#pragma GCC diagnostic pop
     if (_width > 0) {
         int len = static_cast<int>(strlen(buf));
         int fillc = _width - len;
         if (fillc > 0) {
             char buf[fillc];
-            for (int i = fillc; --i != -1; ) buf[i] = _fill;
+            int i;
+            while_dbra_count(i, fillc) buf[i] = _fill;
             write(reinterpret_cast<uint8_t*>(buf), fillc);
         }
     }

@@ -11,19 +11,21 @@ using namespace toybox;
 
 font_c::font_c(const shared_ptr_c<image_c> &image, size_s character_size) : _image(image) {
     const int cols = image->size().width / character_size.width;
-    for (int i = 0; i < 96; i++) {
+    int i;
+    do_dbra(i, 95) {
         const int col = i % cols;
         const int row = i / cols;
         _rects[i] = rect_s(
             point_s(col * character_size.width, row * character_size.height),
             character_size
         );
-    }
+    } while_dbra(i);
 }
 
 font_c::font_c(const shared_ptr_c<image_c> &image, size_s max_size, uint8_t space_width, uint8_t lead_req_space, uint8_t trail_req_space) : _image(image)  {
     const int cols = image->size().width / max_size.width;
-    for (int i = 0; i < 96; i++) {
+    int i;
+    do_dbra(i, 95) {
         const int col = i % cols;
         const int row = i / cols;
         rect_s rect(point_s(col * max_size.width, row * max_size.height), max_size);
@@ -64,5 +66,5 @@ font_c::font_c(const shared_ptr_c<image_c> &image, size_s max_size, uint8_t spac
         trailing_done: ;
         }
         _rects[i] = rect;
-    }
+    } while_dbra(i);
 }

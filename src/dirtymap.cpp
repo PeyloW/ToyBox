@@ -93,8 +93,9 @@ void dirtymap_c::mark(const rect_s &rect) {
         if (start_byte == end_byte) {
             *data |= (first_byte_masks[start_bit] & last_byte_masks[end_bit]);
         } else {
-            *data++ |= (first_byte_masks[start_bit]);
-            for (int16_t j = end_byte - start_byte - 1; --j != -1; ) {
+            or_inc_to(first_byte_masks[start_bit], data);
+            int j;
+            while_dbra_count(j, end_byte - start_byte - 1) {
                 *data++ = 0xFF;
             }
             *data |= (last_byte_masks[end_bit]);
@@ -112,7 +113,8 @@ void dirtymap_c::mark(const rect_s &rect) {
             for (int16_t y = 0; y <= extra_rows; y++) {
                 auto line_data = data;
                 *line_data++ |= mask_first;
-                for (int16_t j = end_byte - start_byte - 1; --j != -1; ) {
+                int j;
+                while_dbra_count(j, end_byte - start_byte - 1) {
                     *line_data++ = 0xFF;
                 }
                 *line_data |= mask_last;
@@ -125,15 +127,15 @@ void dirtymap_c::mark(const rect_s &rect) {
 void dirtymap_c::merge(const dirtymap_c &dirtymap) {
     uint32_t *l_dest = (uint32_t*)_data;
     const uint32_t *l_source = (uint32_t*)dirtymap._data;
-    int16_t long_count = (_size.width * _size.height + 3) / 4;
-    do {
+    int16_t long_count;
+    while_dbra_count(long_count, (_size.width * _size.height + 3) / 4) {
         const uint32_t v = *l_source++;
         if (v) {
             *l_dest++ |= v;
         } else {
             l_dest++;
         }
-    } while (--long_count != -1);
+    };
 }
 
 void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
@@ -146,8 +148,10 @@ void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
     const_cast<canvas_c&>(canvas).with_clipping(false, [this, &canvas, &clean_image] {
         auto data = _data;
         point_s at = {0, 0};
-        for (int16_t row = _size.height; --row != -1; ) {
-            for (int16_t col = _size.width; --col != -1; ) {
+        int row;
+        while_dbra_count(row, _size.height) {
+            int col;
+            while_dbra_count(col, _size.width) {
                 const uint8_t byte = *data;
                 if (byte) {
                     const int16_t height = [&] {
@@ -160,7 +164,8 @@ void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
                     }();
                     auto bitrunlist = lookup_table[(int16_t)byte];
                     int16_t *bitrun = (int16_t*)bitrunlist->bit_runs;
-                    for (int16_t r = bitrunlist->num_runs; --r != -1; ) {
+                    int r;
+                    while_dbra_count(r, bitrunlist->num_runs) {
                         rect_s rect;
                         rect.origin = point_s(at.x + *bitrun++, at.y);
                         rect.size = size_s(*bitrun++, height);
@@ -197,8 +202,10 @@ void dirtymap_c::debug(const char *name) const {
     ((byte) & 0x40 ? '1' : '0'), \
     ((byte) & 0x80 ? '1' : '0')
     auto data = _data;
-    for (int16_t row = _size.height; --row != -1; ) {
-        for (int16_t col = _size.width; --col != -1; ) {
+    int row;
+    while_dbra_count(row, _size.height) {
+        int col;
+        while_dbra_count(col, _size.width) {
             const auto byte = *data++;
             printf(BYTE_TO_BINARY_PATTERN,  BYTE_TO_BINARY(byte));
         }

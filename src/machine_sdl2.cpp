@@ -9,6 +9,7 @@
 #include "host_bridge.hpp"
 #include "image.hpp"
 #include "audio.hpp"
+#include "timer.hpp"
 #include "SDL.h"
 #include <atomic>
 #include <mutex>
@@ -150,7 +151,8 @@ public:
             static_cast<void *>(&payload)
         );
 
-        _vbl_timer = SDL_AddTimer(20, vbl_cb, this);
+        timer_c &vbl = timer_c::shared(timer_c::vbl);
+        _vbl_timer = SDL_AddTimer(1000 / vbl.base_freq(), vbl_cb, this);
         _clock_timer = SDL_AddTimer(5, clock_cb, this);
 
         while (!s_should_quit.load()) {
@@ -208,7 +210,17 @@ private:
     Uint32 _clock_timer = 0;
 
     static Uint32 vbl_cb(Uint32 interval, void *param) {
+        static Uint64 last_tick = 0;
+        Uint64 tick = SDL_GetTicks64();
         static_cast<sdl2_host_bridge *>(param)->vbl_interupt();
+        
+        auto &vbl = timer_c::shared(timer_c::vbl);
+        const Uint64 ideal_interval = (1000ULL * vbl.tick()) / vbl.base_freq();
+        const Uint64 elapsed = tick - last_tick;
+        last_tick = tick;
+        interval = static_cast<Uint32>(ideal_interval - (tick - (1000ULL * vbl.tick() / vbl.base_freq())));
+        interval = MIN(MAX(10, interval), 20);
+        
         return interval;
     }
     static Uint32 clock_cb(Uint32 interval, void *param) {

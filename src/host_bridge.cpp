@@ -27,7 +27,7 @@ void host_bridge_c::set_shared(host_bridge_c *bridge) {
     s_bridge = bridge;
 }
 
-// Host must call on a 50hz interval
+// Host must call on a 50/60hz interval
 void host_bridge_c::vbl_interupt() {
     g_vbl_interupt();
 }

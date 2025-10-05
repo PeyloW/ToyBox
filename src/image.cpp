@@ -38,11 +38,13 @@ int image_c::get_pixel(point_s at) const {
         uint8_t ci = 0;
         uint8_t cb = 1;
         uint16_t *bitmap = _bitmap + (word_offset << 2);
-        for (int bp = 4; --bp != -1; cb <<= 1) {
+        int bp;
+        do_dbra(bp, 3) {
             if (*bitmap++ & bit) {
                 ci |= cb;
             }
-        }
+            cb <<= 1;
+        } while_dbra(bp);
         return ci;
     }
     return _maskmap != nullptr ? MASKED_CIDX : 0;
@@ -86,7 +88,7 @@ namespace toybox {
 static void image_read(iffstream_c &file, uint16_t line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
     uint16_t word_buffer[line_words];
     const int bp_count = (maskmap ? 5 : 4);
-    while (--height != -1) {
+    while_dbra_count(height, height) {
         for (int bp = 0; bp < bp_count; bp++) {
             uint16_t *buffer;
             if (bp < 4) {
@@ -98,7 +100,8 @@ static void image_read(iffstream_c &file, uint16_t line_words, int height, uint1
                 return; // Failed to read line
             }
             if (bp < 4) {
-                for (int i = line_words; --i != -1; ) {
+                int i;
+                while_dbra_count(i, line_words) {
                     bitmap[bp + i * 4] = buffer[i];
                 }
             }
@@ -113,7 +116,7 @@ static void image_read(iffstream_c &file, uint16_t line_words, int height, uint1
 static void image_read_packbits(iffstream_c &file, uint16_t line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
     uint16_t word_buffer[line_words * bp_count];
-    while (--height != -1) {
+    while_dbra_count(height, height) {
         uint8_t *buffer = (uint8_t*)word_buffer;
         uint8_t *bufferEnd = buffer + (line_words * bp_count * 2);
         while (buffer < bufferEnd) {
@@ -133,18 +136,20 @@ static void image_read_packbits(iffstream_c &file, uint16_t line_words, int heig
                     return; // Failed read
                 }
                 while (cmd++ <= 0) {
-                    *buffer++ = data;
+                    move_inc_to(data, buffer);
                 }
             }
         }
-        for (int bp = 0; bp < bp_count; bp++) {
+        int bp;
+        while_dbra_count(bp, bp_count) {
+            int i;
             if (bp < 4) {
-                for (int i = 0; i < line_words; i++) {
+                while_dbra_count(i, line_words) {
                     bitmap[bp + i * 4] = word_buffer[bp * line_words + i];
                     hton(bitmap[bp + i * 4]);
                 }
             } else {
-                for (int i = 0; i < line_words; i++) {
+                while_dbra_count(i, line_words) {
                     maskmap[i] = word_buffer[bp * line_words + i];
                     hton(maskmap[i]);
                 }
@@ -244,7 +249,7 @@ image_c::image_c(const char *path, int masked_cidx) :
 static void image_write(iffstream_c &file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
     uint16_t word_buffer[line_words * bp_count];
-    while (--height != -1) {
+    while_dbra_count(height, height) {
         for (int bp = 0; bp < bp_count; bp++) {
             if (bp < 4) {
                 for (int i = 0; i < line_words; i++) {
@@ -347,7 +352,7 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
 static void image_write_packbits(iffstream_c &file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
     uint16_t word_buffer[line_words * bp_count];
-    while (--height != -1) {
+    while_dbra_count(height, height) {
         for (int bp = 0; bp < bp_count; bp++) {
             if (bp < 4) {
                 for (int i = 0; i < line_words; i++) {

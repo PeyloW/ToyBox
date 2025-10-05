@@ -13,7 +13,7 @@
 namespace toybox {
     
     /*
-     This file containes a minimal set of cuntionality from C++ stdlib.
+     This file containes a minimal set of funtionality from C++ stdlib.
      */
     
     template<bool B, typename T = void> struct enable_if {};
@@ -55,6 +55,9 @@ namespace toybox {
     template<class T> struct remove_reference<T&> { typedef T type; };
     template<class T> struct remove_reference<T&&> { typedef T type; };
     
+    template<class T> struct remove_volatile { typedef T type; };
+    template<class T> struct remove_volatile<volatile T> { typedef T type; };
+    
     namespace detail {
         template<typename T, typename U = T&&> U declval_imp(int);
         template<typename T> T declval_imp(long);
@@ -88,17 +91,23 @@ namespace toybox {
     struct is_class : bool_constant<__is_class(T)> {};
     
     template<typename T, typename... Args> struct is_constructible : public bool_constant<sizeof(detail::is_constructible_imp::test<T>(0)) == sizeof(true_type)> {};
-    template<typename T> struct is_trivially_constructible : public bool_constant<__has_trivial_constructor(T)> {};
+    template<typename T> struct is_trivially_constructible : public bool_constant<__is_trivially_constructible(T)> {};
     template<typename T> struct is_default_constructible : public bool_constant<is_constructible<T>::value> {};
     template<typename T> struct is_copy_constructible : public is_constructible<T, const T&> {};
     template<typename T> struct is_move_constructible : public is_constructible<T, T&&> {};
     
     template<typename T> struct is_destructible : public bool_constant<sizeof(detail::is_destructible_imp::test<T>(0)) == sizeof(true_type)> {};
+#if defined(__clang__)
+    template<typename T> struct is_trivially_destructible : bool_constant<is_destructible<T>::value && __is_trivially_destructible(T)> {};
+#else
     template<typename T> struct is_trivially_destructible : bool_constant<is_destructible<T>::value && __has_trivial_destructor(T)> {};
+#endif
+    
+    template<typename T> struct is_trivially_copyable : public bool_constant<__is_trivially_copyable(T)> {};
     
     template<typename T>
     struct __attribute__((aligned(alignof(T)))) aligned_membuf {
-        uint8_t data[sizeof(T)];
+        uint8_t data[sizeof(T)] = {0};
         void *addr() __pure { return &data; }
         const void *addr() const __pure { return &data; }
         T *ptr() __pure { return reinterpret_cast<T *>(&data); }

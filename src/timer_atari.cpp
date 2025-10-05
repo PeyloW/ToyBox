@@ -45,6 +45,7 @@ timer_c::timer_c(timer_e timer) : _timer(timer) {
 }
 
 timer_c::~timer_c() {
+#ifndef TOYBOX_HOST
     with_paused_timers([this] {
 #   if TOYBOX_TARGET_ATARI
         switch (_timer) {
@@ -63,6 +64,7 @@ timer_c::~timer_c() {
 #  error "Unsupported target"
 #endif
     });
+#endif
 }
 
 uint8_t timer_c::base_freq() const {

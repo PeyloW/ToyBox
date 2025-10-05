@@ -44,13 +44,15 @@ void canvas_c::put_pixel(int ci, point_s at) const {
     }
     uint16_t *bitmap = _image._bitmap + (word_offset << 2);
     uint8_t cb = 1;
-    for (int bp = 4; --bp != -1; cb <<= 1) {
+    int bp;
+    do_dbra(bp, 3) {
         if (ci & cb) {
             *bitmap++ |= bit;
         } else {
             *bitmap++ &= mask;
         }
-    }
+        cb <<= 1;
+    } while_dbra(bp);
 }
 
 void canvas_c::remap_colors(const remap_table_c &table, rect_s rect) const {
@@ -196,9 +198,11 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, text_ali
     int len = (int)strlen(text);
     size_s size = font.char_rect(' ').size;
     size.width = 0;
-    for (int i = len; --i != -1; ) {
+    if (len == 0) return size;
+    int i;
+    do_dbra(i, len - 1) {
         size.width += font.char_rect(text[i]).size.width;
-    }
+    } while_dbra(i);
     switch (alignment) {
         case align_left:
             at.x += size.width;
@@ -214,11 +218,11 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, text_ali
         _dirtymap->mark(dirty_rect);
     }
     const_cast<canvas_c*>(this)->with_dirtymap(nullptr, [&] {
-        for (int i = len; --i != -1; ) {
+        do_dbra(i, len - 1) {
             const rect_s &rect = font.char_rect(text[i]);
             at.x -= rect.size.width;
             draw(*font.image(), rect, at, color);
-        }
+        } while_dbra(i);
     });
     return size;
 }

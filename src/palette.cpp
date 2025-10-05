@@ -7,7 +7,6 @@
 
 #include "palette.hpp"
 #include "audio.hpp"
-#include "system_helpers.hpp"
 
 using namespace toybox;
 

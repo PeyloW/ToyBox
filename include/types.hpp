@@ -15,7 +15,7 @@ namespace toybox {
     
     using namespace toybox;
     
-    struct point_s {
+    struct __packed_struct point_s {
         constexpr point_s() : x(0), y(0) {}
         constexpr point_s(int16_t x, int16_t y) : x(x), y(y) {}
         int16_t x, y;
@@ -23,8 +23,9 @@ namespace toybox {
             return x == p.x && y == p.y;
         }
     };
+    static_assert(sizeof(point_s) == 4);
     
-    struct size_s {
+    struct __packed_struct size_s {
         constexpr size_s() : width(0), height(0) {}
         constexpr size_s(int16_t w, int16_t h) : width(w), height(h) {}
         int16_t width, height;
@@ -38,8 +39,9 @@ namespace toybox {
             return width <= 0 || height <= 0;
         }
     };
-    
-    struct rect_s {        
+    static_assert(sizeof(size_s) == 4);
+
+    struct __packed_struct rect_s {
         constexpr rect_s() : origin(), size() {}
         constexpr rect_s(const point_s &o, const size_s &s) : origin(o), size(s) {}
         constexpr rect_s(int16_t x, int16_t y, int16_t w, int16_t h) : origin(x, y), size(w, h) {}
@@ -87,7 +89,8 @@ namespace toybox {
             return true;
         }
     };
-    
+    static_assert(sizeof(rect_s) == 8);
+
 }
 
 #endif /* types_h */

@@ -7,7 +7,6 @@
 
 #include "timer.hpp"
 #include "list.hpp"
-#include "system_helpers.hpp"
 
 using namespace toybox;
 
@@ -53,20 +52,16 @@ extern "C" {
     }
     
     void g_vbl_interupt() {
-        g_vbl_tick++;
-        g_do_timer(g_vbl_functions, 50);
+        g_vbl_tick += 1;
+        g_do_timer(g_vbl_functions, timer_c::shared(timer_c::vbl).base_freq());
     }
     
     void g_clock_interupt() {
-        g_clock_tick++;
+        g_clock_tick += 1;
         g_do_timer(g_clock_functions, 200);
     }
 #endif
 }
-
-template<>
-timer_func_list_c::allocator::type timer_func_list_c::allocator::first_block = nullptr;
-
 
 timer_c &timer_c::shared(timer_e timer) {
     switch (timer) {
@@ -109,7 +104,7 @@ void timer_c::remove_func(const func_a_t func, const void *context) {
         auto &functions = _timer == vbl ? g_vbl_functions : g_clock_functions;
         auto prev = functions.before_begin();
         auto curr = functions.begin();
-        auto pred = [&func, &context](const timer_func_s &f) __forceinline {
+        auto pred = [&func, &context](const timer_func_s &f) __forceinline_lambda {
             return f.func == func && f.context == context;
         };
         while (curr != functions.end()) {

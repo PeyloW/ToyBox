@@ -54,7 +54,7 @@ private:
     inline static int _alloc_count = 0;
     inline static int _max_alloc_count = 0;
 #endif
-    static block_t *first_block;
+    inline static block_t *first_block = nullptr;
     static void init_blocks() {
         first_block = reinterpret_cast<block_t *>(_malloc(sizeof(block_t) * Count));
         for (int i = 0; i < Count - 1; i++) {

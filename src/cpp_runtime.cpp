@@ -17,9 +17,6 @@ extern "C" {
         return log;
     }
 }
-
-template<>
-toybox::detail::shared_count_t::allocator::type toybox::detail::shared_count_t::allocator::first_block = nullptr;
  
 void *operator new (size_t n) {
     return _malloc(n);
@@ -31,7 +28,13 @@ void* operator new[] (size_t n) {
 void operator delete (void* p) noexcept {
     _free(p);
 }
+void operator delete (void* p, size_t) noexcept { // ≥C++14
+    _free(p);
+}
 void operator delete[] (void* p) noexcept {
+    _free(p);
+}
+void operator delete[] (void* p, size_t) noexcept { // ≥C++14
     _free(p);
 }
 

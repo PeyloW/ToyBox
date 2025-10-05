@@ -8,7 +8,7 @@ TOYBOX=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
 FLAGS=-DTOYBOX_TARGET_ATARI=2
-CFLAGS=-std=c++11 -c -L$(TOYBOX)/build -ltoybox -I $(TOYBOXINC)
+CFLAGS=-std=c++20 -c -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
 ifeq ($(HOST),sdl2)
@@ -18,6 +18,7 @@ ifeq ($(HOST),sdl2)
 	AR=ar
 	FLAGS+=-O0 -g -DTOYBOX_HOST=sdl2
 	CFLAGS+=$(shell $(HB_PATH)/sdl2-config --cflags)
+	CFLAGS+=-Wno-vla-cxx-extension
 	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
 else
 	INFO=Building for atari target
@@ -26,6 +27,7 @@ else
 	FLAGS+=-m68000 -mshort -mfastcall
 	FLAGS+=-g0 -DNDEBUG
 	FLAGS+=-s
+#	FLAGS+=-S
 	FLAGS+=-DTOYBOX_DEBUG_CPU=0
 	CFLAGS+=-Os -fomit-frame-pointer -fno-threadsafe-statics
 	CFLAGS+=-fno-exceptions -Wno-write-strings -Wno-pointer-arith -fno-rtti

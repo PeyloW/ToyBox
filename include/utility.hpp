@@ -13,7 +13,7 @@
 namespace toybox {
     
     /*
-     This file containes a minimal set of cuntionality from C++ stdlib.
+     This file containes a minimal set of funtionality from C++ stdlib.
      */
 
 #ifdef __M68000__
