@@ -100,7 +100,7 @@ extern void* operator new (size_t count, void *p) noexcept;
 #endif
 
 namespace toybox {
-    typedef decltype(nullptr) nullptr_t;
+    using nullptr_t = decltype(nullptr);
 }
 
 #endif /* cincludes_h */

@@ -67,8 +67,8 @@ namespace toybox {
         virtual void will_begin(const scene_c *from, const scene_c *to) = 0;
         virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) = 0;
         
-        static transition_c *create(canvas_c::stencil_type_e dither);
-        static transition_c *create(canvas_c::stencil_type_e dither, uint8_t through);
+        static transition_c *create(canvas_c::stencil_e dither);
+        static transition_c *create(canvas_c::stencil_e dither, uint8_t through);
         static transition_c *create(color_c through);
     };
         
@@ -101,7 +101,7 @@ namespace toybox {
         };
         void push(scene_c *scene, transition_c *transition = transition_c::create(color_c()));
         void pop(transition_c *transition  = transition_c::create(color_c()), int count = 1);
-        void replace(scene_c *scene, transition_c *transition = transition_c::create(canvas_c::random));
+        void replace(scene_c *scene, transition_c *transition = transition_c::create(canvas_c::stencil_e::random));
         
         timer_c &vbl;
         timer_c &clock;

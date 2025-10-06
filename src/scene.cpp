@@ -25,8 +25,8 @@ private:
 };
 
 scene_manager_c::scene_manager_c(size_s screen_size) :
-    vbl(timer_c::shared(timer_c::vbl)),
-    clock(timer_c::shared(timer_c::clock))
+    vbl(timer_c::shared(timer_c::timer_e::vbl)),
+    clock(timer_c::shared(timer_c::timer_e::clock))
 {
     machine_c::shared();
     _overlay_scene = nullptr;

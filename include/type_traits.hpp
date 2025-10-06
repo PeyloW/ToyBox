@@ -17,7 +17,7 @@ namespace toybox {
      */
     
     template<bool B, typename T = void> struct enable_if {};
-    template<typename T> struct enable_if<true, T> { typedef T type; };
+    template<typename T> struct enable_if<true, T> { using type = T; };
     
     template<class T, T v>
     struct integral_constant {
@@ -25,8 +25,8 @@ namespace toybox {
     };
     template<bool B>
     struct bool_constant : public integral_constant<bool, B> {};
-    typedef bool_constant<false> false_type;
-    typedef bool_constant<true> true_type;
+    using false_type = bool_constant<false>;
+    using true_type = bool_constant<true>;
     
     template<typename T> struct is_integral : public false_type {};
     template<> struct is_integral<bool> : public true_type {};
@@ -48,15 +48,15 @@ namespace toybox {
     template<class T> struct is_reference<T&> : true_type {};
     template<class T> struct is_reference<T&&> : true_type {};
     
-    template<class T> struct remove_const { typedef T type; };
-    template<class T> struct remove_const<const T> { typedef T type; };
+    template<class T> struct remove_const { using type = T; };
+    template<class T> struct remove_const<const T> { using type = T; };
     
-    template<class T> struct remove_reference { typedef T type; };
-    template<class T> struct remove_reference<T&> { typedef T type; };
-    template<class T> struct remove_reference<T&&> { typedef T type; };
+    template<class T> struct remove_reference { using type = T; };
+    template<class T> struct remove_reference<T&> { using type = T; };
+    template<class T> struct remove_reference<T&&> { using type = T; };
     
-    template<class T> struct remove_volatile { typedef T type; };
-    template<class T> struct remove_volatile<volatile T> { typedef T type; };
+    template<class T> struct remove_volatile { using type = T; };
+    template<class T> struct remove_volatile<volatile T> { using type = T; };
     
     namespace detail {
         template<typename T, typename U = T&&> U declval_imp(int);

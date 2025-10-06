@@ -23,18 +23,18 @@ extern "C" {
 }
 
 timer_c::timer_c(timer_e timer) : _timer(timer) {
-    assert(timer == vbl || timer == clock);
+    assert(timer == timer_e::vbl || timer == timer_e::clock);
     machine_c::shared();
     with_paused_timers([timer] {
         switch (timer) {
-            case vbl:
+            case timer_e::vbl:
 #ifdef __M68000__
                 g_system_vbl_interupt = *((func_t *)0x0070);
                 *((func_t *)0x0070) = &g_vbl_interupt;
                 g_system_vbl_freq = *(uint8_t*)0xffff820a == 0 ? 60 : 50;
 #endif
                 break;
-            case clock:
+            case timer_e::clock:
 #ifdef __M68000__
                 g_system_clock_interupt = *((func_t *)0x0114);
                 *((func_t *)0x0114) = &g_clock_interupt;
@@ -49,12 +49,12 @@ timer_c::~timer_c() {
     with_paused_timers([this] {
 #   if TOYBOX_TARGET_ATARI
         switch (_timer) {
-            case vbl:
+            case timer_e::vbl:
 #ifdef __M68000__
                 *((func_t *)0x0070) = g_system_vbl_interupt;
 #endif
                 break;
-            case clock:
+            case timer_e::clock:
 #ifdef __M68000__
                 *((func_t *)0x0114) = g_system_clock_interupt;
 #endif
@@ -69,14 +69,14 @@ timer_c::~timer_c() {
 
 uint8_t timer_c::base_freq() const {
     switch (_timer) {
-        case vbl:
+        case timer_e::vbl:
 #ifdef __M68000__
             return g_system_vbl_freq;
 #else
             return 50;
 #endif
             //
-        case clock:
+        case timer_e::clock:
             return 200;
         default:
             assert(0);

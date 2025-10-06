@@ -20,12 +20,12 @@ namespace toybox {
      */
     class stream_c : public nocopy_c {
     public:
-        typedef enum __packed {
+        enum class seekdir_e : uint8_t {
             beg = SEEK_SET,
             cur = SEEK_CUR,
             end = SEEK_END
-        } seekdir_e;
-        typedef stream_c&(*manipulator_f)(stream_c&);
+        };
+        using manipulator_f = stream_c&(*)(stream_c&);
         
         stream_c();
         virtual ~stream_c() { flush(); }
@@ -87,14 +87,15 @@ namespace toybox {
 
     class fstream_c : public stream_c {
     public:
-        typedef enum __packed {
+        enum class openmode_e : uint8_t {
+            none = 0,
             input = 1 << 0,
             output = 1 << 1,
             append = 1 << 2
-        } openmode_e;
+        };
 
         fstream_c(FILE *file);
-        fstream_c(const char *path, openmode_e mode = input);
+        fstream_c(const char *path, openmode_e mode = openmode_e::input);
         virtual ~fstream_c();
         
         openmode_e mode() const __pure { return _mode; }
@@ -120,6 +121,10 @@ namespace toybox {
     
     __forceinline __pure static fstream_c::openmode_e operator|(fstream_c::openmode_e a, fstream_c::openmode_e b) {
         return static_cast<fstream_c::openmode_e>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+    }
+    
+    static fstream_c::openmode_e operator&(const fstream_c::openmode_e a, const fstream_c::openmode_e b) {
+        return static_cast<fstream_c::openmode_e>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
     }
     
     class strstream_c : public stream_c {

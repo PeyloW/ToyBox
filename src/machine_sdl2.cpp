@@ -82,7 +82,7 @@ public:
         auto active_palette = machine_c::shared().active_palette();
 
         // Clear buffer to black
-        typedef struct { uint8_t rgb[3]; uint8_t _; } color_s;
+        struct  __packed color_s { uint8_t rgb[3]; uint8_t _; };
         color_s buffer[320 * 200];
         memset(buffer, 0, sizeof(color_s) * 320 * 200);
         
@@ -151,7 +151,7 @@ public:
             static_cast<void *>(&payload)
         );
 
-        timer_c &vbl = timer_c::shared(timer_c::vbl);
+        timer_c &vbl = timer_c::shared(timer_c::timer_e::vbl);
         _vbl_timer = SDL_AddTimer(1000 / vbl.base_freq(), vbl_cb, this);
         _clock_timer = SDL_AddTimer(5, clock_cb, this);
 
@@ -214,7 +214,7 @@ private:
         Uint64 tick = SDL_GetTicks64();
         static_cast<sdl2_host_bridge *>(param)->vbl_interupt();
         
-        auto &vbl = timer_c::shared(timer_c::vbl);
+        auto &vbl = timer_c::shared(timer_c::timer_e::vbl);
         const Uint64 ideal_interval = (1000ULL * vbl.tick()) / vbl.base_freq();
         const Uint64 elapsed = tick - last_tick;
         last_tick = tick;

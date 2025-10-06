@@ -31,7 +31,7 @@ ptrdiff_t iffstream_c::seek(ptrdiff_t pos, seekdir_e way) { return _stream->seek
 
 bool iffstream_c::first(const char *const id, iff_chunk_s &chunk) {
     bool result = false;
-    if (seek(0, beg) == 0) {
+    if (seek(0, seekdir_e::beg) == 0) {
         if (read(chunk)) {
             result = iff_id_match(chunk.id, id);
         }
@@ -44,7 +44,7 @@ bool iffstream_c::first(const char *const id, iff_chunk_s &chunk) {
 
 bool iffstream_c::first(const char *const id, const char *const subtype, iff_group_s &group) {
     bool result = false;
-    if (seek(0, beg) == 0) {
+    if (seek(0, seekdir_e::beg) == 0) {
         if (read(group)) {
             result = iff_id_match(group.id, id) && iff_id_match(group.subtype, subtype);
         }
@@ -67,7 +67,7 @@ bool iffstream_c::next(const iff_group_s &in_group, const char *const id, iff_ch
             break;
         }
     }
-    seek(pos, beg);
+    seek(pos, seekdir_e::beg);
     return false;
 }
 
@@ -84,13 +84,13 @@ bool iffstream_c::expand(const iff_chunk_s &chunk, iff_group_s &group) {
 
 
 bool iffstream_c::reset(const iff_chunk_s &chunk) {
-    return seek(chunk.offset + sizeof(uint32_t) * 2, beg) >= 0;
+    return seek(chunk.offset + sizeof(uint32_t) * 2, seekdir_e::beg) >= 0;
 }
 
 bool iffstream_c::skip(const iff_chunk_s &chunk) {
     bool result = false;
     long end = chunk.offset + sizeof(uint32_t) * 2 + chunk.size;
-    if ((result = seek(end, beg) >= 0)) {
+    if ((result = seek(end, seekdir_e::beg) >= 0)) {
         result = align(false);
     }
     return result;
@@ -129,9 +129,9 @@ bool iffstream_c::end(iff_chunk_s &chunk) {
     if (pos >= 0) {
         uint32_t size = static_cast<uint32_t>(pos - (chunk.offset + 8));
         chunk.size = size;
-        if (seek(chunk.offset + 4, beg) >= 0) {
+        if (seek(chunk.offset + 4, seekdir_e::beg) >= 0) {
             if (write(&size)) {
-                result = seek(pos, beg) >= 0;
+                result = seek(pos, seekdir_e::beg) >= 0;
             }
         }
     }

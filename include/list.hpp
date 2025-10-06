@@ -21,11 +21,11 @@ namespace toybox {
     template<class Type, size_t Count = 16>
     class list_c {
     public:
-        typedef Type value_type;
-        typedef value_type* pointer;
-        typedef const value_type* const_pointer;
-        typedef value_type& reference;
-        typedef const value_type& const_reference;
+        using value_type = Type;
+        using pointer = value_type* ;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
         struct _node_s {
             _node_s *next;
             value_type value;
@@ -40,12 +40,12 @@ namespace toybox {
                 allocator::deallocate(ptr);
             }
         };
-        typedef static_allocator_c<_node_s, Count> allocator;
+        using allocator= static_allocator_c<_node_s, Count>;
         template<class TypeI>
         struct _iterator_s {
-            typedef TypeI value_type;
-            typedef value_type* pointer;
-            typedef value_type& reference;
+            using value_type = TypeI;
+            using pointer = value_type*;
+            using reference = value_type&;
             
             __forceinline reference operator*() const { return _node->value; }
             __forceinline pointer operator->() const { return &_node->value; }
@@ -58,8 +58,8 @@ namespace toybox {
             __forceinline _iterator_s(const _iterator_s<Type> &other) : _node(other._node) {}
             _node_s *_node;
         };
-        typedef _iterator_s<Type> iterator;
-        typedef _iterator_s<const Type> const_iterator;
+        using iterator = _iterator_s<Type>;
+        using const_iterator = _iterator_s<const Type>;
         
         list_c() { _head = nullptr; }
         ~list_c() { clear(); }

@@ -78,7 +78,7 @@ namespace toybox {
             void operator delete(void *ptr) noexcept {
                 allocator::deallocate(ptr);
             }
-            typedef static_allocator_c<shared_count_t, 64> allocator;
+            using allocator = static_allocator_c<shared_count_t, 64>;
         };
     }
     

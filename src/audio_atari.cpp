@@ -15,9 +15,9 @@ using namespace toybox;
 ymmusic_c::ymmusic_c(const char *path) {
     fstream_c file(path);
     hard_assert(file.good());
-    file.seek(0, stream_c::end);
+    file.seek(0, stream_c::seekdir_e::end);
     size_t size = file.tell();
-    file.seek(0, toybox::fstream_c::beg);
+    file.seek(0, stream_c::seekdir_e::beg);
     
     _sndh.reset((uint8_t *)_malloc(size));
     _length = size;

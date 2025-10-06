@@ -13,7 +13,7 @@
 
 namespace toybox {
 
-    typedef uint32_t iff_id_t;
+    using iff_id_t = uint32_t;
 
 #ifdef __M68000__
     __forceinline static constexpr iff_id_t iff_id_make(const char *const str) {
@@ -79,7 +79,7 @@ static const iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
     class iffstream_c : public stream_c {
     public:
         iffstream_c(stream_c *stream);
-        iffstream_c(const char *path, fstream_c::openmode_e mode = fstream_c::input);
+        iffstream_c(const char *path, fstream_c::openmode_e mode = fstream_c::openmode_e::input);
         ~iffstream_c() = default;
                 
         virtual void set_assert_on_error(bool assert);

@@ -16,15 +16,15 @@ using namespace toybox;
 #include "host_bridge.hpp"
 #endif
 
-typedef struct __packed_struct {
+struct __packed_struct timer_func_s {
 uint8_t freq;
 uint8_t cnt;
 timer_c::func_a_t func;
 void *context;
-} timer_func_s;
+};
 
 #define TIMER_FUNC_MAX_CNT 16
-typedef list_c<timer_func_s, TIMER_FUNC_MAX_CNT> timer_func_list_c;
+using timer_func_list_c = list_c<timer_func_s, TIMER_FUNC_MAX_CNT>;
 #ifdef __M68000__
 static_assert(sizeof(timer_func_list_c::_node_s) == 14, "timer_func_list_c::_node_s) size mismatch");
 #endif
@@ -53,7 +53,7 @@ extern "C" {
     
     void g_vbl_interupt() {
         g_vbl_tick += 1;
-        g_do_timer(g_vbl_functions, timer_c::shared(timer_c::vbl).base_freq());
+        g_do_timer(g_vbl_functions, timer_c::shared(timer_c::timer_e::vbl).base_freq());
     }
     
     void g_clock_interupt() {
@@ -65,12 +65,12 @@ extern "C" {
 
 timer_c &timer_c::shared(timer_e timer) {
     switch (timer) {
-        case vbl: {
-            static timer_c s_timer_vbl(vbl);
+        case timer_e::vbl: {
+            static timer_c s_timer_vbl(timer_e::vbl);
             return s_timer_vbl;
         }
-        case clock: {
-            static timer_c s_timer_clock(clock);
+        case timer_e::clock: {
+            static timer_c s_timer_clock(timer_e::clock);
             return s_timer_clock;
         }
         default:
@@ -94,14 +94,14 @@ void timer_c::add_func(const func_a_t func, void *context, uint8_t freq) {
         freq = base_freq();
     }
     with_paused_timers([this, func, context, freq] {
-        auto &functions = _timer == vbl ? g_vbl_functions : g_clock_functions;
+        auto &functions = _timer == timer_e::vbl ? g_vbl_functions : g_clock_functions;
         functions.push_front((timer_func_s){freq, base_freq(), func, context});
     });
 }
 
 void timer_c::remove_func(const func_a_t func, const void *context) {
     with_paused_timers([this, func, context] {
-        auto &functions = _timer == vbl ? g_vbl_functions : g_clock_functions;
+        auto &functions = _timer == timer_e::vbl ? g_vbl_functions : g_clock_functions;
         auto prev = functions.before_begin();
         auto curr = functions.begin();
         auto pred = [&func, &context](const timer_func_s &f) __forceinline_lambda {
@@ -120,11 +120,11 @@ void timer_c::remove_func(const func_a_t func, const void *context) {
 }
 
 uint32_t timer_c::tick() {
-    return (_timer == vbl) ? g_vbl_tick : g_clock_tick;
+    return (_timer == timer_e::vbl) ? g_vbl_tick : g_clock_tick;
 }
 
 void timer_c::reset_tick() {
-    if (_timer == vbl) {
+    if (_timer == timer_e::vbl) {
         g_vbl_tick = 0;
     } else {
         g_clock_tick = 0;

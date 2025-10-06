@@ -194,7 +194,7 @@ void canvas_c::draw_3_patch(const image_c &src, rect_s rect, int16_t cap, rect_s
     });
 }
 
-size_s canvas_c::draw(const font_c &font, const char *text, point_s at, text_alignment_e alignment, const int color) const {
+size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignment_e alignment, const int color) const {
     int len = (int)strlen(text);
     size_s size = font.char_rect(' ').size;
     size.width = 0;
@@ -204,10 +204,10 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, text_ali
         size.width += font.char_rect(text[i]).size.width;
     } while_dbra(i);
     switch (alignment) {
-        case align_left:
+        case alignment_e::left:
             at.x += size.width;
             break;
-        case align_center:
+        case alignment_e::center:
             at.x += size.width / 2;
             break;
         default:
@@ -230,7 +230,7 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, text_ali
 #define MAX_LINES 8
 static char draw_text_buffer[80 * MAX_LINES];
 
-size_s canvas_c::draw(const font_c &font, const char *text, rect_s in, uint16_t line_spacing, text_alignment_e alignment, const int color) const {
+size_s canvas_c::draw(const font_c &font, const char *text, rect_s in, uint16_t line_spacing, alignment_e alignment, const int color) const {
     strcpy(draw_text_buffer, text);
     vector_c<const char *, 12> lines;
 
@@ -268,9 +268,9 @@ size_s canvas_c::draw(const font_c &font, const char *text, rect_s in, uint16_t 
     }
     point_s at;
     switch (alignment) {
-        case align_left: at = in.origin; break;
-        case align_center: at = point_s( in.origin.x + in.size.width / 2, in.origin.y); break;
-        case align_right: at = point_s( in.origin.x + in.size.width / 2, in.origin.y); break;
+        case alignment_e::left: at = in.origin; break;
+        case alignment_e::center: at = point_s( in.origin.x + in.size.width / 2, in.origin.y); break;
+        case alignment_e::right: at = point_s( in.origin.x + in.size.width / 2, in.origin.y); break;
     }
     size_s max_size = {0,0};
     bool first = true;

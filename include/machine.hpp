@@ -23,7 +23,7 @@ namespace toybox {
      */
     class machine_c : public nocopy_c {
     public:
-        typedef enum _packed {
+        enum class type_e : uint8_t {
             unknown,
 #if TOYBOX_TARGET_ATARI
             st, ste, falcon
@@ -32,7 +32,7 @@ namespace toybox {
 #else
 #   error "Unsupported target"
 #endif
-        } type_e;
+        };
         
         static machine_c &shared();
         

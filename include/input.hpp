@@ -20,14 +20,14 @@ namespace toybox {
      */
     class mouse_c : public nocopy_c {
     public:
-        typedef enum __packed {
+        enum class button_e : uint8_t {
             right, left
-        } button_e;
-        typedef enum __packed {
+        };
+        enum class state_e : uint8_t {
             released,
             pressed,
             clicked
-        } state_e;
+        };
         
         static mouse_c &shared();
         

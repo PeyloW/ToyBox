@@ -10,9 +10,9 @@
 
 using namespace toybox;
 
-canvas_c::stencil_type_e  canvas_c::effective_type(stencil_type_e type) {
-    if (type == random) {
-        type = (stencil_type_e)((fast_rand() % 4) + 1);
+canvas_c::stencil_e  canvas_c::effective_type(stencil_e type) {
+    if (type == stencil_e::random) {
+        type = (stencil_e)((fast_rand() % 4) + 1);
     }
     return type;
 }
@@ -109,20 +109,20 @@ void make_dither_mask(canvas_c::stencil_t stencil, int (*func)(int), int shade) 
     } while_dbra(y);
 }
 
-void canvas_c::make_stencil(stencil_t stencil, stencil_type_e type, int shade) {
+void canvas_c::make_stencil(stencil_t stencil, stencil_e type, int shade) {
     assert(shade >= STENCIL_FULLY_TRANSPARENT);
     assert(shade <= STENCIL_FULLY_OPAQUE);
     switch (type) {
-        case orderred:
+        case stencil_e::orderred:
             make_dither_mask(stencil, bayer_8x8, shade);
             break;
-        case noise:
+        case stencil_e::noise:
             make_dither_mask(stencil, &brand, shade);
             break;
-        case diagonal:
+        case stencil_e::diagonal:
             make_dither_mask(stencil, diag_16x16, shade);
             break;
-        case circle:
+        case stencil_e::circle:
             make_dither_mask(stencil, circle_16x16, shade);
             break;
         default:
@@ -131,10 +131,10 @@ void canvas_c::make_stencil(stencil_t stencil, stencil_type_e type, int shade) {
     }
 }
 
-const canvas_c::stencil_t *const canvas_c::stencil(stencil_type_e type, int shade) {
+const canvas_c::stencil_t *const canvas_c::stencil(stencil_e type, int shade) {
     assert(shade >= canvas_c::STENCIL_FULLY_TRANSPARENT);
     assert(shade <= canvas_c::STENCIL_FULLY_OPAQUE);
-    assert(type < random);
+    assert((int)type < (int)stencil_e::random);
     static canvas_c::stencil_t _none_stencil = { 0 };
     static bool _initialized = false;
     static stencil_t _stencils[4][canvas_c::STENCIL_FULLY_OPAQUE + 1];
@@ -143,14 +143,14 @@ const canvas_c::stencil_t *const canvas_c::stencil(stencil_type_e type, int shad
         do_dbra(i, 3) {
             int j;
             do_dbra(j, canvas_c::STENCIL_FULLY_OPAQUE) {
-                canvas_c::make_stencil(_stencils[i][j], (canvas_c::stencil_type_e)(i + 1), j);
+                canvas_c::make_stencil(_stencils[i][j], (canvas_c::stencil_e)(i + 1), j);
             } while_dbra(j);
         } while_dbra(i);
         _initialized = true;
     }
-    if (type == none) {
+    if (type == stencil_e::none) {
         return &_none_stencil;
     } else {
-        return &_stencils[type - 1][shade];
+        return &_stencils[(int)type - 1][shade];
     }
 }

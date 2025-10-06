@@ -58,7 +58,7 @@ void audio_mixer_c::play(const music_c &_music, int track) {
     assert(track > 0);
 #ifdef __M68000__
     timer_c::with_paused_timers([this, &music, track] {
-        timer_c &clock = timer_c::shared(timer_c::clock);
+        timer_c &clock = timer_c::shared(timer_c::timer_e::clock);
         // init driver
         ((timer_c::func_i_t)music._music_init_code)(track);
         // add VBL
@@ -74,7 +74,7 @@ void audio_mixer_c::stop(const music_c &_music) {
     assert(_active_music == &music);
 #ifdef __M68000__
     timer_c::with_paused_timers([this, &music] {
-        timer_c &clock = timer_c::shared(timer_c::clock);
+        timer_c &clock = timer_c::shared(timer_c::timer_e::clock);
         // Exit driver
         ((timer_c::func_t)music._music_exit_code)();
         // remove timer func

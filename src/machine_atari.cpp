@@ -63,9 +63,9 @@ int machine_c::with_machine(int argc, const char * argv[], int (*game)(machine_c
 
 machine_c::type_e machine_c::type() const {
 #ifdef __M68000__
-    return (type_e)((get_cookie(0x5F4D4348) >> 16) + 1); // '_MCH'
+    return static_cast<type_e>((get_cookie(0x5F4D4348) >> 16) + 1); // '_MCH'
 #else
-    return ste;
+    return type_e::ste;
 #endif
 }
 
@@ -138,7 +138,7 @@ void machine_c::set_active_image(const image_c *image, point_s offset) {
     assert(offset.x == 0 && offset.y == 0);
     timer_c::with_paused_timers([this, image] {
         g_active_image = image;
-        if (type() > ste) {
+        if (type() > type_e::ste) {
 #ifdef __M68000__
             *((uint16_t*)0x452) = 1;
             *((uint16_t **)0x45E) = image->_bitmap.get();

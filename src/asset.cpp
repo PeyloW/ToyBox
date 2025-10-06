@@ -72,7 +72,7 @@ asset_c &asset_manager_c::asset(int id) const {
 void asset_manager_c::add_asset_def(int id, const asset_def_s &def) {
     assert(def.sets != 0);
     while (_asset_defs.size() <= id) {
-        _asset_defs.emplace_back(asset_c::custom, 0);
+        _asset_defs.emplace_back(asset_c::type_e::custom, 0);
     }
     _asset_defs[id] = def;
     while (_assets.size() < _asset_defs.size()) {
@@ -114,15 +114,15 @@ asset_c *asset_manager_c::create_asset(int id, const asset_def_s &def) const {
         return def.create(*this, path.get());
     } else {
         switch (def.type) {
-            case asset_c::image:
+            case asset_c::type_e::image:
                 return new image_c(path.get());
-            case asset_c::tileset:
+            case asset_c::type_e::tileset:
                 return new tileset_c(new image_c(path.get()), size_s(16, 16));
-            case asset_c::font:
+            case asset_c::type_e::font:
                 return new font_c(new image_c(path.get()), size_s(8, 8));
-            case asset_c::sound:
+            case asset_c::type_e::sound:
                 return new sound_c(path.get());
-            case asset_c::music:
+            case asset_c::type_e::music:
 #if TOYBOX_TARGET_ATARI
                 return new ymmusic_c(path.get());
 #endif

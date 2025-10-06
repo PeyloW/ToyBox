@@ -25,7 +25,7 @@ namespace toybox {
         tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size);
         virtual ~tileset_c() {};
         
-        type_e asset_type() const { return tileset; }
+        type_e asset_type() const { return type_e::tileset; }
         
         inline const shared_ptr_c<image_c> &image() const __pure {
             return _image;

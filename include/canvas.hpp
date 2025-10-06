@@ -35,23 +35,22 @@ namespace toybox {
         
         static const int STENCIL_FULLY_TRANSPARENT = 0;
         static const int STENCIL_FULLY_OPAQUE = 64;
-        typedef uint16_t stencil_t[16];
-        typedef enum __packed {
+        using stencil_t = uint16_t[16];
+        enum class stencil_e : uint8_t {
             none,
             orderred,
             noise,
             diagonal,
             circle,
             random
-        } stencil_type_e;
-        static stencil_type_e effective_type(stencil_type_e type);
+        };
+        static stencil_e effective_type(stencil_e type);
         
-        typedef enum __packed {
-            align_left,
-            align_center,
-            align_right
-        } text_alignment_e;
-        
+        enum class alignment_e : uint8_t {
+            left,
+            center,
+            right
+        };
                 
         canvas_c(image_c &image);
         ~canvas_c();
@@ -74,7 +73,7 @@ namespace toybox {
             commands();
             _stencil = old_stencil;
         }
-        static const canvas_c::stencil_t *const stencil(stencil_type_e type, int shade);
+        static const canvas_c::stencil_t *const stencil(stencil_e type, int shade);
         
         dirtymap_c *create_dirtymap() const __pure;
         template<class Commands>
@@ -89,7 +88,7 @@ namespace toybox {
         
         void remap_colors(const remap_table_c &table, rect_s rect) const;
         
-        static void make_stencil(stencil_t stencil, stencil_type_e type, int shade);
+        static void make_stencil(stencil_t stencil, stencil_e type, int shade);
         
         void fill(uint8_t ci, rect_s rect) const;
         
@@ -107,8 +106,8 @@ namespace toybox {
         void draw_3_patch(const image_c &src, int16_t cap, rect_s in) const;
         void draw_3_patch(const image_c &src, rect_s rect, int16_t cap, rect_s in) const;
         
-        size_s draw(const font_c &font, const char *text, point_s at, text_alignment_e alignment = align_center, const int color = image_c::MASKED_CIDX) const;
-        size_s draw(const font_c &font, const char *text, rect_s in, uint16_t line_spacing = 0, text_alignment_e alignment = align_center, const int color = image_c::MASKED_CIDX) const;
+        size_s draw(const font_c &font, const char *text, point_s at, alignment_e alignment = alignment_e::center, const int color = image_c::MASKED_CIDX) const;
+        size_s draw(const font_c &font, const char *text, rect_s in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, const int color = image_c::MASKED_CIDX) const;
     private:
         image_c &_image;
         dirtymap_c *_dirtymap;

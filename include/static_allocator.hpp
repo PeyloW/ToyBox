@@ -22,7 +22,7 @@ class static_allocator_c {
     struct block_t;
 public:
     static const size_t alloc_size = sizeof(T);
-    typedef block_t *type;
+    using type = block_t *;
     static void *allocate() {
         if (first_block == nullptr) init_blocks();
         assert(first_block);

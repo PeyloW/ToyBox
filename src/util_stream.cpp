@@ -39,13 +39,13 @@ ptrdiff_t substream_c::tell() const {
 
 ptrdiff_t substream_c::seek(ptrdiff_t pos, seekdir_e way) {
     switch (way) {
-        case stream_c::beg:
+        case seekdir_e::beg:
             _stream->seek(pos + _origin, way);
             break;
-        case stream_c::cur:
+        case seekdir_e::cur:
             _stream->seek(pos, way);
             break;
-        case stream_c::end:
+        case seekdir_e::end:
             _stream->seek(pos + _origin + _length, way);
             break;
     }

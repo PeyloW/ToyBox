@@ -16,12 +16,12 @@ namespace toybox {
     
     using namespace toybox;
     
-    typedef enum __packed {
+    enum class compression_type_e : uint8_t {
         compression_type_none,
         compression_type_packbits,
         compression_type_vertical,  // Not supported
         compression_type_deflate    // Non-standard, not supported as of now
-    } compression_type_e;
+    };
 
     /**
      An `image_c` is a read only representation of any graphics.
@@ -36,15 +36,15 @@ namespace toybox {
     public:
         static const int MASKED_CIDX = -1;
         static constexpr bool is_masked(int i) __pure { return i < 0; }
-        typedef enum __packed {
+        enum class bitplane_layout_e : uint8_t {
             interweaved, interleaved, continious
-        } bitplane_layout_e;
+        };
         
         image_c(const size_s size, bool masked, shared_ptr_c<palette_c> palette);
         image_c(const char *path, int masked_cidx = MASKED_CIDX);
         virtual ~image_c() {};
         
-        type_e asset_type() const { return image; }
+        type_e asset_type() const { return type_e::image; }
 
 #if TOYBOX_IMAGE_SUPPORTS_SAVE
         bool save(const char *path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);
@@ -58,7 +58,7 @@ namespace toybox {
         }
         __forceinline size_s size() const { return _size; }
         __forceinline bool masked() const { return _maskmap != nullptr; }
-        __forceinline bitplane_layout_e layout() const { return interweaved; }
+        __forceinline bitplane_layout_e layout() const { return bitplane_layout_e::interweaved; }
 
         int get_pixel(point_s at) const;
         

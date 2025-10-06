@@ -20,13 +20,13 @@ namespace toybox {
     template<class Type, int Count>
     class vector_c : public nocopy_c {
     public:
-        typedef Type value_type;
-        typedef value_type* pointer;
-        typedef const value_type* const_pointer;
-        typedef value_type& reference;
-        typedef const value_type& const_reference;
-        typedef value_type* iterator;
-        typedef const value_type* const_iterator;
+        using value_type = Type;
+        using pointer = value_type* ;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using iterator = value_type*;
+        using const_iterator = const value_type*;
         
         inline vector_c() : _size(0) {}
         

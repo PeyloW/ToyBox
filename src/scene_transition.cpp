@@ -14,7 +14,7 @@ namespace toybox {
     
     class dither_transition_c : public transition_c {
     public:
-        dither_transition_c(canvas_c::stencil_type_e dither) : transition_c(), _palette(nullptr) {
+        dither_transition_c(canvas_c::stencil_e dither) : transition_c(), _palette(nullptr) {
             _transition_state.full_restores_left = 2;
             _transition_state.type = canvas_c::effective_type(dither);
             _transition_state.shade = 0;
@@ -55,7 +55,7 @@ namespace toybox {
         const palette_c *_palette;
         struct {
             int full_restores_left;
-            canvas_c::stencil_type_e type;
+            canvas_c::stencil_e type;
             int shade;
         } _transition_state;
     };
@@ -63,7 +63,7 @@ namespace toybox {
 
 class dither_through_transition_c : public dither_transition_c {
 public:
-    dither_through_transition_c(canvas_c::stencil_type_e dither, uint8_t through) :
+    dither_through_transition_c(canvas_c::stencil_e dither, uint8_t through) :
         dither_transition_c(dither), _palette(nullptr), _through(through) {
             _transition_state.full_restores_left = 4;
         }
@@ -152,11 +152,11 @@ private:
     vector_c<palette_c, 33> _palettes;
 };
 
-transition_c *transition_c::create(canvas_c::stencil_type_e dither) {
+transition_c *transition_c::create(canvas_c::stencil_e dither) {
     return new dither_transition_c(dither);
 }
 
-transition_c *transition_c::create(canvas_c::stencil_type_e dither, uint8_t through) {
+transition_c *transition_c::create(canvas_c::stencil_e dither, uint8_t through) {
     return new dither_through_transition_c(dither, through);
 }
 

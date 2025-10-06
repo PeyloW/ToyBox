@@ -27,7 +27,7 @@ namespace toybox {
         sound_c(const char *path);
         virtual ~sound_c() {};
         
-        type_e asset_type() const { return sound; }
+        type_e asset_type() const { return type_e::sound; }
         
         const int8_t *sample() const { return _sample.get(); }
         uint32_t length() const { return _length; }
@@ -49,7 +49,7 @@ namespace toybox {
         music_c() {};
         virtual ~music_c() {};
         
-        type_e asset_type() const { return music; }
+        type_e asset_type() const { return type_e::music; }
         
         virtual const char *title() const = 0;
         virtual const char *composer() const = 0;
@@ -68,7 +68,7 @@ namespace toybox {
         ymmusic_c(const char *path);
         virtual ~ymmusic_c() {};
 
-        type_e asset_type() const { return music; }
+        type_e asset_type() const { return type_e::music; }
         
         const char *title() const { return _title; }
         const char *composer() const { return _composer; }

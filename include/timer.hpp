@@ -24,12 +24,12 @@ namespace toybox {
      */
     class timer_c : public nocopy_c {
     public:
-        typedef enum __packed {
+        enum class timer_e : uint8_t {
             vbl, clock
-        } timer_e;
-        typedef void(*func_t)(void);
-        typedef void(*func_a_t)(void *);
-        typedef void(*func_i_t)(int);
+        };
+        using func_t = void(*)(void);
+        using func_a_t = void(*)(void *);
+        using func_i_t = void(*)(int);
         
         static timer_c &shared(timer_e timer);
         

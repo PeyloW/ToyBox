@@ -113,7 +113,7 @@ stream_c::manipulator_f toybox::ends = &s_ends;
 stream_c::manipulator_f toybox::flush = &s_flush;
 
 fstream_c::fstream_c(FILE *file) :
-    stream_c(), _path(nullptr), _mode(input), _file(file)
+    stream_c(), _path(nullptr), _mode(openmode_e::input), _file(file)
 {}
 
 fstream_c::fstream_c(const char *path, openmode_e mode) :
@@ -130,20 +130,20 @@ fstream_c::~fstream_c() {
 }
 
 static const char *mode_for_mode(fstream_c::openmode_e mode) {
-    if (mode & fstream_c::append) {
-        assert(mode & fstream_c::output);
-        if (mode & fstream_c::input) {
+    if ((mode & fstream_c::openmode_e::append) != fstream_c::openmode_e::none) {
+        assert((mode & fstream_c::openmode_e::output) != fstream_c::openmode_e::none);
+        if ((mode & fstream_c::openmode_e::input) != fstream_c::openmode_e::none) {
             return "a+";
         } else {
             return "a";
         }
-    } else if (mode & fstream_c::output) {
-        if (mode & fstream_c::input) {
+    } else if ((mode & fstream_c::openmode_e::output) != fstream_c::openmode_e::none) {
+        if ((mode & fstream_c::openmode_e::input) != fstream_c::openmode_e::none) {
             return "w+";
         } else {
             return "w";
         }
-    } else if (mode & fstream_c::input) {
+    } else if ((mode & fstream_c::openmode_e::input) != fstream_c::openmode_e::none) {
         return "r";
     } else {
         return "";
@@ -185,7 +185,7 @@ ptrdiff_t fstream_c::tell() const {
 }
 
 ptrdiff_t fstream_c::seek(ptrdiff_t pos, stream_c::seekdir_e way) {
-    auto r = fseek(_file, pos, way);
+    auto r = fseek(_file, pos, (int)way);
     if (_assert_on_error) {
         hard_assert(r >= 0);
     }

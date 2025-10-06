@@ -57,12 +57,12 @@ DEFINE_IFF_ID(CMAP);
 DEFINE_IFF_ID(GRAB);
 DEFINE_IFF_ID(BODY);
 
-typedef enum __packed {
+enum class mask_type_e : uint8_t {
     mask_type_none,
     mask_type_plane,
     mask_type_color,
     mask_type_lasso,
-} mask_type_e;
+};
 
 struct __packed_struct ilbm_header_s {
     size_s size;
@@ -182,19 +182,19 @@ image_c::image_c(const char *path, int masked_cidx) :
             _size = bmhd.size;
             assert(bmhd.plane_count == 4);
             if (masked_cidx != MASKED_CIDX) {
-                assert(bmhd.mask_type != mask_type_plane);
+                assert(bmhd.mask_type != mask_type_e::mask_type_plane);
                 bmhd.mask_color = masked_cidx;
                 masked = true;
-            } else if (bmhd.mask_type == mask_type_color) {
+            } else if (bmhd.mask_type == mask_type_e::mask_type_color) {
                 masked_cidx = bmhd.mask_color;
                 masked = true;
-            } else if (bmhd.mask_type == mask_type_plane) {
+            } else if (bmhd.mask_type == mask_type_e::mask_type_plane) {
                 masked = true;
             } else {
-                assert(bmhd.mask_type == mask_type_none);
+                assert(bmhd.mask_type == mask_type_e::mask_type_none);
             }
             // DeluxePain ST format and custom deflate not supported
-            assert(bmhd.compression_type < compression_type_vertical); // DeluxePain ST format not supported
+            assert(bmhd.compression_type < compression_type_e::compression_type_vertical); // DeluxePain ST format not supported
         } else if (iff_id_match(chunk.id, IFF_CMAP)) {
             uint8_t cmpa[48];
             if (file.read(cmpa, 48) != 48) {
@@ -204,7 +204,7 @@ image_c::image_c(const char *path, int masked_cidx) :
         } else if (iff_id_match(chunk.id, IFF_BODY)) {
             _line_words = ((_size.width + 15) / 16);
             const uint16_t bitmap_words = (_line_words * _size.height) << 2;
-            const bool needs_mask_words = masked || (bmhd.mask_type == mask_type_plane);
+            const bool needs_mask_words = masked || (bmhd.mask_type == mask_type_e::mask_type_plane);
             const uint16_t mask_words = needs_mask_words ? (bitmap_words >> 2) : 0;
             _bitmap.reset((uint16_t*)(_malloc((bitmap_words + mask_words) << 1)));
             assert(_bitmap);
@@ -214,11 +214,11 @@ image_c::image_c(const char *path, int masked_cidx) :
                 _maskmap = nullptr;
             }
             switch (bmhd.compression_type) {
-                case compression_type_none:
-                    image_read(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_plane ? _maskmap : nullptr);
+                case compression_type_e::compression_type_none:
+                    image_read(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::mask_type_plane ? _maskmap : nullptr);
                     break;
-                case compression_type_packbits:
-                    image_read_packbits(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_plane ? _maskmap : nullptr);
+                case compression_type_e::compression_type_packbits:
+                    image_read_packbits(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::mask_type_plane ? _maskmap : nullptr);
                     break;
                 default:
                     break;
@@ -226,7 +226,7 @@ image_c::image_c(const char *path, int masked_cidx) :
             if (needs_mask_words) {
                 if (!masked) {
                     _maskmap = nullptr;
-                } else if (bmhd.mask_type != mask_type_plane) {
+                } else if (bmhd.mask_type != mask_type_e::mask_type_plane) {
                     memset(_maskmap, -1, mask_words << 1);
                     canvas_c::remap_table_c table;
                     table[bmhd.mask_color] = MASKED_CIDX;
@@ -274,10 +274,10 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
     assert(row_byte_count >= 2);
 #define PACKBITS_MIN_RUN 3
 #define PACKBITS_MAX_BYTES 128
-    typedef enum {
+    enum class state_e : uint8_t {
         mode_dump,
         mode_run
-    } state_e;
+    };
     
     const auto packRunIntoBody = [&body] (uint8_t byte, int count) {
         *body++ = -(count - 1);
@@ -382,7 +382,7 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
     // DeluxePain ST format and custom deflate not supported
     assert(compression < compression_type_vertical); // DeluxePain ST format not supported
 
-    iffstream_c ilbm(path, fstream_c::input | fstream_c::output);
+    iffstream_c ilbm(path, fstream_c::openmode_e::input | fstream_c::openmode_e::output);
     if (ilbm.tell() >= 0) {
         ilbm.set_assert_on_error(true);
             iff_group_s form;

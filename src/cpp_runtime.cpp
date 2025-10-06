@@ -47,7 +47,7 @@ extern "C" void __cxa_pure_virtual() {
 // WARNING: Thes einit guards are NOT threadsafe, never init statics on timer callbacks.
 #define GUARD_DONE      0x01
 #define GUARD_PENDING   0x02
-typedef uint8_t __guard;
+using __guard = uint8_t;
 extern "C" int __cxa_guard_acquire(__guard* g) {
     if (*g & GUARD_DONE) {
         return 0;

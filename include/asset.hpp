@@ -19,10 +19,10 @@ namespace toybox {
     
     class asset_c : nocopy_c {
     public:
-        enum type_e : uint8_t {
+        enum class type_e : uint8_t {
             custom, image, tileset, font, sound, music
         };
-        virtual type_e asset_type() const __pure { return custom; }
+        virtual type_e asset_type() const __pure { return type_e::custom; }
     };
     
     class image_c;
@@ -45,7 +45,7 @@ namespace toybox {
         asset_manager_c(const char *asset_defs_path);
         virtual ~asset_manager_c() {}
 
-        typedef void(*progress_f)(int loaded, int total);
+        using progress_f = void(*)(int loaded, int total);
         void preload(uint32_t sets, progress_f progress = nullptr);
         void unload(uint32_t sets);
         
@@ -61,7 +61,7 @@ namespace toybox {
         virtual unique_ptr_c<char> user_path(const char *file) const;
     protected:
         struct asset_def_s {
-            typedef asset_c*(*asset_create_f)(const asset_manager_c &manager, const char *path);
+            using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char *path);
             asset_def_s(asset_c::type_e type, uint32_t sets, const char *file = nullptr, asset_create_f create = nullptr) :
                 type(type), sets(sets), file(file), create(create) {}
             asset_c::type_e type;
