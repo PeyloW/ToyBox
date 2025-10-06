@@ -1,6 +1,6 @@
 //
 //  utility.hpp
-//  ChromaGrid
+//  toybox
 //
 //  Created by Fredrik on 2024-03-22.
 //
@@ -160,7 +160,7 @@ namespace toybox {
             return this == &other;
         }
     protected:
-        __forceinline nocopy_c() {}
+        constexpr __forceinline nocopy_c() {}
         nocopy_c(const nocopy_c&) = delete;
         nocopy_c& operator=(const nocopy_c&) = delete;
     };
@@ -168,7 +168,7 @@ namespace toybox {
     template<class T1, class T2>
     class pair_c : nocopy_c {
     public:
-        pair_c(const T1 &f, const T2 &s) : first(f), second(s) {}
+        constexpr pair_c(const T1 &f, const T2 &s) : first(f), second(s) {}
         T1 first;
         T2 second;
     };

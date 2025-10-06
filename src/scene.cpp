@@ -1,6 +1,6 @@
 //
 //  scene.cpp
-//  ChromaGrid
+//  toybox
 //
 //  Created by Fredrik on 2024-03-01.
 //

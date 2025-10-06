@@ -1,6 +1,6 @@
 //
 //  type_traits.hpp
-//  ChromaGrid
+//  toybox
 //
 //  Created by Fredrik Olsson on 2024-03-22.
 //
@@ -58,6 +58,14 @@ namespace toybox {
     template<class T> struct remove_volatile { using type = T; };
     template<class T> struct remove_volatile<volatile T> { using type = T; };
     
+    template <typename T> struct remove_cv { using type = T; };
+    template <typename T> struct remove_cv<const T> { using type = T; };
+    template <typename T> struct remove_cv<volatile T> { using type = T; };
+    template <typename T> struct remove_cv<const volatile T> { using type = T; };
+
+    template <typename T>
+    using remove_cvref = remove_cv<typename remove_reference<T>::type>;
+
     namespace detail {
         template<typename T, typename U = T&&> U declval_imp(int);
         template<typename T> T declval_imp(long);
@@ -134,6 +142,13 @@ namespace toybox {
         static constexpr const char * value = "1l";
     };
 
+    template <typename T>
+    struct is_enum : integral_constant<bool, __is_enum(T)> {};
+    
+    // Specialize for true_type for enum class that is an option set to enable bitwise operators and comparison to bool.
+    template<typename T>
+    struct is_optionset : false_type {};
+    
 }
 
 #endif /* type_traits_h */

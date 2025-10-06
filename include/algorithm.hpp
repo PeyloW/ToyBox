@@ -1,6 +1,6 @@
 //
 //  algorithm.hpp
-//  ChromaGrid
+//  toybox
 //
 //  Created by Fredrik on 2024-03-26.
 //
@@ -8,6 +8,7 @@
 #ifndef algorithm_h
 #define algorithm_h
 
+#include "concepts.hpp"
 #include "utility.hpp"
 
 namespace toybox {
@@ -16,7 +17,7 @@ namespace toybox {
      This file containes a minimal set of cuntionality from C++ stdlib.
      */
 
-    template<typename I, typename J>
+    template<input_iterator I, output_iterator<I> J>
     __forceinline J copy(I first, I last, J d_first) {
         while (first != last) {
             *(d_first++) = *(first++);
@@ -24,7 +25,7 @@ namespace toybox {
         return d_first;
     }
 
-    template<typename I, typename J>
+    template<input_iterator I, output_iterator<I> J>
     __forceinline J copy_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = *(--last);
@@ -32,7 +33,7 @@ namespace toybox {
         return d_last;
     }
 
-    template<typename I, typename J>
+    template<input_iterator I, output_iterator<I> J>
     __forceinline J move(I first, I last, J d_first) {
         while (first != last) {
             *(d_first++) = move(*(first++));
@@ -40,7 +41,8 @@ namespace toybox {
         return d_first;
     }
 
-    template<typename I, typename J>
+    template<bidirectional_iterator I, bidirectional_iterator J>
+    requires output_iterator<J, decltype(*I{})>
     __forceinline I move_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = move(*(--last));
@@ -48,7 +50,7 @@ namespace toybox {
         return d_last;
     }
     
-    template<typename FI, typename T>
+    template<random_access_iterator FI, typename T>
     FI lower_bound(FI first, FI last, const T& value) {
         int16_t count = last - first;
         while (count > 0) {
@@ -64,13 +66,13 @@ namespace toybox {
         return first;
     }
 
-    template<typename FI, typename T>
+    template<random_access_iterator FI, typename T>
     bool binary_search(FI first, FI last, const T& value) {
         const FI found = lower_bound(first, last, value);
         return (!(found == last) && !(value < *found));
     }
 
-    template<typename FI, typename P>
+    template<random_access_iterator FI, typename P>
     FI find_if(FI first, FI last, P pred) {
         for (; first != last; ++first) {
             if (p(*first)) {
@@ -80,7 +82,7 @@ namespace toybox {
         return last;
     }
     
-    template<typename I>
+    template<random_access_iterator I>
     void sort(I first, I last) {
         for (auto i = first; i != last; i++) {
             auto min = i;
@@ -93,7 +95,7 @@ namespace toybox {
         }
     }
        
-    template<typename I>
+    template<random_access_iterator I>
     I is_sorted_until(I first, I last) {
         if (first != last) {
             I next = first;
@@ -106,7 +108,7 @@ namespace toybox {
         return last;
     }
     
-    template<typename I>
+    template<random_access_iterator I>
     bool is_sorted(I first, I last) {
         return is_sorted_until(first, last) == last;
     }

@@ -130,20 +130,20 @@ fstream_c::~fstream_c() {
 }
 
 static const char *mode_for_mode(fstream_c::openmode_e mode) {
-    if ((mode & fstream_c::openmode_e::append) != fstream_c::openmode_e::none) {
-        assert((mode & fstream_c::openmode_e::output) != fstream_c::openmode_e::none);
-        if ((mode & fstream_c::openmode_e::input) != fstream_c::openmode_e::none) {
+    if ((mode & fstream_c::openmode_e::append) == true) {
+        assert((mode & fstream_c::openmode_e::output) == true);
+        if ((mode & fstream_c::openmode_e::input) == true) {
             return "a+";
         } else {
             return "a";
         }
-    } else if ((mode & fstream_c::openmode_e::output) != fstream_c::openmode_e::none) {
-        if ((mode & fstream_c::openmode_e::input) != fstream_c::openmode_e::none) {
+    } else if ((mode & fstream_c::openmode_e::output) == true) {
+        if ((mode & fstream_c::openmode_e::input) == true) {
             return "w+";
         } else {
             return "w";
         }
-    } else if ((mode & fstream_c::openmode_e::input) != fstream_c::openmode_e::none) {
+    } else if ((mode & fstream_c::openmode_e::input) == true) {
         return "r";
     } else {
         return "";

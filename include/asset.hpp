@@ -62,7 +62,7 @@ namespace toybox {
     protected:
         struct asset_def_s {
             using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char *path);
-            asset_def_s(asset_c::type_e type, uint32_t sets, const char *file = nullptr, asset_create_f create = nullptr) :
+            constexpr asset_def_s(asset_c::type_e type, uint32_t sets, const char *file = nullptr, asset_create_f create = nullptr) :
                 type(type), sets(sets), file(file), create(create) {}
             asset_c::type_e type;
             uint32_t sets;

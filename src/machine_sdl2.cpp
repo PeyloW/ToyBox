@@ -131,14 +131,14 @@ public:
         host_bridge_c::clock_interupt();
     }
 
-    int run(int (*game)(machine_c &machine)) {
+    int run(machine_c::machine_f f) {
         static std::atomic<bool> s_should_quit{false};
         static int s_status = 0;
         struct Payload {
             int (*game_func)(machine_c &);
             machine_c *machine_inst;
         };
-        Payload payload{game, &_machine};
+        Payload payload{f, &_machine};
 
         _thread = SDL_CreateThread(
             [](void *data) -> int {
@@ -229,7 +229,7 @@ private:
     }
 };
 
-int machine_c::with_machine(int argc, const char * argv[], int (*game)(machine_c &machine)) {
+int machine_c::with_machine(int argc, const char * argv[], machine_f f) {
     assert(_shared_machine == nullptr);
     char *dir = dirname((char *)argv[0]);
     hard_assert(chdir(dir) == 0);
@@ -237,7 +237,7 @@ int machine_c::with_machine(int argc, const char * argv[], int (*game)(machine_c
     machine_c machine;
     _shared_machine = &machine;
     sdl2_host_bridge bridge(machine);
-    int status = bridge.run(game);
+    int status = bridge.run(f);
     _shared_machine = nullptr;
     return status;
 }

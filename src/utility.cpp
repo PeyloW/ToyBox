@@ -1,6 +1,6 @@
 //
 //  utility.cpp
-//  ChromaGrid
+//  toybox
 //
 //  Created by Fredrik on 2025-03-16.
 //

@@ -1,6 +1,6 @@
 //
 //  dirtymap.hpp
-//  ChromaGrid
+//  toybox
 //
 //  Created by Fredrik on 2024-04-11.
 //

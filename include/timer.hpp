@@ -10,6 +10,7 @@
 
 #include "cincludes.hpp"
 #include "types.hpp"
+#include "concepts.hpp"
 #ifndef __M68000__
 #include "host_bridge.hpp"
 #endif
@@ -33,7 +34,7 @@ namespace toybox {
         
         static timer_c &shared(timer_e timer);
         
-        template<class Commands>
+        template<invocable<> Commands>
         __forceinline static void with_paused_timers(Commands commands) {
 #ifdef __M68000__
             __asm__ volatile ("move.w #0x2700,%%sr" : : : );

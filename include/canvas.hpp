@@ -12,6 +12,7 @@
 #include "tileset.hpp"
 #include "font.hpp"
 #include "dirtymap.hpp"
+#include "concepts.hpp"
 
 namespace toybox {
     
@@ -58,7 +59,7 @@ namespace toybox {
         image_c &image() const { return _image; }
         size_s size() const { return _image.size(); }
         
-        template<class Commands>
+        template<invocable<> Commands>
         __forceinline void with_clipping(bool clip, Commands commands) {
             const bool old_clip = _clipping;
             _clipping = clip;
@@ -66,7 +67,7 @@ namespace toybox {
             _clipping = old_clip;
         }
         
-        template<class Commands>
+        template<invocable<> Commands>
         __forceinline void with_stencil(const stencil_t *const stencil, Commands commands) {
             const auto old_stencil = _stencil;
             _stencil = stencil;
@@ -76,7 +77,7 @@ namespace toybox {
         static const canvas_c::stencil_t *const stencil(stencil_e type, int shade);
         
         dirtymap_c *create_dirtymap() const __pure;
-        template<class Commands>
+        template<invocable<> Commands>
         __forceinline void with_dirtymap(dirtymap_c *dirtymap, Commands commands) {
             dirtymap_c *old_dirtymap = _dirtymap;
             _dirtymap = dirtymap;

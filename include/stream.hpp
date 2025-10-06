@@ -9,6 +9,7 @@
 #define stream_hpp
 
 #include "cincludes.hpp"
+#include "optionset.hpp"
 #include "utility.hpp"
 #include "memory.hpp"
 
@@ -118,15 +119,10 @@ namespace toybox {
         openmode_e _mode;
         FILE *_file;
     };
-    
-    __forceinline __pure static fstream_c::openmode_e operator|(fstream_c::openmode_e a, fstream_c::openmode_e b) {
-        return static_cast<fstream_c::openmode_e>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
-    }
-    
-    static fstream_c::openmode_e operator&(const fstream_c::openmode_e a, const fstream_c::openmode_e b) {
-        return static_cast<fstream_c::openmode_e>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
-    }
-    
+    template<>
+    struct is_optionset<fstream_c::openmode_e> : public true_type {};
+
+
     class strstream_c : public stream_c {
     public:
         strstream_c(size_t len);
