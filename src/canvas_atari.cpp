@@ -37,7 +37,7 @@ __forceinline static void set_active_stencil(struct blitter_s *blitter, const ca
     }
 }
 
-void canvas_c::imp_fill(uint8_t color, rect_s rect) const {
+void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
     uint16_t dummy_src = 0;
     auto blitter = pBlitter;
 

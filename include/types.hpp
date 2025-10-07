@@ -64,29 +64,34 @@ namespace toybox {
             return true;
         }
         bool clip_to(const size_s size, point_s &at) {
+            bool did_clip = false;
             if (at.x < 0) {
                 this->size.width += at.x;
-                if (this->size.width <= 0) return false;
+                if (this->size.width <= 0) return true;
                 this->origin.x -= at.x;
                 at.x = 0;
+                did_clip = true;
             }
             if (at.y < 0) {
                 this->size.height += at.y;
-                if (this->size.height <= 0) return false;
+                if (this->size.height <= 0) return true;
                 this->origin.y -= at.y;
                 at.y = 0;
+                did_clip = true;
             }
             const auto dx = size.width - (at.x + this->size.width);
             if (dx < 0) {
                 this->size.width += dx;
-                if (this->size.width <= 0) return false;
+                if (this->size.width <= 0) return true;
+                did_clip = true;
             }
             const auto dy = size.height - (at.y + this->size.height);
             if (dy < 0) {
                 this->size.height += dy;
-                if (this->size.height <= 0) return false;
+                if (this->size.height <= 0) return true;
+                did_clip = true;
             }
-            return true;
+            return did_clip;
         }
     };
     static_assert(sizeof(rect_s) == 8);

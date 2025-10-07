@@ -55,7 +55,8 @@ void canvas_c::put_pixel(int ci, point_s at) const {
     } while_dbra(bp);
 }
 
-void canvas_c::remap_colors(const remap_table_c &table, rect_s rect) const {
+void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
+    assert(rect.contained_by(_image.size()));
     const_cast<canvas_c*>(this)->with_clipping(false, [this, &table, &rect] {
         for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {
             for (int16_t x = rect.origin.x; x < rect.origin.x + rect.size.width; x++) {
@@ -70,11 +71,27 @@ void canvas_c::remap_colors(const remap_table_c &table, rect_s rect) const {
     });
 }
 
-void canvas_c::fill(uint8_t ci, rect_s rect) const {
+using with_clipped_rect_f = void(*)(const rect_s &rect, point_s at);
+template<typename WithClipped>
+__forceinline static bool with_clipped_rect(const canvas_c *canvas, const rect_s &rect, point_s at, WithClipped func) {
+    //assert(canvas._clipping);
+    rect_s r = rect;
+    if (r.clip_to(canvas->image().size(), at)) {
+        if (!r.size.is_empty()) {
+            canvas->with_clipping(false, [&] { func(r, at); });
+        }
+        return true;
+    }
+    return false;
+}
+
+void canvas_c::fill(uint8_t ci, const rect_s &rect) const {
     assert(_image._maskmap == nullptr);
     assert(rect.contained_by(size()));
     if (_clipping) {
-        if (!rect.clip_to(_image._size, rect.origin)) {
+        if (with_clipped_rect(this, rect, rect.origin, [&] (const rect_s &rect, point_s at) {
+            fill(ci, rect);
+        })) {
             return;
         }
     }
@@ -93,14 +110,16 @@ void canvas_c::draw_aligned(const image_c &src, point_s at) const {
     draw_aligned(src, rect, at);
 }
 
-void canvas_c::draw_aligned(const image_c &src, rect_s rect, point_s at) const {
+void canvas_c::draw_aligned(const image_c &src, const rect_s &rect, point_s at) const {
     assert((at.x & 0xf) == 0);
     assert((rect.origin.x &0xf) == 0);
     assert((rect.size.width & 0xf) == 0);
     assert(_image._maskmap == nullptr);
     assert(src._maskmap == nullptr);
     if (_clipping) {
-        if (!rect.clip_to(_image._size, at)) {
+        if (with_clipped_rect(this, rect, at, [&] (const rect_s &rect, point_s at) {
+            draw_aligned(src, rect, at);
+        })) {
             return;
         }
     }
@@ -125,11 +144,13 @@ void canvas_c::draw(const image_c &src, point_s at, const int color) const {
     draw(src, rect, at, color);
 }
 
-void canvas_c::draw(const image_c &src, rect_s rect, point_s at, const int color) const {
+void canvas_c::draw(const image_c &src, const rect_s &rect, point_s at, const int color) const {
     assert(_image._maskmap == nullptr);
     assert(rect.contained_by(size()));
     if (_clipping) {
-        if (!rect.clip_to(_image._size, at)) {
+        if (with_clipped_rect(this, rect, at, [&] (const rect_s &rect, point_s at) {
+            draw(src, rect, at, color);
+        })) {
             return;
         }
     }
@@ -153,16 +174,16 @@ void canvas_c::draw(const tileset_c &src, int idx, point_s at, const int color) 
     draw(*src.image(), src.tile_rect(idx), at, color);
 }
 
-void canvas_c::draw(const tileset_c &src, point_s tile, point_s at, const int color) const {
+void canvas_c::draw(const tileset_c &src, point_s tile, point_s at, int color) const {
     draw(*src.image(), src.tile_rect(tile), at, color);
 }
 
-void canvas_c::draw_3_patch(const image_c &src, int16_t cap, rect_s in) const {
+void canvas_c::draw_3_patch(const image_c &src, int16_t cap, const rect_s &in) const {
     rect_s rect(point_s(), src.size());
     draw_3_patch(src, rect, cap, in);
 }
 
-void canvas_c::draw_3_patch(const image_c &src, rect_s rect, int16_t cap, rect_s in) const {
+void canvas_c::draw_3_patch(const image_c &src, const rect_s &rect, int16_t cap, const rect_s &in) const {
     assert(in.size.width >= cap * 2);
     assert(rect.size.width > cap * 2);
     assert(rect.size.height == in.size.height);
@@ -194,7 +215,7 @@ void canvas_c::draw_3_patch(const image_c &src, rect_s rect, int16_t cap, rect_s
     });
 }
 
-size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignment_e alignment, const int color) const {
+size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignment_e alignment, int color) const {
     int len = (int)strlen(text);
     size_s size = font.char_rect(' ').size;
     size.width = 0;
@@ -230,7 +251,7 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignmen
 #define MAX_LINES 8
 static char draw_text_buffer[80 * MAX_LINES];
 
-size_s canvas_c::draw(const font_c &font, const char *text, rect_s in, uint16_t line_spacing, alignment_e alignment, const int color) const {
+size_s canvas_c::draw(const font_c &font, const char *text, const rect_s &in, uint16_t line_spacing, alignment_e alignment, int color) const {
     strcpy(draw_text_buffer, text);
     vector_c<const char *, 12> lines;
 
