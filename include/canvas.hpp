@@ -16,6 +16,71 @@
 
 namespace toybox {
     
+    namespace detail {
+
+        class basic_canvas_c : public nocopy_c {
+        public:
+            class remap_table_c : nocopy_c {
+            public:
+                constexpr remap_table_c() { for (int i = -1; i < 16; i++) (*this)[i] = i; }
+                int& operator[](int i) { return _table[i + 1]; }
+                const int& operator[](int i) const { return _table[i + 1]; }
+            private:
+                int _table[17];
+            };
+            
+            static const int STENCIL_FULLY_TRANSPARENT = 0;
+            static const int STENCIL_FULLY_OPAQUE = 64;
+            using stencil_t = uint16_t[16];
+            enum class stencil_e : uint8_t {
+                none,
+                orderred,
+                noise,
+                diagonal,
+                circle,
+                random
+            };
+            static stencil_e effective_type(stencil_e type);
+            
+            enum class alignment_e : uint8_t {
+                left,
+                center,
+                right
+            };
+                    
+            basic_canvas_c(image_c &image) : _image(image) {};
+            ~basic_canvas_c() {};
+
+            image_c &image() const { return _image; }
+            size_s size() const { return _image.size(); }
+            
+            static const stencil_t *const stencil(stencil_e type, int shade);
+            
+            dirtymap_c *create_dirtymap() const __pure;
+
+            void remap_colors(const remap_table_c &table,  const rect_s &rect) const;
+            
+            static void make_stencil(stencil_t stencil, stencil_e type, int shade);
+
+        protected:
+            image_c &_image;
+            mutable dirtymap_c *_dirtymap = nullptr;
+            mutable const stencil_t *_stencil = nullptr;
+            mutable bool _clipping = true;
+            
+            void imp_fill(uint8_t ci, const rect_s &rect) const;
+            void imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s point) const;
+            void imp_draw(const image_c &srcImage, const rect_s &rect, point_s point) const;
+            void imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s point) const;
+            void imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s point, uint16_t color) const;
+            
+            void imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s point) const;
+
+            
+        };
+        
+    }
+    
     /**
      A `canvas_c` is a wrapper for an `image_c` to provide drawing operations.
      Only the private functions prefixed with `imp_` needs to be reimplemented
@@ -23,42 +88,9 @@ namespace toybox {
      TODO: Only Atari STe with blitter and interweaved bitplanes supported.
      TODO: Remove stencil, too ChromaGrid/STe specific?
      */
-    class canvas_c : public nocopy_c {
+    class canvas_c : public detail::basic_canvas_c {
     public:
-        class remap_table_c : nocopy_c {
-        public:
-            remap_table_c() { for (int i = -1; i < 16; i++) (*this)[i] = i; }
-            int& operator[](int i) { return _table[i + 1]; }
-            const int& operator[](int i) const { return _table[i + 1]; }
-        private:
-            int _table[17];
-        };
-        
-        static const int STENCIL_FULLY_TRANSPARENT = 0;
-        static const int STENCIL_FULLY_OPAQUE = 64;
-        using stencil_t = uint16_t[16];
-        enum class stencil_e : uint8_t {
-            none,
-            orderred,
-            noise,
-            diagonal,
-            circle,
-            random
-        };
-        static stencil_e effective_type(stencil_e type);
-        
-        enum class alignment_e : uint8_t {
-            left,
-            center,
-            right
-        };
-                
-        canvas_c(image_c &image);
-        ~canvas_c();
 
-        image_c &image() const { return _image; }
-        size_s size() const { return _image.size(); }
-        
         template<invocable<> Commands>
         __forceinline void with_clipping(bool clip, Commands commands) const {
             const bool old_clip = _clipping;
@@ -74,9 +106,7 @@ namespace toybox {
             commands();
             _stencil = old_stencil;
         }
-        static const canvas_c::stencil_t *const stencil(stencil_e type, int shade);
         
-        dirtymap_c *create_dirtymap() const __pure;
         template<invocable<> Commands>
         __forceinline void with_dirtymap(dirtymap_c *dirtymap, Commands commands) const {
             dirtymap_c *old_dirtymap = _dirtymap;
@@ -84,13 +114,7 @@ namespace toybox {
             commands();
             _dirtymap = old_dirtymap;
         }
-        
-        void put_pixel(int ci, point_s at) const;
-        
-        void remap_colors(const remap_table_c &table,  const rect_s &rect) const;
-        
-        static void make_stencil(stencil_t stencil, stencil_e type, int shade);
-        
+
         void fill(uint8_t ci, const rect_s &rect) const;
         
         void draw_aligned(const image_c &src, point_s at) const;
@@ -107,19 +131,7 @@ namespace toybox {
         
         size_s draw(const font_c &font, const char *text, point_s at, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
         size_s draw(const font_c &font, const char *text, const rect_s &in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
-    private:
-        image_c &_image;
-        mutable dirtymap_c *_dirtymap;
-        mutable const stencil_t *_stencil;
-        mutable bool _clipping;
-        
-        void imp_fill(uint8_t ci, const rect_s &rect) const;
-        void imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s point) const;
-        void imp_draw(const image_c &srcImage, const rect_s &rect, point_s point) const;
-        void imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s point) const;
-        void imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s point, uint16_t color) const;
-        
-        void imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s point) const;
+
     };
     
 }

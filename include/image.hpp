@@ -14,7 +14,10 @@
 
 namespace toybox {
     
-    using namespace toybox;
+    class canvas_c;
+    namespace detail {
+        class basic_canvas_c;
+    }
     
     enum class compression_type_e : uint8_t {
         compression_type_none,
@@ -31,6 +34,7 @@ namespace toybox {
      TODO: Support bitplane layout other than interweaved.
      */
     class image_c : public asset_c {
+        friend class detail::basic_canvas_c;
         friend class canvas_c;
         friend class machine_c;
     public:
@@ -61,6 +65,7 @@ namespace toybox {
         __forceinline bitplane_layout_e layout() const { return bitplane_layout_e::interweaved; }
 
         int get_pixel(point_s at) const;
+        void put_pixel(int ci, point_s) const;
         
     private:
         shared_ptr_c<palette_c> _palette;

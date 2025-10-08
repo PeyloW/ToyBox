@@ -50,6 +50,35 @@ int image_c::get_pixel(point_s at) const {
     return _maskmap != nullptr ? MASKED_CIDX : 0;
 }
 
+void image_c::put_pixel(int ci, point_s at) const {
+    if (_size.contains(at)) {
+        int word_offset = (at.x / 16) + at.y * _line_words;
+        const uint16_t bit = 1 << (15 - at.x & 15);
+        const uint16_t mask = ~bit;
+        if (_maskmap != nullptr) {
+            uint16_t *maskmap = _maskmap + word_offset;
+            if (image_c::is_masked(ci)) {
+                *maskmap &= mask;
+                ci = 0;
+            } else {
+                *maskmap |= bit;
+            }
+        } else if (image_c::is_masked(ci)) {
+            return;
+        }
+        uint16_t *bitmap = _bitmap + (word_offset << 2);
+        uint8_t cb = 1;
+        int bp;
+        do_dbra(bp, 3) {
+            if (ci & cb) {
+                *bitmap++ |= bit;
+            } else {
+                *bitmap++ &= mask;
+            }
+            cb <<= 1;
+        } while_dbra(bp);
+    }
+}
 
 DEFINE_IFF_ID(ILBM);
 DEFINE_IFF_ID(BMHD);

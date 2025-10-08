@@ -16,34 +16,38 @@ namespace toybox {
      This file containes a minimal set of funtionality from C++ stdlib.
      */
 
-    template<typename T>
-    class __packed_struct basic_ptr_c {
-    public:
-        basic_ptr_c(T* ptr = nullptr) : _ptr(ptr) {}
+    namespace detail {
         
-        T* get() const __pure { return _ptr; }
-        
-        
-        __forceinline T* operator->() const __pure  { return _ptr; }
-        __forceinline T& operator*() const __pure  { return *(_ptr); }
-        __forceinline T& operator[](int i) const __pure  { return _ptr[i]; }
-        __forceinline T* operator+(int32_t i) const __pure  { return _ptr + i; }
-        
-        __forceinline explicit operator bool() const __pure  { return _ptr != nullptr; }
-        __forceinline bool operator==(const basic_ptr_c &o) const __pure { return _ptr == o._ptr; }
-        __forceinline bool operator==(T *o) const __pure { return _ptr == o; }
-        __forceinline bool operator!=(const basic_ptr_c &o) const __pure { return _ptr != o._ptr; }
-        __forceinline bool operator!=(T *o) const __pure { return _ptr != o; }
+        template<typename T>
+        class __packed_struct basic_ptr_c {
+        public:
+            basic_ptr_c(T* ptr = nullptr) : _ptr(ptr) {}
+            
+            T* get() const __pure { return _ptr; }
+            
+            
+            __forceinline T* operator->() const __pure  { return _ptr; }
+            __forceinline T& operator*() const __pure  { return *(_ptr); }
+            __forceinline T& operator[](int i) const __pure  { return _ptr[i]; }
+            __forceinline T* operator+(int32_t i) const __pure  { return _ptr + i; }
+            
+            __forceinline explicit operator bool() const __pure  { return _ptr != nullptr; }
+            __forceinline bool operator==(const basic_ptr_c &o) const __pure { return _ptr == o._ptr; }
+            __forceinline bool operator==(T *o) const __pure { return _ptr == o; }
+            __forceinline bool operator!=(const basic_ptr_c &o) const __pure { return _ptr != o._ptr; }
+            __forceinline bool operator!=(T *o) const __pure { return _ptr != o; }
 
-    protected:
-        T* _ptr;
-    };
-    static_assert(sizeof(basic_ptr_c<void*>) == sizeof(void*), "basic_ptr_c size mismatch.");
-    
+        protected:
+            T* _ptr;
+        };
+        static_assert(sizeof(basic_ptr_c<void*>) == sizeof(void*), "basic_ptr_c size mismatch.");
+
+    }
+        
     template<typename T>
-    class __packed_struct unique_ptr_c : public basic_ptr_c<T>, public nocopy_c {
+    class __packed_struct unique_ptr_c : public detail::basic_ptr_c<T>, public nocopy_c {
     public:
-        unique_ptr_c(T* ptr = nullptr) : basic_ptr_c<T>(ptr) {}
+        unique_ptr_c(T* ptr = nullptr) : detail::basic_ptr_c<T>(ptr) {}
         ~unique_ptr_c() { cleanup(); }
 
         unique_ptr_c(unique_ptr_c &&o) {
@@ -83,14 +87,14 @@ namespace toybox {
     }
     
     template<typename T>
-    class __packed_struct shared_ptr_c : public basic_ptr_c<T> {
+    class __packed_struct shared_ptr_c : public detail::basic_ptr_c<T> {
     public:
-        shared_ptr_c(T* ptr = nullptr) : basic_ptr_c<T>(ptr), _count(ptr ? new detail::shared_count_t() : nullptr) {}
+        shared_ptr_c(T* ptr = nullptr) : detail::basic_ptr_c<T>(ptr), _count(ptr ? new detail::shared_count_t() : nullptr) {}
         ~shared_ptr_c() { cleanup(); }
-        shared_ptr_c(const shared_ptr_c &o) : basic_ptr_c<T>(o._ptr), _count(nullptr) {
+        shared_ptr_c(const shared_ptr_c &o) : detail::basic_ptr_c<T>(o._ptr), _count(nullptr) {
             take_count(o._count);
         }
-        shared_ptr_c(shared_ptr_c &&o) : basic_ptr_c<T>(o._ptr), _count(o._count) {
+        shared_ptr_c(shared_ptr_c &&o) : detail::basic_ptr_c<T>(o._ptr), _count(o._count) {
             o._ptr = nullptr;
             o._count = nullptr;
         }

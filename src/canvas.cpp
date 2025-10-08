@@ -10,65 +10,24 @@
 
 using namespace toybox;
 
-canvas_c::canvas_c(image_c &image) :
-    _image(image), _dirtymap(nullptr), _stencil(nullptr), _clipping(true)
-{}
-
-canvas_c::~canvas_c() {}
-
-
-dirtymap_c *canvas_c::create_dirtymap() const {
+dirtymap_c *detail::basic_canvas_c::create_dirtymap() const {
     auto size = _image.size();
     int bytes = dirtymap_c::instance_size(&size);
     return new (_calloc(1, bytes)) dirtymap_c(size);
 }
 
-void canvas_c::put_pixel(int ci, point_s at) const {
-    if (_clipping) {
-        if (!_image._size.contains(at)) return;
-    }
-    assert(_image._size.contains(at));
-    int word_offset = (at.x / 16) + at.y * _image._line_words;
-    const uint16_t bit = 1 << (15 - at.x & 15);
-    const uint16_t mask = ~bit;
-    if (_image._maskmap != nullptr) {
-        uint16_t *maskmap = _image._maskmap + word_offset;
-        if (image_c::is_masked(ci)) {
-            *maskmap &= mask;
-            ci = 0;
-        } else {
-            *maskmap |= bit;
-        }
-    } else if (image_c::is_masked(ci)) {
-        return;
-    }
-    uint16_t *bitmap = _image._bitmap + (word_offset << 2);
-    uint8_t cb = 1;
-    int bp;
-    do_dbra(bp, 3) {
-        if (ci & cb) {
-            *bitmap++ |= bit;
-        } else {
-            *bitmap++ &= mask;
-        }
-        cb <<= 1;
-    } while_dbra(bp);
-}
-
-void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
+void detail::basic_canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
     assert(rect.contained_by(_image.size()));
-    const_cast<canvas_c*>(this)->with_clipping(false, [this, &table, &rect] {
-        for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {
-            for (int16_t x = rect.origin.x; x < rect.origin.x + rect.size.width; x++) {
-                const point_s at(x, y);
-                const int c = _image.get_pixel(at);
-                const int rc = table[c];
-                if (c != rc) {
-                    put_pixel(rc, at);
-                }
+    for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {
+        for (int16_t x = rect.origin.x; x < rect.origin.x + rect.size.width; x++) {
+            const point_s at(x, y);
+            const int c = _image.get_pixel(at);
+            const int rc = table[c];
+            if (c != rc) {
+                _image.put_pixel(rc, at);
             }
         }
-    });
+    }
 }
 
 using with_clipped_rect_f = void(*)(const rect_s &rect, point_s at);

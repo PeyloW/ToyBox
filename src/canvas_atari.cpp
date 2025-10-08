@@ -37,7 +37,7 @@ __forceinline static void set_active_stencil(struct blitter_s *blitter, const ca
     }
 }
 
-void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
+void detail::basic_canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
     uint16_t dummy_src = 0;
     auto blitter = pBlitter;
 
@@ -98,7 +98,7 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
 
 }
 
-void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void detail::basic_canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert((rect.origin.x & 0xf) == 0);
     assert((rect.size.width & 0xf) == 0);
     assert((at.x & 0xf) == 0);
@@ -154,7 +154,7 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
     }
 }
 
-void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void detail::basic_canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -226,7 +226,7 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
     } while_dbra(i);
 }
 
-void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void detail::basic_canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -320,7 +320,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     } while_dbra(i);
 }
 
-void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
+void detail::basic_canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -396,7 +396,7 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
     } while_dbra(i);
 }
 
-void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void detail::basic_canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -406,7 +406,7 @@ void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, p
         do_dbra(x, rect.size.width - 1) {
             int color = srcImage.get_pixel(point_s{(int16_t)(rect.origin.x + x), (int16_t)(rect.origin.y + y)});
             if (!image_c::is_masked(color)) {
-                put_pixel(color, point_s{(int16_t)(at.x + x), (int16_t)(at.y + y)});
+                _image.put_pixel(color, point_s{(int16_t)(at.x + x), (int16_t)(at.y + y)});
             }
         } while_dbra(x);
     } while_dbra(y);
