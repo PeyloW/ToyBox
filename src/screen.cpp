@@ -11,10 +11,10 @@
 using namespace toybox;
 
 screen_c::screen_c(size_s screen_size) :
-    _image(screen_size, false, nullptr), _canvas(_image), _offset()
+    _image(screen_size, false, nullptr), canvas_c(_image)
 {
     assert(screen_size.width >= 320 && screen_size.height >= 200);
-    _dirtymap = _canvas.create_dirtymap();
+    _dirtymap = create_dirtymap();
 }
 
 screen_c::~screen_c() {

@@ -17,7 +17,7 @@ public:
     }
     virtual void will_begin(const scene_c *from, const scene_c *to) {};
     virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) {
-        phys_screen.canvas().draw_aligned(log_screen.image(), point_s());
+        phys_screen.draw_aligned(log_screen.image(), point_s());
         return --_full_restores_left <= 0;
     }
 private:
@@ -64,7 +64,7 @@ void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_
         } else {
             debug_cpu_color(DEBUG_CPU_TOP_SCENE_TICK);
             auto &scene = top_scene();
-            clear.canvas().with_dirtymap(clear.dirtymap(), [&scene, ticks, &clear] {
+            clear.with_dirtymap(clear.dirtymap(), [&scene, ticks, &clear] {
                 scene.update_clear(clear, ticks);
             });
             if (_scene_stack.size() > 0 && scene == top_scene()) {
@@ -77,9 +77,9 @@ void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_
 #endif
                 clear.dirtymap()->clear();
                 debug_cpu_color(DEBUG_CPU_PHYS_RESTORE);
-                back.dirtymap()->restore(back.canvas(), clear.image());
+                back.dirtymap()->restore(back, clear.image());
                 
-                back.canvas().with_dirtymap(back.dirtymap(), [this, &scene, ticks, &back] {
+                back.with_dirtymap(back.dirtymap(), [this, &scene, ticks, &back] {
                     debug_cpu_color(DEBUG_CPU_TOP_SCENE_TICK);
                     if (&scene == &top_scene()) {
                         scene.update_back(back, ticks);
@@ -122,7 +122,7 @@ void scene_manager_c::push(scene_c *scene, transition_c *transition) {
     }
     _scene_stack.push_back(scene);
     auto &clear = screen(screen_e::clear);
-    clear.canvas().with_dirtymap(nullptr, [this, &clear] {
+    clear.with_dirtymap(nullptr, [this, &clear] {
         top_scene().will_appear(clear, false);
     });
     begin_transition(transition, from, scene);
@@ -140,7 +140,7 @@ void scene_manager_c::pop(transition_c *transition, int count) {
     if (_scene_stack.size() > 0) {
         auto &clear = screen(screen_e::clear);
         to = &top_scene();
-        clear.canvas().with_dirtymap(nullptr, [this, to, &clear, count] {
+        clear.with_dirtymap(nullptr, [this, to, &clear, count] {
             to->will_appear(clear, true);
         });
     }
@@ -153,7 +153,7 @@ void scene_manager_c::replace(scene_c *scene, transition_c *transition) {
     enqueue_delete(from);
     _scene_stack.back() = scene;
     auto &clear = screen(screen_e::clear);
-    clear.canvas().with_dirtymap(nullptr, [this, &clear] {
+    clear.with_dirtymap(nullptr, [this, &clear] {
         top_scene().will_appear(clear, false);
     });
     begin_transition(transition, from, scene);

@@ -35,13 +35,13 @@ namespace toybox {
                 _palette = nullptr;
             }
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
-            phys_screen.canvas().with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
+            phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
                 const size_s ts(320, 208);
                 for (int y = 0; y < 208; y += ts.height) {
                     for (int x = 0; x < 320; x += ts.width) {
                         point_s at(x, y);
                         rect_s rect(at, ts);
-                        phys_screen.canvas().draw_aligned(log_screen.image(), rect, at);
+                        phys_screen.draw_aligned(log_screen.image(), rect, at);
                     }
                 }
             });
@@ -71,8 +71,8 @@ public:
     virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) {
         if (_transition_state.full_restores_left > 2) {
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
-            phys_screen.canvas().with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
-                phys_screen.canvas().fill(_through, rect_s(point_s(), phys_screen.size()));
+            phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
+                phys_screen.fill(_through, rect_s(point_s(), phys_screen.size()));
             });
             if (shade == canvas_c::STENCIL_FULLY_OPAQUE) {
                 if (_palette) {
@@ -136,7 +136,7 @@ public:
         if (count < 17) {
             m.set_active_palette(&_palettes[count]);
         } else if (count < 18) {
-            phys_screen.canvas().draw_aligned(log_screen.image(), point_s());
+            phys_screen.draw_aligned(log_screen.image(), point_s());
         } else if (count < 34) {
             m.set_active_palette(&_palettes[count - 1]);
         } else {
