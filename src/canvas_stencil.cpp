@@ -10,7 +10,7 @@
 
 using namespace toybox;
 
-canvas_c::stencil_e detail::basic_canvas_c::effective_type(stencil_e type) {
+canvas_c::stencil_e canvas_c::effective_type(stencil_e type) {
     if (type == stencil_e::random) {
         type = (stencil_e)((fast_rand() % 4) + 1);
     }
@@ -109,7 +109,7 @@ void make_dither_mask(canvas_c::stencil_t stencil, int (*func)(int), int shade) 
     } while_dbra(y);
 }
 
-void detail::basic_canvas_c::make_stencil(stencil_t stencil, stencil_e type, int shade) {
+void canvas_c::make_stencil(stencil_t stencil, stencil_e type, int shade) {
     assert(shade >= STENCIL_FULLY_TRANSPARENT);
     assert(shade <= STENCIL_FULLY_OPAQUE);
     switch (type) {
@@ -131,7 +131,7 @@ void detail::basic_canvas_c::make_stencil(stencil_t stencil, stencil_e type, int
     }
 }
 
-const detail::basic_canvas_c::stencil_t *const detail::basic_canvas_c::stencil(stencil_e type, int shade) {
+const canvas_c::stencil_t *const canvas_c::stencil(stencil_e type, int shade) {
     assert(shade >= canvas_c::STENCIL_FULLY_TRANSPARENT);
     assert(shade <= canvas_c::STENCIL_FULLY_OPAQUE);
     assert((int)type < (int)stencil_e::random);

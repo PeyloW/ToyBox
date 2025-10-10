@@ -26,7 +26,6 @@ namespace toybox {
      TODO: Support dirty gris other than 16x16 pixels.
      */
     class dirtymap_c : public nocopy_c {
-        friend class detail::basic_canvas_c;
         friend class canvas_c;
     public:
         void mark(const rect_s &rect);

@@ -10,13 +10,13 @@
 
 using namespace toybox;
 
-dirtymap_c *detail::basic_canvas_c::create_dirtymap() const {
+dirtymap_c *canvas_c::create_dirtymap() const {
     auto size = _image.size();
     int bytes = dirtymap_c::instance_size(&size);
     return new (_calloc(1, bytes)) dirtymap_c(size);
 }
 
-void detail::basic_canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
+void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
     assert(rect.contained_by(_image.size()));
     for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {
         for (int16_t x = rect.origin.x; x < rect.origin.x + rect.size.width; x++) {

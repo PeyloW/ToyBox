@@ -37,7 +37,7 @@ __forceinline static void set_active_stencil(struct blitter_s *blitter, const ca
     }
 }
 
-void detail::basic_canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
+void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
     uint16_t dummy_src = 0;
     auto blitter = pBlitter;
 
@@ -98,7 +98,7 @@ void detail::basic_canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
 
 }
 
-void detail::basic_canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert((rect.origin.x & 0xf) == 0);
     assert((rect.size.width & 0xf) == 0);
     assert((at.x & 0xf) == 0);
@@ -154,7 +154,7 @@ void detail::basic_canvas_c::imp_draw_aligned(const image_c &srcImage, const rec
     }
 }
 
-void detail::basic_canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -226,7 +226,7 @@ void detail::basic_canvas_c::imp_draw(const image_c &srcImage, const rect_s &rec
     } while_dbra(i);
 }
 
-void detail::basic_canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -320,7 +320,7 @@ void detail::basic_canvas_c::imp_draw_masked(const image_c &srcImage, const rect
     } while_dbra(i);
 }
 
-void detail::basic_canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
+void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
@@ -396,7 +396,7 @@ void detail::basic_canvas_c::imp_draw_color(const image_c &srcImage, const rect_
     } while_dbra(i);
 }
 
-void detail::basic_canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
     assert(!rect.size.is_empty());
     assert(rect_s(at, rect.size).contained_by(size()));
     assert(rect.contained_by(srcImage.size()));
