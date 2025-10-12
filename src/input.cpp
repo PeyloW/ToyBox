@@ -12,7 +12,7 @@ using namespace toybox;
 
 static uint8_t g_prev_mouse_butons;
 uint8_t g_mouse_buttons;
-static mouse_c::state_e g_mouse_button_states[2];
+static button_state_e g_mouse_button_states[2];
 point_s g_mouse_position;
 
 extern "C" {
@@ -46,11 +46,11 @@ static void update_state() {
     int button;
     do_dbra(button, 1) {
         if (g_mouse_buttons & (1 << button)) {
-            g_mouse_button_states[button] = mouse_c::state_e::pressed;
+            g_mouse_button_states[button] = button_state_e::pressed;
         } else if (g_prev_mouse_butons & (1 << button)) {
-            g_mouse_button_states[button] = mouse_c::state_e::clicked;
+            g_mouse_button_states[button] = button_state_e::clicked;
         } else {
-            g_mouse_button_states[button] = mouse_c::state_e::released;
+            g_mouse_button_states[button] = button_state_e::released;
         }
     } while_dbra(button);
     g_prev_mouse_butons = g_mouse_buttons;
@@ -60,7 +60,7 @@ bool mouse_c::is_pressed(button_e button) const {
     return (g_mouse_buttons & (1 << (int)button)) != 0;
 }
 
-mouse_c::state_e mouse_c::state(button_e button) const {
+button_state_e mouse_c::state(button_e button) const {
     auto tick = timer_c::shared(timer_c::timer_e::vbl).tick();
     if (tick > _update_tick) {
         update_state();
@@ -77,5 +77,3 @@ point_s mouse_c::postion() {
     g_mouse_position = clamped_point;
     return clamped_point;
 }
-
-

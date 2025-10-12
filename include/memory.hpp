@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-16.
 //
 
-#ifndef memory_h
-#define memory_h
+#pragma once
 
 #include "static_allocator.hpp"
 
@@ -142,5 +141,3 @@ namespace toybox {
     static_assert(sizeof(shared_ptr_c<void*>) == sizeof(void*) * 2, "shared_ptr_c size mismatch.");
 
 }
-
-#endif /* memory_h */

@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-11.
 //
 
-#ifndef image_hpp
-#define image_hpp
+#pragma once
 
 #include "palette.hpp"
 #include "memory.hpp"
@@ -15,17 +14,7 @@
 namespace toybox {
     
     class canvas_c;
-    namespace detail {
-        class basic_canvas_c;
-    }
     
-    enum class compression_type_e : uint8_t {
-        compression_type_none,
-        compression_type_packbits,
-        compression_type_vertical,  // Not supported
-        compression_type_deflate    // Non-standard, not supported as of now
-    };
-
     /**
      An `image_c` is a read only representation of any graphics.
      An image with a mask is a sprite.
@@ -34,10 +23,15 @@ namespace toybox {
      TODO: Support bitplane layout other than interweaved.
      */
     class image_c : public asset_c {
-        friend class detail::basic_canvas_c;
         friend class canvas_c;
         friend class machine_c;
     public:
+        enum class compression_type_e : uint8_t {
+            none,
+            packbits,
+            vertical,  // Not supported
+            deflate    // Non-standard, not supported as of now
+        };
         static const int MASKED_CIDX = -1;
         static constexpr bool is_masked(int i) __pure { return i < 0; }
         enum class bitplane_layout_e : uint8_t {
@@ -76,5 +70,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* image_hpp */

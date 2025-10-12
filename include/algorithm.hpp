@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-03-26.
 //
 
-#ifndef algorithm_h
-#define algorithm_h
+#pragma once
 
 #include "concepts.hpp"
 #include "utility.hpp"
@@ -114,5 +113,3 @@ namespace toybox {
     }
 
 }
-
-#endif /* algorithm_h */

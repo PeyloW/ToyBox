@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-15.
 //
 
-#ifndef stream_hpp
-#define stream_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "optionset.hpp"
@@ -41,9 +40,9 @@ namespace toybox {
         virtual size_t read(uint8_t *buf, size_t count = 1) = 0;
         virtual size_t write(const uint8_t *buf, size_t count = 1) = 0;
 
-        template<typename T, typename = typename enable_if<!is_same<T, uint8_t>::value>::type>
+        template<typename T> requires (!same_as<T, uint8_t>)
         inline size_t read(T *buf, size_t count = 1) { return read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T)); }
-        template<typename T, typename = typename enable_if<!is_same<T, uint8_t>::value>::type>
+        template<typename T> requires (!same_as<T, uint8_t>)
         inline size_t write(const T *buf, size_t count = 1) { return write(reinterpret_cast<const uint8_t*>(buf), count * sizeof(T)); }
         
         int width() const { return _width; }
@@ -149,5 +148,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* stream_hpp */

@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-10.
 //
 
-#ifndef canvas_hpp
-#define canvas_hpp
+#pragma once
 
 #include "image.hpp"
 #include "tileset.hpp"
@@ -126,5 +125,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* canvas_hpp */

@@ -6,8 +6,7 @@
 //  Copyright © 2023 TOYS. All rights reserved.
 //
 
-#ifndef cincludes_h
-#define cincludes_h
+#pragma once
 
 #include "config.hpp"
 
@@ -102,7 +101,5 @@ extern void* operator new (size_t count, void *p) noexcept;
 namespace toybox {
     using nullptr_t = decltype(nullptr);
 }
-
-#endif /* cincludes_h */
 
 #include "system_helpers.hpp"

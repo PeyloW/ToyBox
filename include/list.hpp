@@ -5,8 +5,7 @@
 //  Created by Fredrik Olsson on 2024-03-24.
 //
 
-#ifndef list_h
-#define list_h
+#pragma once
 
 #include "static_allocator.hpp"
 #include "utility.hpp"
@@ -49,13 +48,12 @@ namespace toybox {
             
             __forceinline reference operator*() const { return _node->value; }
             __forceinline pointer operator->() const { return &_node->value; }
-            __forceinline _iterator_s operator++() { _node = _node->next; return *this; }
+            __forceinline _iterator_s& operator++() { _node = _node->next; return *this; }
             __forceinline _iterator_s operator++(int) { auto &tmp = *this; _node = _node->next; return tmp; }
             __forceinline bool operator==(const _iterator_s& o) const { return _node == o._node; }
             __forceinline bool operator!=(const _iterator_s& o) const { return _node != o._node; }
             __forceinline _iterator_s(_node_s *node) : _node(node) {}
-            template<typename = enable_if<!is_same<Type, TypeI>::value>>
-            __forceinline _iterator_s(const _iterator_s<Type> &other) : _node(other._node) {}
+            __forceinline _iterator_s(const _iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
             _node_s *_node;
         };
         using iterator = _iterator_s<Type>;
@@ -138,5 +136,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* list_h */

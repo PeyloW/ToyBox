@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-24.
 //
 
-#ifndef machine_hpp
-#define machine_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "types.hpp"
@@ -63,5 +62,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* machine_hpp */

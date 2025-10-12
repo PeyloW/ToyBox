@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-15.
 //
 
-#ifndef iffstream_hpp
-#define iffstream_hpp
+#pragma once
 
 #include "stream.hpp"
 #include "utility.hpp"
@@ -108,7 +107,7 @@ static const iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 
         
 #ifndef __M68000__
-        template<typename T, typename = typename enable_if<!is_same<T, uint8_t>::value>::type>
+        template<typename T> requires (!same_as<T, uint8_t>)
         size_t read(T *buf, size_t count = 1) {
             auto result = read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T));
             if (result) {
@@ -117,7 +116,7 @@ static const iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
             return  result;
         }
  
-        template<typename T, typename = typename enable_if<!is_same<T, uint8_t>::value>::type>
+        template<typename T> requires (!same_as<T, uint8_t>)
         size_t write(const T *buf, size_t count = 1) {
             T tmp[count];
             memcpy(tmp, buf, count * sizeof(T));
@@ -141,6 +140,3 @@ static const iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
     };
     
 }
-
-
-#endif /* iffstream_hpp */

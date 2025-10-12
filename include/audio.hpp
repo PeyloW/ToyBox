@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-02-18.
 //
 
-#ifndef audio_hpp
-#define audio_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "asset.hpp"
@@ -91,5 +90,3 @@ namespace toybox {
 #endif
 
 }
-
-#endif /* audio_hpp */

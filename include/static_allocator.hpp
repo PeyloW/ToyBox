@@ -5,8 +5,7 @@
 //  Created by Fredrik Olsson on 2024-03-24.
 //
 
-#ifndef static_allocator_h
-#define static_allocator_h
+#pragma once
 
 #include "algorithm.hpp"
 
@@ -22,13 +21,13 @@ class static_allocator_c {
     struct block_t;
 public:
     static const size_t alloc_size = sizeof(T);
+    static const size_t max_alloc_count = Count;
     using type = block_t *;
     static void *allocate() {
-        if (first_block == nullptr) init_blocks();
         assert(first_block);
 #ifndef __M68000__
         _alloc_count++;
-        _max_alloc_count = MAX(_max_alloc_count, _alloc_count);
+        _peak_alloc_count = MAX(_peak_alloc_count, _alloc_count);
 #endif
         auto ptr = reinterpret_cast<T*>(&first_block->data[0]);
         first_block = first_block->next;
@@ -43,7 +42,7 @@ public:
         first_block = block;
     }
 #ifndef __M68000__
-    static int max_alloc_count() { return _max_alloc_count; }
+    static int peak_alloc_count() { return _peak_alloc_count; }
 #endif
 private:
     struct block_t {
@@ -52,18 +51,16 @@ private:
     };
 #ifndef __M68000__
     inline static int _alloc_count = 0;
-    inline static int _max_alloc_count = 0;
+    inline static int _peak_alloc_count = 0;
 #endif
-    inline static block_t *first_block = nullptr;
-    static void init_blocks() {
-        first_block = reinterpret_cast<block_t *>(_malloc(sizeof(block_t) * Count));
+    inline static block_t *first_block = [] {
+        static block_t s_blocks[Count];
         for (int i = 0; i < Count - 1; i++) {
-            first_block[i].next = &first_block[i + 1];
+            s_blocks[i].next = &s_blocks[i + 1];
         }
-        first_block[Count - 1].next = nullptr;
-    }
+        s_blocks[Count - 1].next = nullptr;
+        return &s_blocks[0];
+    }();
 };
 
 }
-
-#endif /* static_allocator_h */

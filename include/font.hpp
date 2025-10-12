@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-11.
 //
 
-#ifndef font_hpp
-#define font_hpp
+#pragma once
 
 #include "image.hpp"
 #include "memory.hpp"
@@ -23,7 +22,7 @@ namespace toybox {
     class font_c : public asset_c {
     public:
         font_c(const shared_ptr_c<image_c> &image, size_s character_size);
-        font_c(const shared_ptr_c<image_c> &image, size_s max_size, uint8_t space_width, uint8_t lead_req_space, uint8_t trail_rew_space);
+        font_c(const shared_ptr_c<image_c> &image, size_s max_size, uint8_t space_width, uint8_t lead_req_space, uint8_t trail_req_space);
         virtual ~font_c() {};
         
         type_e asset_type() const { return type_e::font; }
@@ -45,5 +44,3 @@ namespace toybox {
     };
        
 }
-
-#endif /* font_hpp */

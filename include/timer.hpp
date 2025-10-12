@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-24.
 //
 
-#ifndef timer_hpp
-#define timer_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "types.hpp"
@@ -65,5 +64,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* timer_hpp */

@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-03-22.
 //
 
-#ifndef vector_h
-#define vector_h
+#pragma once
 
 #include "algorithm.hpp"
 
@@ -106,10 +105,8 @@ namespace toybox {
         }
         
     private:
-        aligned_membuf<Type> _data[Count];
+        aligned_membuf_s<Type> _data[Count];
         int _size;
     };
     
 }
-
-#endif /* vector_h */

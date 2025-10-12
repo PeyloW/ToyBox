@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-17.
 //
 
-#ifndef screen_hpp
-#define screen_hpp
+#pragma once
 
 #include "canvas.hpp"
 
@@ -29,5 +28,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* screen_hpp */

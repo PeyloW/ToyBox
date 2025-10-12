@@ -5,10 +5,9 @@
 //  Created by Fredrik on 2024-03-22.
 //
 
-#ifndef utility_h
-#define utility_h
+#pragma once
 
-#include "type_traits.hpp"
+#include "concepts.hpp"
 
 namespace toybox {
     
@@ -16,20 +15,25 @@ namespace toybox {
      This file containes a minimal set of funtionality from C++ stdlib.
      */
 
+#pragma mark - Byte order helpers
+    
 #ifdef __M68000__
 #   define hton(v)
 #else
-    template<class Type, typename enable_if<sizeof(Type) == 1 && is_arithmetic<Type>::value, bool>::type = true>
+    template<arithmetic Type>
+    requires (sizeof(Type) == 1)
     static inline void hton(Type &value) { }
     
-    template<class Type, typename enable_if<sizeof(Type) == 2 && is_arithmetic<Type>::value, bool>::type = true>
+    template<arithmetic Type>
+    requires (sizeof(Type) == 2)
     static void inline hton(Type &value) { value = htons(value); }
     
-    template<class Type, typename enable_if<sizeof(Type) == 4 && is_arithmetic<Type>::value, bool>::type = true>
+    template<arithmetic Type>
+    requires (sizeof(Type) == 4)
     static void inline hton(Type &value) { value = htonl(value); }
     
     void hton_struct(void *ptr, const char *layout);
-    template<typename T, typename enable_if<is_class<T>::value, bool>::type = true>
+    template<class_type T>
     static void inline hton(T &value) {
         hton_struct(&value, struct_layout<T>::value);
     }
@@ -47,6 +51,8 @@ namespace toybox {
     }
 #endif
     
+#pragma mark - Math functions
+    
     static inline __pure int sqrt(int x) {
         if (x == 0 || x == 1) {
             return x;
@@ -60,6 +66,8 @@ namespace toybox {
         }
     }
 
+#pragma mark - Random numbers
+    
     static uint16_t fast_rand_seed = 0xace1u;
     
     static inline uint16_t fast_rand(uint16_t seed) {
@@ -91,7 +99,7 @@ namespace toybox {
      Number are in range 0..63 inclusive.
      */
     static inline __pure int brand(int idx) {
-        const static uint8_t s_blue[256] = {
+        constexpr static uint8_t s_blue[256] = {
             10,  2, 17, 23, 10, 34,  4, 28, 37,  2, 19,  7,  3,  1,  5, 62,
              0,  8, 55, 46,  1, 61, 19,  0,  1,  9, 45, 25, 34, 16,  0, 24,
             13, 28,  5,  0,  3, 26, 12,  6, 42, 14, 59,  0, 11,  2, 50, 42,
@@ -112,6 +120,8 @@ namespace toybox {
         return s_blue[idx & 0xff];
     };
     
+#pragma mark - Hashing
+    
     static inline uint16_t fletcher16(uint8_t *data, size_t count, uint16_t start = 0) {
         uint16_t sum1 = start & 0xff;
         uint16_t sum2 = (start >> 8) & 0xff;
@@ -121,6 +131,8 @@ namespace toybox {
         }
         return (sum2 << 8) | sum1;
     }
+    
+#pragma mark - C++ language helpers
     
     template<class C> inline auto begin(C& c) -> decltype(c.begin()) { return c.begin(); };
     template<class C> inline auto begin(const C& c) -> decltype(c.begin()) { return c.begin(); };
@@ -146,12 +158,14 @@ namespace toybox {
         b = move(t);
     }
 
-    template< class T, class... Args >
+    template<class T, class... Args>
     constexpr T* construct_at(T* p, Args&&... args) {
         return new (static_cast<void *>(p)) T(forward<Args>(args)...);
     }
     template<class T> inline  void destroy_at(T* p) { p->~T(); }
 
+    
+#pragma mark - Helper classes
     
     // Base class enforcing no copy constructor or assignment.
     class nocopy_c {
@@ -165,6 +179,15 @@ namespace toybox {
         nocopy_c& operator=(const nocopy_c&) = delete;
     };
 
+    template<typename T>
+    struct __attribute__((aligned(alignof(T)))) aligned_membuf_s {
+        uint8_t data[sizeof(T)] = {0};
+        void *addr() __pure { return &data; }
+        const void *addr() const __pure { return &data; }
+        T *ptr() __pure { return reinterpret_cast<T *>(&data); }
+        const T *ptr() const __pure { return reinterpret_cast<const T *>(&data); }
+    };
+    
     template<class T1, class T2>
     class pair_c : nocopy_c {
     public:
@@ -177,5 +200,3 @@ namespace toybox {
     inline pair_c<T1, T1> make_pair( T1&& f, T2&& s) { return pair_c<T1, T2>(forward<T1>(f), forward<T2>(s)); }
 
 }
-
-#endif /* utility_h */

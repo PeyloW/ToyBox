@@ -98,7 +98,7 @@ struct __packed_struct ilbm_header_s {
     point_s offset;
     uint8_t plane_count;
     mask_type_e mask_type;
-    compression_type_e compression_type;
+    image_c::compression_type_e compression_type;
     uint8_t _pad;
     uint16_t mask_color;
     uint8_t aspect[2];
@@ -223,7 +223,7 @@ image_c::image_c(const char *path, int masked_cidx) :
                 assert(bmhd.mask_type == mask_type_e::mask_type_none);
             }
             // DeluxePain ST format and custom deflate not supported
-            assert(bmhd.compression_type < compression_type_e::compression_type_vertical); // DeluxePain ST format not supported
+            assert(bmhd.compression_type < compression_type_e::vertical); // DeluxePain ST format not supported
         } else if (iff_id_match(chunk.id, IFF_CMAP)) {
             uint8_t cmpa[48];
             if (file.read(cmpa, 48) != 48) {
@@ -243,10 +243,10 @@ image_c::image_c(const char *path, int masked_cidx) :
                 _maskmap = nullptr;
             }
             switch (bmhd.compression_type) {
-                case compression_type_e::compression_type_none:
+                case compression_type_e::none:
                     image_read(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::mask_type_plane ? _maskmap : nullptr);
                     break;
-                case compression_type_e::compression_type_packbits:
+                case compression_type_e::packbits:
                     image_read_packbits(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::mask_type_plane ? _maskmap : nullptr);
                     break;
                 default:

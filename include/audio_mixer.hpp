@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-20.
 //
 
-#ifndef audio_mixer_hpp
-#define audio_mixer_hpp
+#pragma once
 
 #include "audio.hpp"
 
@@ -37,5 +36,3 @@ namespace toybox {
     };
   
 }
-
-#endif /* audio_mixer_hpp */

@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-02-11.
 //
 
-#ifndef types_h
-#define types_h
+#pragma once
 
 #include "cincludes.hpp"
 #include "utility.hpp"
@@ -97,5 +96,3 @@ namespace toybox {
     static_assert(sizeof(rect_s) == 8);
 
 }
-
-#endif /* types_h */

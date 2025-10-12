@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-26.
 //
 
-#ifndef asset_hpp
-#define asset_hpp
+#pragma once
 
 #include "stream.hpp"
 #include "vector.hpp"
@@ -81,5 +80,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* asset_hpp */

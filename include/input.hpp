@@ -5,15 +5,21 @@
 //  Created by Fredrik on 2024-04-24.
 //
 
-#ifndef input_hpp
-#define input_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "types.hpp"
+#include "optionset.hpp"
 
 namespace toybox {
     
     
+    enum class button_state_e : uint8_t {
+        released,
+        pressed,
+        clicked
+    };
+
     /**
      A `mouse_c` is an abstraction for mouse input.
      The mouse is a lazy initialized singleton.
@@ -23,11 +29,6 @@ namespace toybox {
         enum class button_e : uint8_t {
             right, left
         };
-        enum class state_e : uint8_t {
-            released,
-            pressed,
-            clicked
-        };
         
         static mouse_c &shared();
         
@@ -35,7 +36,7 @@ namespace toybox {
         void set_limits(const rect_s &limits);
         
         bool is_pressed(button_e button) const;
-        state_e state(button_e button) const;
+        button_state_e state(button_e button) const;
         
         point_s postion();
         
@@ -63,5 +64,3 @@ namespace toybox {
     };
 
 }
-
-#endif /* input_hpp */

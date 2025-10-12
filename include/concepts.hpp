@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2025-10-05.
 //
 
-#ifndef concepts_hpp
-#define concepts_hpp
+#pragma once
 
 #include "type_traits.hpp"
 
@@ -14,6 +13,27 @@ namespace toybox {
     
     template<typename A, typename B>
     concept same_as = is_same<A, B>::value;
+    
+    
+    template<typename T>
+    concept integral = is_integral<T>::value;
+
+    template<typename T>
+    concept floating_point = is_floating_point<T>::value;
+
+    template<typename T>
+    concept arithmetic = integral<T> || floating_point<T>;
+    
+    template<typename T>
+    concept class_type = __is_class(T);
+    
+    template<typename T>
+    concept enum_type = __is_enum(T);
+    
+    template<typename T, typename U>
+    concept convertable_to = requires(T&& x) {
+        static_cast<U>(forward<U>(x));
+    };
     
     template<typename F, typename... Args>
     concept invocable = requires(F&& f, Args&&... args) {
@@ -32,7 +52,7 @@ namespace toybox {
     };
 
     template<typename I>
-    concept decrementabke = requires(I i) {
+    concept decrementable = requires(I i) {
         { i-- } -> same_as<I>;
         { --i } -> same_as<I&>;
     };
@@ -48,7 +68,7 @@ namespace toybox {
     };
     
     template<typename I>
-    concept bidirectional_iterator = input_iterator<I> && decrementabke<I>;
+    concept bidirectional_iterator = input_iterator<I> && decrementable<I>;
 
     template<typename I>
     concept random_access_iterator = bidirectional_iterator<I> && requires(I i, I j, int n) {
@@ -61,5 +81,3 @@ namespace toybox {
     };
 
 }
-
-#endif /* concepts_h */

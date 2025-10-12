@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-02-25.
 //
 
-#ifndef blitter_hpp
-#define blitter_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "types.hpp"
@@ -101,5 +100,3 @@ namespace toybox {
 #endif
     
 }
-
-#endif /* blitter_hpp */

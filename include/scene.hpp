@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-03-01.
 //
 
-#ifndef scene_hpp
-#define scene_hpp
+#pragma once
 
 #include "timer.hpp"
 #include "input.hpp"
@@ -127,5 +126,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* scene_hpp */

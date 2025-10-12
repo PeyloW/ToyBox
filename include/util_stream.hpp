@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-05-19.
 //
 
-#ifndef util_stream_hpp
-#define util_stream_hpp
+#pragma once
 
 #include "stream.hpp"
 
@@ -44,5 +43,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* util_stream_hpp */

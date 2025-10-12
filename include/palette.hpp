@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-02-04.
 //
 
-#ifndef graphics_hpp
-#define graphics_hpp
+#pragma once
 
 #include "cincludes.hpp"
 #include "types.hpp"
@@ -87,4 +86,3 @@ namespace toybox {
     };
     
 }
-#endif /* graphics_hpp */

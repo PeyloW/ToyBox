@@ -5,8 +5,7 @@
 //  Created by Fredrik Olsson on 2024-03-22.
 //
 
-#ifndef type_traits_h
-#define type_traits_h
+#pragma once
 
 #include "cincludes.hpp"
 
@@ -15,10 +14,7 @@ namespace toybox {
     /*
      This file containes a minimal set of funtionality from C++ stdlib.
      */
-    
-    template<bool B, typename T = void> struct enable_if {};
-    template<typename T> struct enable_if<true, T> { using type = T; };
-    
+        
     template<class T, T v>
     struct integral_constant {
         static constexpr T value = v;
@@ -27,6 +23,8 @@ namespace toybox {
     struct bool_constant : public integral_constant<bool, B> {};
     using false_type = bool_constant<false>;
     using true_type = bool_constant<true>;
+    
+#pragma mark - Type categories
     
     template<typename T> struct is_integral : public false_type {};
     template<> struct is_integral<bool> : public true_type {};
@@ -47,6 +45,9 @@ namespace toybox {
     template<class T> struct is_reference : false_type {};
     template<class T> struct is_reference<T&> : true_type {};
     template<class T> struct is_reference<T&&> : true_type {};
+    
+    
+#pragma mark - Type modifications
     
     template<class T> struct remove_const { using type = T; };
     template<class T> struct remove_const<const T> { using type = T; };
@@ -71,23 +72,8 @@ namespace toybox {
         template<typename T> T declval_imp(long);
     }
     template<typename T> auto declval() noexcept -> decltype(detail::declval_imp<T>(0));
-    
-    namespace detail {
-        struct is_constructible_imp
-        {
-            template<typename T, typename = decltype(declval<T&>().~T())>
-            static true_type test(int);
-            template<typename>
-            static false_type test(...);
-        };
-        struct is_destructible_imp
-        {
-            template<typename T, typename = decltype(declval<T&>().~T())>
-            static true_type test(int);
-            template<typename>
-            static false_type test(...);
-        };
-    }
+        
+#pragma mark - Relationship and property queries
     
     template<class T, class U> struct is_same : false_type {};
     template<class T> struct is_same<T, T> : true_type {};
@@ -95,32 +81,38 @@ namespace toybox {
     template<class T>
     struct is_void : is_same<void, typename remove_const<T>::type> {};
     
-    template<class T>
-    struct is_class : bool_constant<__is_class(T)> {};
+#pragma mark - Supported operations
+
+    template<typename T, typename... Args>
+    struct is_constructible : bool_constant<__is_constructible(T, Args...)> {};
+    template<typename T, typename... Args>
+    struct is_trivially_constructible : bool_constant<__is_trivially_constructible(T, Args...)> {};
+    template<typename T>
+    struct is_default_constructible : bool_constant<__is_constructible(T)> {};
+    template<typename T>
+    struct is_copy_constructible : bool_constant<__is_constructible(T, const T&)> {};
+    template<typename T>
+    struct is_move_constructible : bool_constant<__is_constructible(T, T&&)> {};
     
-    template<typename T, typename... Args> struct is_constructible : public bool_constant<sizeof(detail::is_constructible_imp::test<T>(0)) == sizeof(true_type)> {};
-    template<typename T> struct is_trivially_constructible : public bool_constant<__is_trivially_constructible(T)> {};
-    template<typename T> struct is_default_constructible : public bool_constant<is_constructible<T>::value> {};
-    template<typename T> struct is_copy_constructible : public is_constructible<T, const T&> {};
-    template<typename T> struct is_move_constructible : public is_constructible<T, T&&> {};
-    
-    template<typename T> struct is_destructible : public bool_constant<sizeof(detail::is_destructible_imp::test<T>(0)) == sizeof(true_type)> {};
 #if defined(__clang__)
-    template<typename T> struct is_trivially_destructible : bool_constant<is_destructible<T>::value && __is_trivially_destructible(T)> {};
+    template<typename T>
+    struct is_destructible : public bool_constant<__is_destructible(T)> {};
+    template<typename T> struct is_trivially_destructible : bool_constant<__is_trivially_destructible(T)> {};
 #else
+    template<typename T>
+    struct is_destructible {
+    private:
+        template<typename U> static auto test(int) -> decltype(declval<U&>().~U(), true_type{});
+        template<typename> static false_type test(...);
+    public:
+        static constexpr bool value = decltype(test<T>(0))::value;
+    };
     template<typename T> struct is_trivially_destructible : bool_constant<is_destructible<T>::value && __has_trivial_destructor(T)> {};
 #endif
     
     template<typename T> struct is_trivially_copyable : public bool_constant<__is_trivially_copyable(T)> {};
     
-    template<typename T>
-    struct __attribute__((aligned(alignof(T)))) aligned_membuf {
-        uint8_t data[sizeof(T)] = {0};
-        void *addr() __pure { return &data; }
-        const void *addr() const __pure { return &data; }
-        T *ptr() __pure { return reinterpret_cast<T *>(&data); }
-        const T *ptr() const __pure { return reinterpret_cast<const T *>(&data); }
-    };
+#pragma mark - Struct layout helper for EA IFF 85 compiance
     
     template<typename T>
     struct struct_layout;
@@ -141,14 +133,5 @@ namespace toybox {
     struct struct_layout<uint32_t> {
         static constexpr const char * value = "1l";
     };
-
-    template <typename T>
-    struct is_enum : integral_constant<bool, __is_enum(T)> {};
-    
-    // Specialize for true_type for enum class that is an option set to enable bitwise operators and comparison to bool.
-    template<typename T>
-    struct is_optionset : false_type {};
-    
+        
 }
-
-#endif /* type_traits_h */

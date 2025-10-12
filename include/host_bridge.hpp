@@ -9,8 +9,7 @@
 #error "For host machine only"
 #else
 
-#ifndef system_host_h
-#define system_host_h
+#pragma once
 
 #include "types.hpp"
 
@@ -54,5 +53,4 @@ namespace toybox {
     
 }
 
-#endif /* system_host_h */
 #endif

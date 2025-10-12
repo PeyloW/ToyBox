@@ -5,11 +5,9 @@
 //  Created by Fredrik on 2024-02-11.
 //
 
-#ifndef system_helpers_hpp
-#define system_helpers_hpp
+#pragma once
 
 #include "cincludes.hpp"
-
 
 namespace toybox {
        
@@ -166,4 +164,3 @@ namespace toybox {
 #endif
    
 }
-#endif /* system_helpers_hpp */

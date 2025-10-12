@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-11.
 //
 
-#ifndef dirtymap_h
-#define dirtymap_h
+#pragma once
 
 #include "types.hpp"
 
@@ -43,5 +42,3 @@ namespace toybox {
     };
     
 }
-
-#endif /* dirtymap_h */

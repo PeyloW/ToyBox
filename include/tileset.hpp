@@ -5,8 +5,7 @@
 //  Created by Fredrik on 2024-04-17.
 //
 
-#ifndef tileset_hpp
-#define tileset_hpp
+#pragma once
 
 #include "image.hpp"
 
@@ -46,4 +45,3 @@ namespace toybox {
     };
 
 }
-#endif /* tileset_hpp */
