@@ -134,10 +134,10 @@ void timer_c::reset_tick() {
 void timer_c::wait(int ticks) {
     const auto wait_tick = tick() + ticks;
     while (wait_tick >= tick()) {
-        debug_cpu_color(0x700);
-        debug_cpu_color(0x000);
 #ifndef __M68000__
         host_bridge_c::shared().yield();
+#else
+        __asm__ volatile("stop #0x2300" : : : "cc");
 #endif
     }
 }
