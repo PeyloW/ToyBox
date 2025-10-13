@@ -69,6 +69,8 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
     - [x] Update to use libcmini top of tree (0.54 too old for elf)
     - [x] Remove libcmini 0.47 workarounds
 - [x] Update sources to C++20
+- [ ] Add unit tests
+- [ ] Add sample project
 
 
 ### v2.0 - Support horizontally scrolling game played with joystick

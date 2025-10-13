@@ -36,12 +36,12 @@ namespace toybox {
             one = 15
         };
 
-        static const uint8_t skew_mask = 0x0f;
-        static const uint8_t nfsr_bit = (1<<6);
-        static const uint8_t fxsr_bit = (1<<7);
+        static constexpr uint8_t skew_mask = 0x0f;
+        static constexpr uint8_t nfsr_bit = (1<<6);
+        static constexpr uint8_t fxsr_bit = (1<<7);
         
-        static const uint8_t hog_bit = (1<<6);
-        static const uint8_t busy_bit = (1<<7);
+        static constexpr uint8_t hog_bit = (1<<6);
+        static constexpr uint8_t busy_bit = (1<<7);
 
         __target_volatite uint16_t halftoneRAM[16];
         __target_volatite int16_t srcIncX;

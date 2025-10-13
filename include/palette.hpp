@@ -22,9 +22,9 @@ namespace toybox {
     class color_c {
     public:
         uint16_t color;
-        color_c() = default;
-        color_c(uint16_t c) : color(c) {}
-        color_c(const uint8_t r, const uint8_t g, const uint8_t b) : color(to_ste(r, 8) | to_ste(g, 4) | to_ste(b, 0)) {}
+        constexpr color_c() = default;
+        constexpr color_c(uint16_t c) : color(c) {}
+        constexpr color_c(const uint8_t r, const uint8_t g, const uint8_t b) : color(to_ste(r, 8) | to_ste(g, 4) | to_ste(b, 0)) {}
         void set_at(const int i) const {
 #ifdef __M68000__
 #   if TOYBOX_TARGET_ATARI
@@ -40,15 +40,15 @@ namespace toybox {
             *b = from_ste(color, 0);
         }
         color_c mix(color_c other, int shade) const;
-        static const int MIX_FULLY_THIS = 0;
-        static const int MIX_FULLY_OTHER = 64;
+        static constexpr int MIX_FULLY_THIS = 0;
+        static constexpr int MIX_FULLY_OTHER = 64;
     private:
-        __forceinline static uint16_t to_ste(const uint8_t c, const uint8_t shift) {
-            static const uint8_t STE_TO_SEQ[16] = { 0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15 };
+        __forceinline static constexpr uint16_t to_ste(const uint8_t c, const uint8_t shift) {
+            constexpr uint8_t STE_TO_SEQ[16] = { 0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15 };
             return STE_TO_SEQ[c >> 4] << shift;
         }
-        __forceinline static uint8_t from_ste(const uint16_t c, const uint8_t shift) {
-            static const uint8_t STE_FROM_SEQ[16] = { 0x00, 0x22, 0x44, 0x66, 0x88, 0xaa, 0xcc, 0xee,
+        __forceinline static constexpr uint8_t from_ste(const uint16_t c, const uint8_t shift) {
+            constexpr uint8_t STE_FROM_SEQ[16] = { 0x00, 0x22, 0x44, 0x66, 0x88, 0xaa, 0xcc, 0xee,
                 0x11, 0x33, 0x55, 0x77, 0x99, 0xbb, 0xdd, 0xff};
             return STE_FROM_SEQ[(c >> shift) & 0x0f];
         }

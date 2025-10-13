@@ -34,8 +34,8 @@ namespace toybox {
             int _table[17];
         };
         
-        static const int STENCIL_FULLY_TRANSPARENT = 0;
-        static const int STENCIL_FULLY_OPAQUE = 64;
+        static constexpr int STENCIL_FULLY_TRANSPARENT = 0;
+        static constexpr int STENCIL_FULLY_OPAQUE = 64;
         using stencil_t = uint16_t[16];
         enum class stencil_e : uint8_t {
             none,

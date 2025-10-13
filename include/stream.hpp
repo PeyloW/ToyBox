@@ -81,8 +81,8 @@ namespace toybox {
         static stream_c& operator<<(stream_c &s, const setfill_s &m) { s.fill(m.c); return s; }
     }
     
-    static const detail::setw_s setw(int w) { return (detail::setw_s){ w }; };
-    static const detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
+    static constexpr detail::setw_s setw(int w) { return (detail::setw_s){ w }; };
+    static constexpr detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
     
 
     class fstream_c : public stream_c {

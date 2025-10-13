@@ -10,10 +10,7 @@
 
 using namespace toybox;
 
-#define CGDIRTYMAP_BITSET (1)
-
-#if CGDIRTYMAP_BITSET
-static const int16_t LOOKUP_SIZE = 256;
+static constexpr int16_t LOOKUP_SIZE = 256;
 struct __packed_struct bitrun_list_s {
     int16_t num_runs;
     struct bitrun_s {
@@ -52,7 +49,6 @@ static void init_lookup_table_if_needed() {
         }
     }
 }
-#endif
 
 int dirtymap_c::instance_size(size_s *size) {
     init_lookup_table_if_needed();
@@ -67,12 +63,11 @@ void dirtymap_c::mark(const rect_s &rect) {
     const int16_t x2 = (rect.max_x()) / TOYBOX_DIRTYMAP_TILE_SIZE.width;
     const int16_t y1 = rect.origin.y / TOYBOX_DIRTYMAP_TILE_SIZE.height;
     assert(y1 < _size.height);
-#if CGDIRTYMAP_BITSET
 #define BITS_PER_BYTE 8
-    static const uint8_t first_byte_masks[BITS_PER_BYTE] = {
+    static constexpr uint8_t first_byte_masks[BITS_PER_BYTE] = {
         0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80
     };
-    static const uint8_t last_byte_masks[BITS_PER_BYTE] = {
+    static constexpr uint8_t last_byte_masks[BITS_PER_BYTE] = {
         0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF
     };
 
@@ -139,48 +134,54 @@ void dirtymap_c::merge(const dirtymap_c &dirtymap) {
 }
 
 void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
+#if TOYBOX_DEBUG_DIRTYMAP
+    static uint32_t s_restore_generation = 0;
+    s_restore_generation++;
+#endif
     auto &image = canvas.image();
     assert(image.size() == clean_image.size());
     assert(_size.width * TOYBOX_DIRTYMAP_TILE_SIZE.width * 8 >= clean_image.size().width);
     assert(_size.height * TOYBOX_DIRTYMAP_TILE_SIZE.height == clean_image.size().height);
     assert((image.size().width % TOYBOX_DIRTYMAP_TILE_SIZE.width) == 0);
     assert((image.size().height % TOYBOX_DIRTYMAP_TILE_SIZE.height) == 0);
-    const_cast<canvas_c&>(canvas).with_clipping(false, [this, &canvas, &clean_image] {
-        auto data = _data;
-        point_s at = {0, 0};
-        int row;
-        while_dbra_count(row, _size.height) {
-            int col;
-            while_dbra_count(col, _size.width) {
-                const uint8_t byte = *data;
-                if (byte) {
-                    const int16_t height = [&] {
-                        int16_t height = 0;
-                        while (data[height * _size.width] == byte) {
-                            data[height * _size.width] = 0;
-                            height++;
+    const_cast<canvas_c&>(canvas).with_clipping(false, [&] {
+        canvas.with_dirtymap(nullptr, [&] {
+            auto data = _data;
+            point_s at = {0, 0};
+            int row;
+            while_dbra_count(row, _size.height) {
+                int col;
+                while_dbra_count(col, _size.width) {
+                    const uint8_t byte = *data;
+                    if (byte) {
+                        const int16_t height = [&] {
+                            int16_t height = 0;
+                            do {
+                                data[height * _size.width] = 0;
+                                height++;
+                            } while (data[height * _size.width] == byte);
+                            return height * TOYBOX_DIRTYMAP_TILE_SIZE.height;
+                        }();
+                        auto bitrunlist = lookup_table[(int16_t)byte];
+                        int16_t *bitrun = (int16_t*)bitrunlist->bit_runs;
+                        int r;
+                        while_dbra_count(r, bitrunlist->num_runs) {
+                            rect_s rect;
+                            rect.origin = point_s(at.x + *bitrun++, at.y);
+                            rect.size = size_s(*bitrun++, height);
+#if TOYBOX_DEBUG_DIRTYMAP
+                            printf("Restore [%u] {{%d, %d}, {%d, %d}}\n", s_restore_generation, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+#endif
+                            canvas.draw_aligned(clean_image, rect, rect.origin);
                         }
-                        return height * TOYBOX_DIRTYMAP_TILE_SIZE.height;
-                    }();
-                    auto bitrunlist = lookup_table[(int16_t)byte];
-                    int16_t *bitrun = (int16_t*)bitrunlist->bit_runs;
-                    int r;
-                    while_dbra_count(r, bitrunlist->num_runs) {
-                        rect_s rect;
-                        rect.origin = point_s(at.x + *bitrun++, at.y);
-                        rect.size = size_s(*bitrun++, height);
-                        #if TOYBOX_DEBUG_DIRTYMAP
-                        printf("Restore {{%d, %d}, {%d, %d}}\n", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-                        #endif
-                        canvas.draw_aligned(clean_image, rect, rect.origin);
                     }
+                    data++;
+                    at.x += TOYBOX_DIRTYMAP_TILE_SIZE.width * 8;
                 }
-                data++;
-                at.x += TOYBOX_DIRTYMAP_TILE_SIZE.width * 8;
+                at.x = 0;
+                at.y += TOYBOX_DIRTYMAP_TILE_SIZE.height;
             }
-            at.x = 0;
-            at.y += TOYBOX_DIRTYMAP_TILE_SIZE.height;
-        }
+        });
     });
 }
 
@@ -212,5 +213,4 @@ void dirtymap_c::debug(const char *name) const {
         printf("\n");
     }
 }
-#endif
 #endif

@@ -129,25 +129,14 @@ fstream_c::~fstream_c() {
     }
 }
 
-static const char *mode_for_mode(fstream_c::openmode_e mode) {
-    if ((mode & fstream_c::openmode_e::append) == true) {
-        assert((mode & fstream_c::openmode_e::output) == true);
-        if ((mode & fstream_c::openmode_e::input) == true) {
-            return "a+";
-        } else {
-            return "a";
-        }
-    } else if ((mode & fstream_c::openmode_e::output) == true) {
-        if ((mode & fstream_c::openmode_e::input) == true) {
-            return "w+";
-        } else {
-            return "w";
-        }
-    } else if ((mode & fstream_c::openmode_e::input) == true) {
-        return "r";
-    } else {
-        return "";
-    }
+static constexpr const char *mode_for_mode(fstream_c::openmode_e mode) {
+    constexpr const char *const s_table[8] = {
+        nullptr, "r", "w", "r+",
+        "a", "a+", "a+", nullptr
+    };
+    assert((uint8_t)mode < 8);
+    assert(s_table[(uint8_t)mode]);
+    return s_table[(uint8_t)mode];
 }
 
 bool fstream_c::open() {

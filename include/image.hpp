@@ -32,7 +32,7 @@ namespace toybox {
             vertical,  // Not supported
             deflate    // Non-standard, not supported as of now
         };
-        static const int MASKED_CIDX = -1;
+        static constexpr int MASKED_CIDX = -1;
         static constexpr bool is_masked(int i) __pure { return i < 0; }
         enum class bitplane_layout_e : uint8_t {
             interweaved, interleaved, continious

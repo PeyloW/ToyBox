@@ -20,8 +20,8 @@ template <class T, size_t Count>
 class static_allocator_c {
     struct block_t;
 public:
-    static const size_t alloc_size = sizeof(T);
-    static const size_t max_alloc_count = Count;
+    static constexpr size_t alloc_size = sizeof(T);
+    static constexpr size_t max_alloc_count = Count;
     using type = block_t *;
     static void *allocate() {
         assert(first_block);

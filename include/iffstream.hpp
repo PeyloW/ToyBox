@@ -19,8 +19,8 @@ namespace toybox {
         return (uint32_t)str[0]<<24 | (uint32_t)str[1]<<16 | (uint32_t)str[2]<<8 | str[3];
     }
 #else
-    __forceinline static const iff_id_t iff_id_make(const char *const str) {
-        assert(strlen(str) == 4);
+    __forceinline static constexpr iff_id_t iff_id_make(const char *const str) {
+        assert(str[0] != 0 && str[1] != 0 && str[2] != 0 && str[3] != 0 && str[4] == 0);
         return static_cast<uint32_t>(str[0])<<24 | static_cast<uint32_t>(str[1])<<16 | static_cast<uint32_t>(str[2])<<8 | str[3];
     }
 #endif
@@ -37,18 +37,18 @@ namespace toybox {
     
 #ifdef __M68000__
 #   define DEFINE_IFF_ID(ID) \
-static constexpr const char * IFF_ ## ID = #ID; \
+static constexpr const char *const IFF_ ## ID = #ID; \
 static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 #   define DEFINE_IFF_ID_EX(ID, STR) \
-static constexpr char * IFF_ ## ID = STR; \
+static constexpr const char *const IFF_ ## ID = STR; \
 static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 #else
 #   define DEFINE_IFF_ID(ID) \
-static const char *const IFF_ ## ID = #ID; \
+static constexpr const char *const IFF_ ## ID = #ID; \
 static iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 #   define DEFINE_IFF_ID_EX(ID, STR) \
-static const char *const IFF_ ## ID = STR; \
-static const iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
+static constexpr const char *const IFF_ ## ID = STR; \
+static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 #endif
     
     DEFINE_IFF_ID (FORM);

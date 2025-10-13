@@ -21,11 +21,10 @@ namespace toybox {
         screen_c(size_s screen_size = TOYBOX_SCREEN_SIZE_DEFAULT);
         ~screen_c();
         
-        dirtymap_c *dirtymap() const { return _dirtymap.get(); }
+        dirtymap_c *dirtymap() const { return _dirtymap; }
 
     private:
         image_c _image;
-        unique_ptr_c<dirtymap_c> _dirtymap;
     };
     
 }

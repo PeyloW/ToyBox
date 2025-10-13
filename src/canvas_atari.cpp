@@ -13,14 +13,14 @@
 
 using namespace toybox;
 
-static const uint8_t pBlitter_skewflags[4] = {
+static constexpr uint8_t pBlitter_skewflags[4] = {
     blitter_s::nfsr_bit,
     blitter_s::fxsr_bit,
     0,
     blitter_s::nfsr_bit|blitter_s::fxsr_bit,
 };
 
-static const uint16_t pBlitter_mask[17] = {
+static constexpr uint16_t pBlitter_mask[17] = {
     0xffff, 0x7fff, 0x3fff, 0x1fff,
     0x0fff, 0x07ff, 0x03ff, 0x01ff,
     0x00ff, 0x007f, 0x003f, 0x001f,
