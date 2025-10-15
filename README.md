@@ -11,7 +11,7 @@ A minimal C++ framework for writing Atari ST entertainment software.
 
 Toybox should be small, fast and convenient. In order to be small toybox shall use a bare minimum of libcmini, and not inlcude or implement anything not directly needed by a client program. In order to be fast toybox shall rely on C++ compiler optimizations, and rely on error checking on host machine not M68k target. In order to be convenient API shall be designed similar to C++ standard library and/or boost.
 
-All code must compile with gcc and clang with C++20 enabled, no standard libraries linked!
+All code must compile with gcc and clang with C++23 enabled, no standard libraries linked!
 
 Make no assumption of integer/pointer size. Host may use 32 bit integers, target **must** use 16 bit integers. Whenever possible use explicitly sized types, `int16_t` not `short`.
 
@@ -68,9 +68,11 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
     - [x] Use link time optimizations
     - [x] Update to use libcmini top of tree (0.54 too old for elf)
     - [x] Remove libcmini 0.47 workarounds
-- [x] Update sources to C++20
-- [ ] Add unit tests
-- [ ] Add sample project
+- [x] Update sources to ~~C++20~~ C++23
+- [-] Add unit tests
+- [x] Add sample project
+- [ ] Update documentation 
+- [ ] Add Xcode IDE to toybox project
 
 
 ### v2.0 - Support horizontally scrolling game played with joystick

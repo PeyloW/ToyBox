@@ -1,14 +1,14 @@
 # Common variables and rules for both toybox and game Makefiles
 
-LIBCMINI=../libcmini-0.54
+LIBCMINI?=../libcmini-0.54
 LIBCMINIINC=$(LIBCMINI)/include
 LIBCMINILIB=$(LIBCMINI)/build/mshort/mfastcall
 LIBCMINIOBJ=$(LIBCMINILIB)/objs
-TOYBOX=../toybox
+TOYBOX?=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
 FLAGS=-DTOYBOX_TARGET_ATARI=2
-CFLAGS=-std=c++20 -c -I $(TOYBOXINC)
+CFLAGS=-std=c++23 -c -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
 ifeq ($(HOST),sdl2)
