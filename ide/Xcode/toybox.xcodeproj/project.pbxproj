@@ -1,0 +1,427 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A68D49DC2EA1343F00174946 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A68D497B2EA132E700174946 /* common.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = common.mk; path = ../../common.mk; sourceTree = SOURCE_ROOT; tabWidth = 4; };
+		A68D499D2EA132E700174946 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = LICENSE.txt; path = ../../LICENSE.txt; sourceTree = SOURCE_ROOT; };
+		A68D499E2EA132E700174946 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../../Makefile; sourceTree = SOURCE_ROOT; };
+		A68D499F2EA132E700174946 /* product.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = product.mk; path = ../../product.mk; sourceTree = SOURCE_ROOT; };
+		A68D49A02EA132E700174946 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../README.md; sourceTree = SOURCE_ROOT; };
+		A68D49DE2EA1343F00174946 /* toybox_index */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = toybox_index; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A68D499C2EA132E700174946 /* include */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = include;
+			path = ../../include;
+			sourceTree = SOURCE_ROOT;
+		};
+		A68D49B02EA132E700174946 /* sample */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = sample;
+			path = ../../sample;
+			sourceTree = SOURCE_ROOT;
+		};
+		A68D49CE2EA132E700174946 /* src */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = src;
+			path = ../../src;
+			sourceTree = SOURCE_ROOT;
+		};
+		A68D49D62EA132E700174946 /* tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = tests;
+			path = ../../tests;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A68D49DB2EA1343F00174946 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A68D496B2EA1314600174946 = {
+			isa = PBXGroup;
+			children = (
+				A68D49D82EA132F800174946 /* build */,
+				A68D499C2EA132E700174946 /* include */,
+				A68D49CE2EA132E700174946 /* src */,
+				A68D49B02EA132E700174946 /* sample */,
+				A68D49D62EA132E700174946 /* tests */,
+				A68D499D2EA132E700174946 /* LICENSE.txt */,
+				A68D49A02EA132E700174946 /* README.md */,
+				A68D49DF2EA1343F00174946 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A68D49D82EA132F800174946 /* build */ = {
+			isa = PBXGroup;
+			children = (
+				A68D497B2EA132E700174946 /* common.mk */,
+				A68D499E2EA132E700174946 /* Makefile */,
+				A68D499F2EA132E700174946 /* product.mk */,
+			);
+			path = build;
+			sourceTree = "<group>";
+		};
+		A68D49DF2EA1343F00174946 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A68D49DE2EA1343F00174946 /* toybox_index */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		A68D49702EA1314600174946 /* toybox */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "HOST=sdl2 all";
+			buildConfigurationList = A68D49732EA1314600174946 /* Build configuration list for PBXLegacyTarget "toybox" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = ../../tests/;
+			dependencies = (
+			);
+			name = toybox;
+			packageProductDependencies = (
+			);
+			passBuildSettingsInEnvironment = 1;
+			productName = toybox;
+		};
+		A68D4C8B2EA138FA00174946 /* sample */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "HOST=sdl2 install";
+			buildConfigurationList = A68D4C8C2EA138FA00174946 /* Build configuration list for PBXLegacyTarget "sample" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = ../../sample/;
+			dependencies = (
+			);
+			name = sample;
+			packageProductDependencies = (
+			);
+			passBuildSettingsInEnvironment = 1;
+			productName = toybox;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		A68D49DD2EA1343F00174946 /* toybox_index */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A68D49E32EA1343F00174946 /* Build configuration list for PBXNativeTarget "toybox_index" */;
+			buildPhases = (
+				A68D49DA2EA1343F00174946 /* Sources */,
+				A68D49DB2EA1343F00174946 /* Frameworks */,
+				A68D49DC2EA1343F00174946 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = toybox_index;
+			packageProductDependencies = (
+			);
+			productName = toybox_index;
+			productReference = A68D49DE2EA1343F00174946 /* toybox_index */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A68D496C2EA1314600174946 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A68D49702EA1314600174946 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					A68D49DD2EA1343F00174946 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = A68D496F2EA1314600174946 /* Build configuration list for PBXProject "toybox" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A68D496B2EA1314600174946;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A68D49DF2EA1343F00174946 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A68D49702EA1314600174946 /* toybox */,
+				A68D49DD2EA1343F00174946 /* toybox_index */,
+				A68D4C8B2EA138FA00174946 /* sample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A68D49DA2EA1343F00174946 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A68D49712EA1314600174946 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				OTHER_CFLAGS = (
+					"-O0",
+					"-DTOYBOX_TARGET_ATARI=2",
+					"-DTOUBOX_HOST=sdl2",
+					"-g",
+					"-std=c++23",
+					"-Wno-vla-cxx-extension",
+					"-I/opt/homebrew/include/SDL2",
+				);
+			};
+			name = Debug;
+		};
+		A68D49722EA1314600174946 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				OTHER_CFLAGS = (
+					"-O0",
+					"-DTOYBOX_TARGET_ATARI=2",
+					"-DTOUBOX_HOST=sdl2",
+					"-g",
+					"-std=c++23",
+					"-Wno-vla-cxx-extension",
+					"-I/opt/homebrew/include/SDL2",
+				);
+			};
+			name = Release;
+		};
+		A68D49742EA1314600174946 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A68D49752EA1314600174946 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		A68D49E42EA1343F00174946 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A68D49E52EA1343F00174946 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A68D4C8D2EA138FA00174946 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A68D4C8E2EA138FA00174946 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A68D496F2EA1314600174946 /* Build configuration list for PBXProject "toybox" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A68D49712EA1314600174946 /* Debug */,
+				A68D49722EA1314600174946 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A68D49732EA1314600174946 /* Build configuration list for PBXLegacyTarget "toybox" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A68D49742EA1314600174946 /* Debug */,
+				A68D49752EA1314600174946 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A68D49E32EA1343F00174946 /* Build configuration list for PBXNativeTarget "toybox_index" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A68D49E42EA1343F00174946 /* Debug */,
+				A68D49E52EA1343F00174946 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A68D4C8C2EA138FA00174946 /* Build configuration list for PBXLegacyTarget "sample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A68D4C8D2EA138FA00174946 /* Debug */,
+				A68D4C8E2EA138FA00174946 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A68D496C2EA1314600174946 /* Project object */;
+}

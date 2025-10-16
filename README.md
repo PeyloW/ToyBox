@@ -72,7 +72,7 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
 - [-] Add unit tests
 - [x] Add sample project
 - [ ] Update documentation 
-- [ ] Add Xcode IDE to toybox project
+- [x] Add Xcode IDE to toybox project
 
 
 ### v2.0 - Support horizontally scrolling game played with joystick
