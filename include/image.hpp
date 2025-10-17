@@ -22,7 +22,7 @@ namespace toybox {
      On emulated host machines only, images can also be saved.
      TODO: Support bitplane layout other than interweaved.
      */
-    class image_c : public asset_c {
+    class image_c final : public asset_c {
         friend class canvas_c;
         friend class machine_c;
     public:
@@ -42,7 +42,7 @@ namespace toybox {
         image_c(const char *path, int masked_cidx = MASKED_CIDX);
         virtual ~image_c() {};
         
-        type_e asset_type() const { return type_e::image; }
+        type_e asset_type() const override { return type_e::image; }
 
 #if TOYBOX_IMAGE_SUPPORTS_SAVE
         bool save(const char *path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);

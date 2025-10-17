@@ -20,7 +20,7 @@ namespace toybox {
             _transition_state.shade = 0;
         }
 
-        virtual void will_begin(const scene_c *from, const scene_c *to) {
+        virtual void will_begin(const scene_c *from, const scene_c *to) override {
             if (to) {
                 _palette = &to->configuration().palette;
                 if (from) {
@@ -29,7 +29,7 @@ namespace toybox {
             }
         }
 
-        virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) {
+        virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
             if (_transition_state.shade == 0 && _palette) {
                 machine_c::shared().set_active_palette(_palette);
                 _palette = nullptr;
@@ -61,14 +61,14 @@ namespace toybox {
     };
 }
 
-class dither_through_transition_c : public dither_transition_c {
+class dither_through_transition_c final : public dither_transition_c {
 public:
     dither_through_transition_c(canvas_c::stencil_e dither, uint8_t through) :
         dither_transition_c(dither), _palette(nullptr), _through(through) {
             _transition_state.full_restores_left = 4;
         }
     
-    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) {
+    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
         if (_transition_state.full_restores_left > 2) {
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
             phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
@@ -96,7 +96,7 @@ protected:
     const uint8_t _through;
 };
 
-class fade_through_transition_c : public transition_c {
+class fade_through_transition_c final : public transition_c {
 public:
     fade_through_transition_c(color_c through) :
         transition_c(), _to_palette(nullptr), _through(through), _count(0)
@@ -106,7 +106,7 @@ public:
             machine_c::shared().set_active_palette(_to_palette);
         }
     }
-    virtual void will_begin(const scene_c *from, const scene_c *to) {
+    virtual void will_begin(const scene_c *from, const scene_c *to) override {
         assert(to);
         uint8_t r, g, b;
         _through.get(&r, &g, &b);
@@ -130,7 +130,7 @@ public:
             }
         }
     }
-    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) {
+    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
         const int count = _count / 2;
         auto &m = machine_c::shared();
         if (count < 17) {

@@ -16,7 +16,9 @@ using namespace toybox;
 static unique_ptr_c<asset_manager_c> s_shared;
 
 asset_manager_c &asset_manager_c::shared() {
-    assert(s_shared.get());
+    if (s_shared.get() == nullptr) {
+        set_shared(new asset_manager_c());
+    }
     return *s_shared;
 }
 

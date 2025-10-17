@@ -85,7 +85,7 @@ namespace toybox {
     static constexpr detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
     
 
-    class fstream_c : public stream_c {
+    class fstream_c final : public stream_c {
     public:
         enum class openmode_e : uint8_t {
             none = 0,
@@ -103,15 +103,15 @@ namespace toybox {
         bool open();
         bool close();
 
-        virtual bool good() const __pure;
-        virtual ptrdiff_t tell() const __pure;
-        virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way);
-        virtual bool flush();
+        virtual bool good() const override __pure;
+        virtual ptrdiff_t tell() const override __pure;
+        virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;
+        virtual bool flush() override;
 
         using stream_c::read;
-        virtual size_t read(uint8_t *buf, size_t count = 1);
+        virtual size_t read(uint8_t *buf, size_t count = 1) override;
         using stream_c::write;
-        virtual size_t write(const uint8_t *buf, size_t count = 1);
+        virtual size_t write(const uint8_t *buf, size_t count = 1) override;
         
     private:
         const char *_path;
@@ -122,7 +122,7 @@ namespace toybox {
     struct is_optionset<fstream_c::openmode_e> : public true_type {};
 
 
-    class strstream_c : public stream_c {
+    class strstream_c final : public stream_c {
     public:
         strstream_c(size_t len);
         strstream_c(char *buf, size_t len);
@@ -131,13 +131,13 @@ namespace toybox {
         void reset() { _pos = 0; }
         char* str() { return _buf; };
         
-        virtual ptrdiff_t tell() const __pure;
-        virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way);
+        virtual ptrdiff_t tell() const override __pure;
+        virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;
 
         using stream_c::read;
-        virtual size_t read(uint8_t *buf, size_t count = 1);
+        virtual size_t read(uint8_t *buf, size_t count = 1) override;
         using stream_c::write;
-        virtual size_t write(const uint8_t *buf, size_t count = 1);
+        virtual size_t write(const uint8_t *buf, size_t count = 1) override;
         
     private:
         unique_ptr_c<char> _owned_buf;

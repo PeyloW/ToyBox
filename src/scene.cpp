@@ -10,17 +10,17 @@
 
 using namespace toybox;
 
-class no_transition_c : public transition_c {
+class no_transition_c final : public transition_c {
 public:
     no_transition_c() : transition_c() {
         _full_restores_left = 2;
     }
-    virtual void will_begin(const scene_c *from, const scene_c *to) {
+    virtual void will_begin(const scene_c *from, const scene_c *to) override {
         const palette_c &palette = to->configuration().palette;
         auto &m = machine_c::shared();
         m.set_active_palette(&palette);
     };
-    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) {
+    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
         phys_screen.draw_aligned(log_screen.image(), point_s());
         return --_full_restores_left <= 0;
     }

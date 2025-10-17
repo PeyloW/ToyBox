@@ -18,7 +18,7 @@
 
 using namespace toybox;
 
-class sdl2_host_bridge : public host_bridge_c {
+class sdl2_host_bridge final : public host_bridge_c {
 public:
     sdl2_host_bridge(machine_c &machine) : _machine(machine) {
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);

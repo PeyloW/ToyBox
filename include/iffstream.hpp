@@ -75,7 +75,7 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
      An `iffstream_c` handles reading and writing to an EA IFF file.
      TODO: This was a bad idea, IFF file access should not be exposed as a stream!
      */
-    class iffstream_c : public stream_c {
+    class iffstream_c final : public stream_c {
     public:
         iffstream_c(stream_c *stream);
         iffstream_c(const char *path, fstream_c::openmode_e mode = fstream_c::openmode_e::input);
@@ -83,9 +83,9 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
                 
         virtual void set_assert_on_error(bool assert);
 
-        virtual bool good() const __pure;
-        virtual ptrdiff_t tell() const __pure;
-        virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way);
+        virtual bool good() const override __pure;
+        virtual ptrdiff_t tell() const override __pure;
+        virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;
 
         bool first(const char *const id, iff_chunk_s &chunk);
         bool first(const char *const id, const char *const subtype, iff_group_s &group);
@@ -100,10 +100,10 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
         bool end(iff_chunk_s &chunk);
         
         using stream_c::read;
-        virtual size_t read(uint8_t *buf, size_t count = 1);
+        virtual size_t read(uint8_t *buf, size_t count = 1) override;
         
         using stream_c::write;
-        virtual size_t write(const uint8_t *buf, size_t count = 1);
+        virtual size_t write(const uint8_t *buf, size_t count = 1) override;
 
         
 #ifndef __M68000__

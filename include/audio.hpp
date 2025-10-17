@@ -20,13 +20,13 @@ namespace toybox {
      A `cound_c` is an 8 bit PCM sound sample.
      Sounds can be loaded for EA 85 AIFF files.
      */
-    class sound_c : public asset_c {
+    class sound_c final : public asset_c {
         friend class audio_mixer_c;
     public:
         sound_c(const char *path);
         virtual ~sound_c() {};
         
-        type_e asset_type() const { return type_e::sound; }
+        type_e asset_type() const override { return type_e::sound; }
         
         const int8_t *sample() const { return _sample.get(); }
         uint32_t length() const { return _length; }
@@ -48,7 +48,7 @@ namespace toybox {
         music_c() {};
         virtual ~music_c() {};
         
-        type_e asset_type() const { return type_e::music; }
+        type_e asset_type() const override { return type_e::music; }
         
         virtual const char *title() const = 0;
         virtual const char *composer() const = 0;
@@ -61,18 +61,16 @@ namespace toybox {
      `ymmusic_c` is a concrete `music_c` representing YM-Music for Atari target.
      YB-music can be loaded from SNDH files.
      */
-    class ymmusic_c : public music_c {
+    class ymmusic_c final : public music_c {
         friend class audio_mixer_c;
     public:
         ymmusic_c(const char *path);
         virtual ~ymmusic_c() {};
-
-        type_e asset_type() const { return type_e::music; }
         
-        const char *title() const { return _title; }
-        const char *composer() const { return _composer; }
-        int track_count() const { return _track_count; }
-        uint8_t replay_freq() const { return _freq; }
+        const char *title() const override { return _title; }
+        const char *composer() const override  { return _composer; }
+        int track_count() const override { return _track_count; }
+        uint8_t replay_freq() const override { return _freq; }
         
     private:
         unique_ptr_c<uint8_t> _sndh;

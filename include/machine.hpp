@@ -54,7 +54,7 @@ namespace toybox {
     private:
         static machine_c *_shared_machine;
         machine_c();
-        virtual ~machine_c();
+        ~machine_c();
 #if TOYBOX_TARGET_ATARI
         uint32_t _old_super;
         uint16_t _old_modes[3];

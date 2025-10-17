@@ -25,6 +25,7 @@
 		A68D499F2EA132E700174946 /* product.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = product.mk; path = ../../product.mk; sourceTree = SOURCE_ROOT; };
 		A68D49A02EA132E700174946 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../README.md; sourceTree = SOURCE_ROOT; };
 		A68D49DE2EA1343F00174946 /* toybox_index */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = toybox_index; sourceTree = BUILT_PRODUCTS_DIR; };
+		A68D4FC22EA1EA2900174946 /* ROADMAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = ROADMAP.md; path = ../../ROADMAP.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +76,7 @@
 				A68D49D62EA132E700174946 /* tests */,
 				A68D499D2EA132E700174946 /* LICENSE.txt */,
 				A68D49A02EA132E700174946 /* README.md */,
+				A68D4FC22EA1EA2900174946 /* ROADMAP.md */,
 				A68D49DF2EA1343F00174946 /* Products */,
 			);
 			sourceTree = "<group>";

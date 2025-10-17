@@ -56,8 +56,8 @@ namespace toybox {
         sound_c &sound(int id) const { return (sound_c&)(asset(id)); }
         music_c &music(int id) const { return (music_c&)(asset(id)); }
 
-        virtual unique_ptr_c<char> data_path(const char *file) const;
-        virtual unique_ptr_c<char> user_path(const char *file) const;
+        unique_ptr_c<char> data_path(const char *file) const;
+        unique_ptr_c<char> user_path(const char *file) const;
     protected:
         struct asset_def_s {
             using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char *path);

@@ -1,6 +1,6 @@
 # TOYBOX
 
-A minimal C++ framework for writing Atari ST entertainment software.
+A minimal C++ framework for writing Atari ST<sup>E</sup> entertainment software.
 
 ### Project Requirement
 
@@ -27,7 +27,7 @@ Types uses suffix, variables does not:
 * `_c` - Classes
     * Classes **must** support move semantics.
     * **Never** assume copy semantics are available.
-        * Most classes explicitly forbig copy semntions by use of `nocopy_c` subclassing.
+        * Most classes explicitly forbid copy semntions by use of `nocopy_c` subclassing.
 
 Variables use optional prefixes:
 
@@ -37,7 +37,12 @@ Variables use optional prefixes:
 
 Variables with no prefix is a local variable, public member, or function argument.
 
+### Game setup
 
+ToyBox games are intended to run form identical code on an Atari target machine, as on a modern host such as macOS. This is abstracted away in the `machine_c` class.
+
+* `machine_c` the machine singleton.
+    * `with_machine` sets up the machine in supervisor mode, or configures the host emulation. Runt he game in the provided function of lambda.
 
 ### Game life-cycle
 
@@ -51,79 +56,23 @@ A game is intended to be implemnted as a stack of scenes. Navigating to a new sc
     * `configuration` the scene configuration, only the palette to use for now.
     * `will_appear` called when scene becomes the top scene and will appear.
         * Implement to draw initial content.
-    * `update_clear` updatye the clear screen.
+    * `update_clear` update the clear screen.
     * `update_back` update the back screen that will be presented next screen swap.
 * `transition_c` - A transitions between two scenes, run for push, pop and replace operations.
-    
-    
-## TODO: Future direction
-
-### v1.1 - Modernized toolchain
-- [x] Move toybox code into its own git repository
-- [x] Seperate Makefiles for toybox and ChromaGrid
-- [x] Unified Makefile target for Atari target and macOS host
-    - [x] Move game loop to `machine_c::with_machine(...)`
-    - [x] Add new Xcode project with external build system
-- [x] Update to gcc 15.2 mintelf toolchain
-    - [x] Use link time optimizations
-    - [x] Update to use libcmini top of tree (0.54 too old for elf)
-    - [x] Remove libcmini 0.47 workarounds
-- [x] Update sources to ~~C++20~~ C++23
-- [-] Add unit tests
-- [x] Add sample project
-- [ ] Update documentation 
-- [x] Add Xcode IDE to toybox project
 
 
-### v2.0 - Support horizontally scrolling game played with joystick
-- [ ] `fixed16_t` math library, 12:4 bits
-- [ ] `screen_c` as a subclass of `canvas_c`
-    - [ ] Wrapper for an `image_c` with its own size and offset
-    - [ ] Translate & clip drawing primitives to superclass
-- [ ] Rudimentary `display_list_c` only supporting a single `screen_c`
-    - [ ] Use active `display_list_c` not `image_c`
-    - [ ] Update Atari target to HW scroll display if needed
-    - [ ] Update host to gneerate _HW scrolled_ display
-- [ ] `tilemap_c` for defining a tiled display from 16x16 blocks
-    - [ ] Source from `tileset_c`
-    - [ ] Support at least two layers of graphics in input
-    - [ ] General tile types; empty, solid, climbable, hurts, etc.
-- [ ] `entity_c` for defining basic game AI
-    - [ ] User controllable entity
-    - [ ] Collision with `tilemap_c`
-    - [ ] Collision with other entities of set types
-- [ ] Implement `audio_mixer_c`
-    - [ ] Up to four channels of mixed mono audio
-- [ ] Implement `controller_c` to read ST joystick 1 or 0.
-    - [ ] Implement `state_recognizer_c`
-    - [ ] Concrete implementations for taps and holds
+### Asset management
 
+Assets are imaged, sound effects, music, levels, or any other data the game needs. All assets may not fit in memory at once, and thus needs to be loaded and unloaded on demand.
 
-### v2.5 - Support eight way scrolling _metroidvania_-like game
-- [ ] `display_list_c` can have several items
-    - [ ] Multiple `screen_c` for screen splits
-    - [ ] Multiple `palette_c` for palette splits
-    - [ ] Multiple `raster_c` for rasters
-        - [ ] Define line offset and color index
-- [ ] `screen_c` support infinite horizontal and vertical offset
-- [ ] More dynamic game entities
-    - [ ] Basic _bullet_ AI entity
-    - [ ] Basic path following AI entity
-    - [ ] AI able to walk on ground
-    - [ ] AI able to fly
-    - [ ] AI controllable by decissions tree
-- [ ] `world_c` and `level_c` as a concept of a persistent game world
-    - [ ] Dynamically load a `level_c` from a new `scene_c`
-    - [ ] Persist state for a `level_c` when unloaded (picked items, dead enemies, etc)
-    - [ ] Support loading and saving game state
-- [ ] Add jagpad support to `controller_c`
-- [ ] Add `modmusic_c` as a concrete `music_c` subclass
-    
-
-### v3.0 - Support all the things!
-- [ ] Amiga target
-- [ ] Atari STfm target
-- [ ] Jaguar64 target
-- [ ] Linux host
-- [ ] Window host
-
+* `asset_manager_c` - The manager singleton, intended to be subclassed for adding typed custom assets.
+    * `set_shared` set a custom shared singleton.
+    * `shared` get the shared singleton, created one if not set.
+    * `image`, `tileset`, `font`, etc get an asset, load if needed.
+    * `preload` preload assets in batches.
+    * `add_asset_def` add a asset definition, with an ID, batch sets to be included in, and optionally a lemda for how to load and construct the asset.
+* `image_c` an image asset, loaded from EA IFF 85 ilbm files (.iff).
+* `sound_c` a sound asset, loaded from Audio Interchange File Format (aif).
+* `ymmusic_c` a music asset, loaded from uncompressed Sound Header files (snd).
+* `font_c` a font asset, based on an image asset, monospace or variable width characters.
+* `tileset_c` a tileset asset, based on an image asset, defaults to 16x16 blocks.
