@@ -66,6 +66,17 @@ namespace toybox {
         }
     }
 
+    template<ordered T>
+    constexpr const T& max(const T& a) {
+        return a;
+    }
+
+    template<ordered T, typename... Ts>
+    constexpr const T& max(const T& a, const T& b, const Ts&... rest) {
+        const T& m = (a < b) ? b : a;
+        return max(m, rest...);
+    }
+    
 #pragma mark - Random numbers
     
     static uint16_t fast_rand_seed = 0xace1u;
@@ -132,6 +143,38 @@ namespace toybox {
         return (sum2 << 8) | sum1;
     }
     
+#pragma mark - Type packs
+    
+    namespace detail {
+        template<int I, typename T0, typename... Ts>
+        struct type_at_impl : type_at_impl<I - 1, Ts...> {};
+        template<typename T0, typename... Ts>
+        struct type_at_impl<0, T0, Ts...> { using type = T0; };
+        
+        template<typename T, int I, typename... Ts>
+        struct index_of_impl;
+        template<typename T, int I>
+        struct index_of_impl<T, I> {
+            static constexpr int value = -1;
+        };
+        template<typename T, int I, typename Current, typename... Rest>
+        struct index_of_impl<T, I, Current, Rest...> {
+            static constexpr int value = is_same<T, Current>::value ? I : index_of_impl<T, I + 1, Rest...>::value;
+        };
+    }
+
+    template<int I, typename... Ts>
+    struct type_at {
+        static_assert(I >= 0 && I < static_cast<int>(sizeof...(Ts)), "type_at: index out of bounds");
+        using type = typename detail::type_at_impl<I, Ts...>::type;
+    };
+    
+    template<typename T, typename... Ts>
+    struct index_of {
+        static constexpr int value = detail::index_of_impl<T, 0, Ts...>::value;
+        static_assert(value != -1, "index_of: type not found in parameter pack");
+    };
+    
 #pragma mark - C++ language helpers
     
     template<class C> inline auto begin(C& c) -> decltype(c.begin()) { return c.begin(); };
@@ -179,13 +222,21 @@ namespace toybox {
         nocopy_c& operator=(const nocopy_c&) = delete;
     };
 
-    template<typename T>
-    struct __attribute__((aligned(alignof(T)))) aligned_membuf_s {
-        uint8_t data[sizeof(T)] = {0};
-        void *addr() __pure { return &data; }
-        const void *addr() const __pure { return &data; }
-        T *ptr() __pure { return reinterpret_cast<T *>(&data); }
-        const T *ptr() const __pure { return reinterpret_cast<const T *>(&data); }
+    template<typename... Ts>
+    struct aligned_membuf_s {
+        static constexpr size_t size  = max(sizeof(Ts)...);
+        static constexpr size_t align = max(alignof(Ts)...);
+        alignas(align) uint8_t data[size] = {0};
+        void* addr() { return &data; }
+        const void* addr() const { return &data; }
+        template<int I = 0>
+        typename type_at<I, Ts...>::type* ptr() {
+            return reinterpret_cast<typename type_at<I, Ts...>::type*>(&data);
+        }
+        template<int I = 0>
+        const typename type_at<I, Ts...>::type* ptr() const {
+            return reinterpret_cast<const typename type_at<I, Ts...>::type*>(&data);
+        }
     };
     
     template<class T1, class T2>

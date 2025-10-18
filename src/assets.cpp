@@ -5,7 +5,7 @@
 //  Created by Fredrik on 2024-04-26.
 //
 
-#include "asset.hpp"
+#include "assets.hpp"
 #include "image.hpp"
 #include "tileset.hpp"
 #include "font.hpp"
@@ -16,24 +16,11 @@ using namespace toybox;
 static unique_ptr_c<asset_manager_c> s_shared;
 
 asset_manager_c &asset_manager_c::shared() {
-    if (s_shared.get() == nullptr) {
-        set_shared(new asset_manager_c());
-    }
-    return *s_shared;
+    static asset_manager_c s_shared;
+    return s_shared;
 }
 
-void asset_manager_c::set_shared(asset_manager_c *shared) {
-    assert(s_shared.get() == nullptr);
-    s_shared.reset(shared);
-}
-
-asset_manager_c::asset_manager_c(const char *asset_defs_path) {
-    
-}
-
-asset_manager_c::asset_manager_c() {
-    
-}
+asset_manager_c::asset_manager_c() {}
 
 void asset_manager_c::preload(uint32_t sets, progress_f progress) {
     int ids[_asset_defs.size()];

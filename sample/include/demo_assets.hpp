@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "asset.hpp"
+#include "assets.hpp"
 
 using namespace toybox;
 
@@ -16,8 +16,3 @@ enum demo_assets_e {
     SPRITES,    // tileset
     MUSIC       // music
 } __packed;
-
-class demo_asset_manager_c : public asset_manager_c {
-public:
-    demo_asset_manager_c();
-};

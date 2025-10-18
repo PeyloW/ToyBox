@@ -28,6 +28,59 @@
 		A68D4FC22EA1EA2900174946 /* ROADMAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = ROADMAP.md; path = ../../ROADMAP.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A68D50312EA2AB1A00174946 /* Exceptions for "tests" folder in "toybox_index" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/main.cpp,
+			);
+			target = A68D49DD2EA1343F00174946 /* toybox_index */;
+		};
+		A68D505F2EA33EF200174946 /* Exceptions for "src" folder in "toybox_index" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				assets.cpp,
+				audio_atari.cpp,
+				audio_mixer_atari.cpp,
+				audio.cpp,
+				blitter_atari.cpp,
+				canvas_atari.cpp,
+				canvas_stencil.cpp,
+				canvas.cpp,
+				cpp_runtime.cpp,
+				dirtymap.cpp,
+				font.cpp,
+				host_bridge.cpp,
+				iffstream.cpp,
+				image.cpp,
+				input_atari.cpp,
+				input.cpp,
+				machine_atari.cpp,
+				machine_sdl2.cpp,
+				palette.cpp,
+				scene_transition.cpp,
+				scene.cpp,
+				screen.cpp,
+				stream.cpp,
+				system_helpers_atari.S,
+				tileset.cpp,
+				timer_atari.cpp,
+				timer.cpp,
+				util_stream.cpp,
+				utility.cpp,
+			);
+			target = A68D49DD2EA1343F00174946 /* toybox_index */;
+		};
+		A68D50662EA340E600174946 /* Exceptions for "sample" folder in "toybox_index" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/demo_main.cpp,
+				src/main.cpp,
+			);
+			target = A68D49DD2EA1343F00174946 /* toybox_index */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A68D499C2EA132E700174946 /* include */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -37,18 +90,27 @@
 		};
 		A68D49B02EA132E700174946 /* sample */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A68D50662EA340E600174946 /* Exceptions for "sample" folder in "toybox_index" target */,
+			);
 			name = sample;
 			path = ../../sample;
 			sourceTree = SOURCE_ROOT;
 		};
 		A68D49CE2EA132E700174946 /* src */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A68D505F2EA33EF200174946 /* Exceptions for "src" folder in "toybox_index" target */,
+			);
 			name = src;
 			path = ../../src;
 			sourceTree = SOURCE_ROOT;
 		};
 		A68D49D62EA132E700174946 /* tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A68D50312EA2AB1A00174946 /* Exceptions for "tests" folder in "toybox_index" target */,
+			);
 			name = tests;
 			path = ../../tests;
 			sourceTree = SOURCE_ROOT;

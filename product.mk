@@ -37,7 +37,7 @@ build/%.o: src/%.S
 
 install: product
 	mkdir -p install
-	cp -r data install/data
+	if [ -d data ]; then cp -r data install/data; fi
 ifeq ($(HOST),sdl2)
 	cp build/$(PRODUCT) install/$(PRODUCT)
 else

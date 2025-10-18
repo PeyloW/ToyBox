@@ -30,6 +30,34 @@ namespace toybox {
     template<typename T>
     concept enum_type = __is_enum(T);
     
+    
+    template<typename From, typename To>
+    concept convertible_to =
+    requires(From (&f)()) {
+        static_cast<To>(declval<From>());  // convertible explicitly
+        To{f()};                                // convertible implicitly
+    };
+    
+    template<typename Base, typename Derived>
+    concept base_of = __is_base_of(Base, Derived);
+    
+    template<typename Derived, typename Base>
+    concept derived_from = base_of<Base, Derived> && convertible_to<const volatile Derived*, const volatile Base*>;
+    
+    template<typename T>
+    concept equality_comparable = requires(const T& a, const T& b) {
+        { a == b } -> convertible_to<bool>;
+        { a != b } -> convertible_to<bool>;
+    };
+
+    template<typename T>
+    concept less_than_comparable = requires(const T& a, const T& b) {
+        { a < b } -> convertible_to<bool>;
+    };
+    
+    template<typename T>
+    concept ordered = equality_comparable<T> && less_than_comparable<T>;
+    
     template<typename T, typename U>
     concept convertable_to = requires(T&& x) {
         static_cast<U>(forward<U>(x));

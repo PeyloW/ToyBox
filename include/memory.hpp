@@ -111,7 +111,7 @@ namespace toybox {
             return *this;
         }
 
-        uint16_t use_count() const __pure { return _count->count; }
+        uint16_t use_count() const __pure { return _count != nullptr ? _count->count : 0; }
         void reset(T* p = nullptr) {
             if (this->_ptr != p) cleanup();
             this->_ptr = p;

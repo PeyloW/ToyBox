@@ -25,7 +25,7 @@ Split out ToyBox from ChromGrid, allowing it to be used as a standalone piece of
 Support siple horizontally scrolling games controlled with joystick. ETA Summer 2026.
 
 - [ ] `fixed16_t` math library, 12:4 bits
-- [ ] `screen_c` as a subclass of `canvas_c`
+- [x] `screen_c` as a subclass of `canvas_c`
     - [ ] Wrapper for an `image_c` with its own size and offset
     - [ ] Translate & clip drawing primitives to superclass
 - [ ] Rudimentary `display_list_c` only supporting a single `screen_c`

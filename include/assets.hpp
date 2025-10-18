@@ -1,5 +1,5 @@
 //
-//  asset.hpp
+//  assets.hpp
 //  toybox
 //
 //  Created by Fredrik on 2024-04-26.
@@ -10,6 +10,7 @@
 #include "stream.hpp"
 #include "vector.hpp"
 #include "memory.hpp"
+#include "concepts.hpp"
 
 
 namespace toybox {
@@ -36,19 +37,20 @@ namespace toybox {
      of toybox.
      The client is expected to set the singleton.
      */
-    class asset_manager_c : nocopy_c {
+    class asset_manager_c final : nocopy_c {
     public:
         static asset_manager_c &shared();
-        static void set_shared(asset_manager_c *shared);
         
-        asset_manager_c(const char *asset_defs_path);
-        virtual ~asset_manager_c() {}
+        ~asset_manager_c() {}
 
         using progress_f = void(*)(int loaded, int total);
         void preload(uint32_t sets, progress_f progress = nullptr);
         void unload(uint32_t sets);
         
         asset_c &asset(int id) const;
+
+        template<derived_from<asset_c> T>
+        T &asset(int id) const { return (T&)(asset(id)); };
         
         image_c &image(int id) const { return (image_c&)(asset(id)); }
         tileset_c &tileset(int id) const { return (tileset_c&)(asset(id)); }
@@ -58,7 +60,7 @@ namespace toybox {
 
         unique_ptr_c<char> data_path(const char *file) const;
         unique_ptr_c<char> user_path(const char *file) const;
-    protected:
+
         struct asset_def_s {
             using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char *path);
             constexpr asset_def_s(asset_c::type_e type, uint32_t sets, const char *file = nullptr, asset_create_f create = nullptr) :
@@ -68,13 +70,14 @@ namespace toybox {
             const char *file;
             asset_create_f create;
         };
-        asset_manager_c();
 
         void add_asset_def(int id, const asset_def_s &def);
         int add_asset_def(const asset_def_s &def);
         
-        virtual asset_c *create_asset(int id, const asset_def_s &def) const;
     private:
+        asset_manager_c();
+        asset_c *create_asset(int id, const asset_def_s &def) const;
+
         vector_c<asset_def_s, TOYBOX_ASSET_COUNT> _asset_defs;
         mutable vector_c<unique_ptr_c<asset_c>, TOYBOX_ASSET_COUNT> _assets;
     };

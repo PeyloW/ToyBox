@@ -9,7 +9,7 @@
 
 #include "palette.hpp"
 #include "memory.hpp"
-#include "asset.hpp"
+#include "assets.hpp"
 
 namespace toybox {
     
