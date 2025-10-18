@@ -81,7 +81,7 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
         iffstream_c(const char *path, fstream_c::openmode_e mode = fstream_c::openmode_e::input);
         ~iffstream_c() = default;
                 
-        virtual void set_assert_on_error(bool assert);
+        virtual void set_assert_on_error(bool assert) override;
 
         virtual bool good() const override __pure;
         virtual ptrdiff_t tell() const override __pure;

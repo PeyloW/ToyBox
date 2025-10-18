@@ -49,6 +49,7 @@
 				canvas.cpp,
 				cpp_runtime.cpp,
 				dirtymap.cpp,
+				display_list.cpp,
 				font.cpp,
 				host_bridge.cpp,
 				iffstream.cpp,

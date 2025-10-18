@@ -94,7 +94,7 @@ namespace toybox {
         }
     }
        
-    template<random_access_iterator I>
+    template<input_iterator I>
     I is_sorted_until(I first, I last) {
         if (first != last) {
             I next = first;
@@ -107,7 +107,7 @@ namespace toybox {
         return last;
     }
     
-    template<random_access_iterator I>
+    template<input_iterator I>
     bool is_sorted(I first, I last) {
         return is_sorted_until(first, last) == last;
     }

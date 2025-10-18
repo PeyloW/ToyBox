@@ -99,7 +99,7 @@ namespace toybox {
             return iterator(pos._node->next);
         }
         template<class ...Args>
-        inline iterator emplace_after(iterator pos, Args&& ...args) {
+        inline iterator emplace_after(const_iterator pos, Args&& ...args) {
             assert(owns_node(pos._node));
             pos._node->next = new _node_s(pos._node->next, forward<Args>(args)...);
             return iterator(pos._node->next);

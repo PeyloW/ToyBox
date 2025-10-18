@@ -16,69 +16,85 @@ namespace toybox {
     public:
         static_assert(sizeof...(Ts) > 0);
 
+        static constexpr int size = sizeof...(Ts);
+        
+        template<int I>
+        using type_at_t = toybox::type_at<I, Ts...>::type;
+        template<typename T>
+        inline static constexpr int index_of = toybox::index_of<typename remove_cvref<T>::type, Ts...>::value;
+        
         constexpr variant_c() {
             emplace<0>();
+        }
+
+        template<typename T>
+        constexpr variant_c(const T& arg) {
+            emplace<index_of<T>>(arg);
+        }
+        
+        template<int I, typename... Args>
+        constexpr variant_c(Args&&... args) {
+            emplace<I>(forward<Args>(args)...);
+        }
+        template<typename T, typename... Args>
+        constexpr variant_c(Args&&... args) {
+            emplace<index_of<T>>(forward<Args>(args)...);
         }
 
         ~variant_c() {
             reset();
         }
-
+        
         constexpr int index() const { return _index; }
 
         template<int I, typename... Args>
-        constexpr typename type_at<I, Ts...>::type& emplace(Args&&... args) {
+        constexpr auto& emplace(Args&&... args) {
             static_assert(I >= 0 && I < (int)sizeof...(Ts));
+            using T = type_at_t<I>;
             reset();
-            using T = typename type_at<I, Ts...>::type;
             new(&_storage) T(forward<Args>(args)...);
             _index = I;
             return *_storage.template ptr<I>();
         }
         template<typename T, typename... Args>
         constexpr T& emplace(Args&&... args) {
-            constexpr int I = index_of<T, Ts...>::value;
-            return emplace<I>(forward<Args>(args)...);
+            return emplace<index_of<T>>(forward<Args>(args)...);
         }
 
         template<int I>
-        constexpr typename type_at<I, Ts...>::type& get() {
+        constexpr type_at_t<I>& get() {
             return *_storage.template ptr<I>();
         }
         template<int I>
-        constexpr const typename type_at<I, Ts...>::type& get() const {
+        constexpr const type_at_t<I>& get() const {
             return *_storage.template ptr<I>();
         }
 
         template<typename T>
         constexpr T& get() {
-            constexpr int I = index_of<T, Ts...>::value;
-            return get<I>();
+            return get<index_of<T>>();
         }
         template<typename T>
         constexpr const T& get() const {
-            constexpr int I = index_of<T, Ts...>::value;
-            return get<I>();
+            return get<index_of<T>>();
         }
 
         template<int I>
-        constexpr typename type_at<I, Ts...>::type* get_if() {
+        constexpr type_at_t<I>* get_if() {
             return _index == I ? _storage.template ptr<I>() : nullptr;
         }
         template<int I>
-        constexpr const typename type_at<I, Ts...>::type* get_if() const {
+        constexpr const type_at_t<I>* get_if() const {
             return _index == I ? _storage.template ptr<I>() : nullptr;
         }
 
         template<typename T>
         constexpr T* get_if() {
-            constexpr int I = index_of<T, Ts...>::value;
-            return get_if<I>();
+            return get_if<index_of<T>>();
         }
         template<typename T>
         constexpr const T* get_if() const {
-            constexpr int I = index_of<T, Ts...>::value;
-            return get_if<I>();
+            return get_if<index_of<T>>();
         }
 
     private:
@@ -93,7 +109,7 @@ namespace toybox {
         }
 
         constexpr void destroy(int i) {
-            ((i == index_of<Ts, Ts...>::value ? ( _storage.template ptr<index_of<Ts, Ts...>::value>()->~Ts(), 0) : 0), ...);
+            ((i == index_of<Ts> ? ( _storage.template ptr<index_of<Ts>>()->~Ts(), 0) : 0), ...);
         }
     };
     

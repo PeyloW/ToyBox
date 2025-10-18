@@ -10,6 +10,9 @@
 #include "variant.hpp"
 #include "memory.hpp"
 
+#include "display_list.hpp"
+#include "screen.hpp"
+
 using namespace toybox;
 
 static void test_variant() {
@@ -34,9 +37,37 @@ static void test_variant() {
     assert(p.use_count() == 1);
     p.reset();
     assert(p.use_count() == 0);
+    printf("test_variant pass.\n");
+}
+
+static void test_display_list() {
+    display_list_c list;
+    screen_c screen(size_s(320, 16));
+    palette_c p1, p2, p3;
+    assert(list.is_sorted());
+    list.insert_sorted(display_item_c(2, screen));
+    assert(list.is_sorted());
+    list.insert_sorted(display_item_c(0, p1));
+    assert(list.is_sorted());
+    list.insert_sorted(display_item_c(2, p2));
+    assert(list.is_sorted());
+    list.insert_sorted(display_item_c(20, p3));
+    assert(list.is_sorted());
+
+    constexpr pair_c<int, int> expections[] = {
+        {0, 1}, {2, 1}, {2, 0}, {20, 1}
+    };
+    int i = 0;
+    for (const auto& item : list) {
+        assert(item.first == expections[i].first);
+        assert(item.second.index() == expections[i].second);
+        i++;
+    }
+    printf("test_display_list pass.\n");
 }
 
 int main(int argc, const char * argv[]) {
     test_variant();
-    printf("pass.\n");
+    test_display_list();
+    printf("All pass.\n");
 }
