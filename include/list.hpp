@@ -45,15 +45,19 @@ namespace toybox {
             using value_type = TypeI;
             using pointer = value_type*;
             using reference = value_type&;
-            
+
+            _iterator_s() = delete;
+            _iterator_s(const _iterator_s& o) = default;
+            __forceinline _iterator_s(_node_s *node) : _node(node) {}
+            __forceinline _iterator_s(const _iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
+
             __forceinline reference operator*() const { return _node->value; }
             __forceinline pointer operator->() const { return &_node->value; }
             __forceinline _iterator_s& operator++() { _node = _node->next; return *this; }
-            __forceinline _iterator_s operator++(int) { auto &tmp = *this; _node = _node->next; return tmp; }
+            __forceinline _iterator_s operator++(int) { auto tmp = *this; _node = _node->next; return tmp; }
             __forceinline bool operator==(const _iterator_s& o) const { return _node == o._node; }
             __forceinline bool operator!=(const _iterator_s& o) const { return _node != o._node; }
-            __forceinline _iterator_s(_node_s *node) : _node(node) {}
-            __forceinline _iterator_s(const _iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
+            
             _node_s *_node;
         };
         using iterator = _iterator_s<Type>;

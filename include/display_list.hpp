@@ -42,16 +42,7 @@ namespace toybox {
             auto pos = iterator_before(first);
             return emplace_after(pos, first, forward<Args>(args)...);
         }
-        
-        bool is_sorted() const {
-            int last = INT16_MIN;
-            for (const auto& i : *this) {
-                if (i.first < last) return false;
-                last = i.first;
-            }
-            return true;
-        }
-        
+                
     private:
         const_iterator iterator_before(int index) const {
             auto iter = before_begin();

@@ -111,6 +111,32 @@ namespace toybox {
 #endif
     
     template<typename T> struct is_trivially_copyable : public bool_constant<__is_trivially_copyable(T)> {};
+  
+#pragma mark - Iterator traits
+    
+    template<typename I>
+    struct indirectly_readable_traits {
+        using value_type  = typename I::value_type;
+        using reference   = typename I::reference;
+        using pointer     = typename I::pointer;
+    };
+
+    template<typename T>
+    struct indirectly_readable_traits<T*> {
+        using value_type  = T;
+        using reference   = T&;
+        using pointer     = T*;
+    };
+
+    template<typename T>
+    struct indirectly_readable_traits<const T*> {
+        using value_type  = T;
+        using reference   = const T&;
+        using pointer     = const T*;
+    };
+
+    template<typename I>
+    struct iterator_traits : indirectly_readable_traits<I> {};
     
 #pragma mark - Struct layout helper for EA IFF 85 compiance
     

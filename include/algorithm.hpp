@@ -16,15 +16,16 @@ namespace toybox {
      This file containes a minimal set of cuntionality from C++ stdlib.
      */
 
-    template<input_iterator I, output_iterator<I> J>
+    template<const_forward_iterator I, forward_iterator J>
     __forceinline J copy(I first, I last, J d_first) {
         while (first != last) {
-            *(d_first++) = *(first++);
+            *(d_first) = *(first);
+            ++d_first; ++first;
         }
         return d_first;
     }
 
-    template<input_iterator I, output_iterator<I> J>
+    template<const_backward_iterator I, backward_iterator J>
     __forceinline J copy_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = *(--last);
@@ -32,16 +33,16 @@ namespace toybox {
         return d_last;
     }
 
-    template<input_iterator I, output_iterator<I> J>
+    template<const_forward_iterator I, forward_iterator J>
     __forceinline J move(I first, I last, J d_first) {
         while (first != last) {
-            *(d_first++) = move(*(first++));
+            *(d_first) = move(*(first));
+            ++d_first; ++first;
         }
         return d_first;
     }
 
-    template<bidirectional_iterator I, bidirectional_iterator J>
-    requires output_iterator<J, decltype(*I{})>
+    template<const_backward_iterator I, backward_iterator J>
     __forceinline I move_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = move(*(--last));
@@ -49,7 +50,7 @@ namespace toybox {
         return d_last;
     }
     
-    template<random_access_iterator FI, typename T>
+    template<const_random_access_iterator FI, typename T>
     FI lower_bound(FI first, FI last, const T& value) {
         int16_t count = last - first;
         while (count > 0) {
@@ -65,49 +66,52 @@ namespace toybox {
         return first;
     }
 
-    template<random_access_iterator FI, typename T>
+    template<const_random_access_iterator FI, typename T>
     bool binary_search(FI first, FI last, const T& value) {
         const FI found = lower_bound(first, last, value);
         return (!(found == last) && !(value < *found));
     }
 
-    template<random_access_iterator FI, typename P>
-    FI find_if(FI first, FI last, P pred) {
+    template<const_forward_iterator FI, typename P>
+    requires predicate<P, typename iterator_traits<FI>::value_type> ||
+        predicate<P, const typename iterator_traits<FI>::reference>
+    FI find_if(FI first, FI last, P pred)
+    {
         for (; first != last; ++first) {
-            if (p(*first)) {
+            if (pred(*first)) {
                 return first;
             }
         }
         return last;
     }
-    
-    template<random_access_iterator I>
+           
+    template<forward_iterator I>
     void sort(I first, I last) {
-        for (auto i = first; i != last; i++) {
+        for (auto i = first; i != last; ++i) {
             auto min = i;
-            for (auto j = i + 1; j != last; j++) {
+            for (auto j = i; ++j != last; ) {
                 if (*j < *min) {
                     min = j;
                 }
             }
-            swap(*min, *i);
+            if (min != i) {
+                swap(*min, *i);
+            }
         }
     }
-       
-    template<input_iterator I>
+    
+    template<const_forward_iterator I>
     I is_sorted_until(I first, I last) {
-        if (first != last) {
-            I next = first;
-            while (++next != last) {
-                if (*next < *first)
-                    return next;
-                first = next;
+        if (first == last) return last;
+        for (I next = first; ++next != last; first = next) {
+            if (*next < *first) {
+                return next;
             }
         }
         return last;
     }
     
-    template<input_iterator I>
+    template<const_forward_iterator I>
     bool is_sorted(I first, I last) {
         return is_sorted_until(first, last) == last;
     }

@@ -11,6 +11,7 @@
 
 namespace toybox {
     
+#pragma mark - Type concepts
     template<typename A, typename B>
     concept same_as = is_same<A, B>::value;
     
@@ -30,7 +31,6 @@ namespace toybox {
     template<typename T>
     concept enum_type = __is_enum(T);
     
-    
     template<typename From, typename To>
     concept convertible_to =
     requires(From (&f)()) {
@@ -43,6 +43,8 @@ namespace toybox {
     
     template<typename Derived, typename Base>
     concept derived_from = base_of<Base, Derived> && convertible_to<const volatile Derived*, const volatile Base*>;
+    
+#pragma mark - Operator concepts
     
     template<typename T>
     concept equality_comparable = requires(const T& a, const T& b) {
@@ -67,11 +69,12 @@ namespace toybox {
     concept invocable = requires(F&& f, Args&&... args) {
         { f(static_cast<Args&&>(args)...) };
     };
-    
-    template<typename R, typename F, typename... Args>
+    template<typename F, typename R, typename... Args>
     concept invocable_r = requires(F&& f, Args&&... args) {
         { f(static_cast<Args&&>(args)...) } -> same_as<R>;
     };
+    template<typename F, typename... Args>
+    concept predicate = invocable_r<F, bool, Args...>;
     
     template<typename I>
     concept incrementable = requires(I i) {
@@ -86,26 +89,51 @@ namespace toybox {
     };
     
     template<typename I>
-    concept input_iterator = incrementable<I> && requires(I i) {
-        { *i };       // must be dereferenceable
+    concept const_dereferencable = requires(const I ci) {
+        { *ci };
     };
-    
-    template<typename O, typename T>
-    concept output_iterator = incrementable<O> && requires(O o, T t) {
-        { *o = t };   // must be assignable
+    template<typename I>
+    concept dereferencable = const_dereferencable<I> &&
+    requires(I i) {
+        typename indirectly_readable_traits<I>::value_type;
+        { *i = typename indirectly_readable_traits<I>::value_type{} };
     };
     
     template<typename I>
-    concept bidirectional_iterator = input_iterator<I> && decrementable<I>;
+    concept const_random_accessible = const_dereferencable<I> && requires(I i, int n) {
+        { i += n } -> same_as<I&>;
+        { i +  n } -> same_as<I>;
+        { n +  i } -> same_as<I>;
+        { i -= n } -> same_as<I&>;
+        { i -  n } -> same_as<I>;
+        {  i[n]  } -> same_as<decltype(*I{})>;
+    };
+    template<typename I>
+    concept random_accessible = const_random_accessible<I> && dereferencable<I> && requires(I i, int n) {
+        typename indirectly_readable_traits<I>::value_type;
+        { i[n] = typename indirectly_readable_traits<I>::value_type{} };
+    };
+    
+#pragma mark - Iterator conceps
+    
+    template<typename I>
+    concept forward_iterator = incrementable<I> && dereferencable<I>;
+    template<typename I>
+    concept const_forward_iterator = incrementable<I> && const_dereferencable<I>;
 
     template<typename I>
-    concept random_access_iterator = bidirectional_iterator<I> && requires(I i, I j, int n) {
-        { i += n } -> same_as<I&>;
-        { j +  n } -> same_as<I>;
-        { n +  j } -> same_as<I>;
-        { i -= n } -> same_as<I&>;
-        { j -  n } -> same_as<I>;
-        {  j[n]  } -> same_as<decltype(*I{})>;
-    };
+    concept backward_iterator = decrementable<I> && dereferencable<I>;
+    template<typename I>
+    concept const_backward_iterator = decrementable<I> && const_dereferencable<I>;
+    
+    template<typename I>
+    concept bidirectional_iterator = forward_iterator<I> && backward_iterator<I>;
+    template<typename I>
+    concept const_bidirectional_iterator = const_forward_iterator<I> && const_backward_iterator<I>;
+
+    template<typename I>
+    concept const_random_access_iterator = const_bidirectional_iterator<I> && const_random_accessible<I>;
+    template<typename I>
+    concept random_access_iterator = bidirectional_iterator<I> && random_accessible<I>;
 
 }
