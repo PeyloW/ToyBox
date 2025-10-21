@@ -15,14 +15,11 @@ namespace toybox {
     class screen_c;
     class palette_c;
     
-    using display_item_variant_c = variant_c<
-        reference_wrapper_c<screen_c>,
-        reference_wrapper_c<palette_c>
-    >;
+    using display_item_variant_c = reference_variant_c<screen_c, palette_c>;
     class display_item_c : public pair_c<int, display_item_variant_c> {
     public:
         template<typename T>
-        display_item_c(int i, T& item) : pair_c(i, display_item_variant_c(reference_wrapper_c<T>(item))) {}
+        display_item_c(int i, T& item) : pair_c(i, display_item_variant_c(item)) {}
         //display_item_c(int i, T& item) : pair_c(i, display_item_variant_c(item)) {}
     };
     static constexpr bool operator<(const display_item_c &lhs, const display_item_c &rhs) {
@@ -42,7 +39,18 @@ namespace toybox {
             auto pos = iterator_before(first);
             return emplace_after(pos, first, forward<Args>(args)...);
         }
-                
+
+        template<typename T>
+        inline T* find_first() const {
+            for (auto& item : *this) {
+                auto screen = item.second.get_if<T>();
+                if (screen) {
+                    return const_cast<T*>(screen);
+                }
+            }
+            return nullptr;
+        }
+        
     private:
         const_iterator iterator_before(int index) const {
             auto iter = before_begin();

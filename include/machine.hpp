@@ -15,6 +15,7 @@ namespace toybox {
     
     class palette_c;
     class image_c;
+    class display_list_c;
     
     /**
      A `machine_c` is an abstraction for the target machine and OS.
@@ -46,15 +47,15 @@ namespace toybox {
 
         uint32_t get_cookie(uint32_t cookie, uint32_t def_value = 0) const __pure;
 
-        const image_c *active_image() const;
-        void set_active_image(const image_c *image, point_s offset = point_s());
-        const palette_c *active_palette() const;
-        void set_active_palette(const palette_c *palette);
+        const display_list_c *active_display_list() const;
+        void set_active_display_list(const display_list_c *display_list);
         
     private:
         static machine_c *_shared_machine;
         machine_c();
         ~machine_c();
+        void set_active_image(const image_c *image, point_s offset = point_s());
+        void set_active_palette(const palette_c *palette);
 #if TOYBOX_TARGET_ATARI
         uint32_t _old_super;
         uint16_t _old_modes[3];

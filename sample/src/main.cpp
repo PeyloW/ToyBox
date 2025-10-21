@@ -45,9 +45,8 @@ int main(int argc, const char * argv[]) {
         audio_mixer_c::shared().play(assets.music(MUSIC));
         
         // Setup and start the scene
-        scene_manager_c manager(size_s(320, 208));
-        auto main_scene = new demo_main_scene_c(manager);
-        manager.run(main_scene);
+        auto main_scene = new demo_main_scene_c();
+        scene_manager_c::shared().run(main_scene);
 
         return 0;
     });

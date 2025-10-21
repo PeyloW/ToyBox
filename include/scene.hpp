@@ -10,6 +10,7 @@
 #include "timer.hpp"
 #include "input.hpp"
 #include "screen.hpp"
+#include "display_list.hpp"
 #include "vector.hpp"
 
 namespace toybox {
@@ -31,25 +32,23 @@ namespace toybox {
     class scene_c : public nocopy_c {
     public:
         /**
-         The `configuration_s` defines how to display and manage a `scene_c.`
-         TODO: Only `palette` is used.
+         The `configuration_s` defines how to display and configures a `scene_c.`
          */
-        struct configuration_s : public nocopy_c {
-            configuration_s(const palette_c &palette, int buffer_count = 2, bool use_clear = true) :
-                palette(palette), buffer_count(buffer_count), use_clear(use_clear) {}
-            const palette_c &palette;
+        struct configuration_s {
+            const size_s screen_size;
             const int buffer_count;
             const bool use_clear;
         };
-        scene_c(scene_manager_c &manager) : manager(manager) {};
+        scene_c();
         virtual ~scene_c() {};
         
-        virtual configuration_s &configuration() const = 0;
+        virtual configuration_s &configuration() const;
+        static configuration_s default_configuration;
         
-        virtual void will_appear(screen_c &clear_screen, bool obsured) = 0;
+        virtual void will_appear(bool obsured) {};
         virtual void will_disappear(bool obscured) {};
-        virtual void update_clear(screen_c &clear_screen, int ticks) {};
-        virtual void update_back(screen_c &back_screen, int ticks) {};
+        
+        virtual void update(display_list_c &display_list, int ticks) {};
         
     protected:
         scene_manager_c &manager;
@@ -60,15 +59,19 @@ namespace toybox {
      */
     class transition_c : public nocopy_c {
     public:
-        transition_c() {};
+        transition_c();
         virtual ~transition_c() {}
         
+        // TODO: Must configure using from and to display lists.
         virtual void will_begin(const scene_c *from, const scene_c *to) = 0;
-        virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) = 0;
+        virtual bool tick(int ticks) = 0;
         
         static transition_c *create(canvas_c::stencil_e dither);
         static transition_c *create(canvas_c::stencil_e dither, uint8_t through);
         static transition_c *create(color_c through);
+    
+    protected:
+        scene_manager_c &manager;
     };
         
     /**
@@ -82,13 +85,12 @@ namespace toybox {
      As the top-most scene changes the manager creates a transition to handle
      the visual transition.
      */
-    class scene_manager_c : public nocopy_c {
+    class scene_manager_c final : public nocopy_c {
     public:
-        enum class screen_e : int8_t {
+        enum class display_list_e : int8_t {
             clear = -1, front, back
         };
-        scene_manager_c(size_s screen_size = TOYBOX_SCREEN_SIZE_MAX);
-        ~scene_manager_c() = default;
+        static scene_manager_c& shared();
         
         void run(scene_c *rootscene, scene_c *overlay_scene = nullptr, transition_c *transition = nullptr);
         
@@ -105,23 +107,30 @@ namespace toybox {
         timer_c &vbl;
         timer_c &clock;
         
-        screen_c &screen(screen_e id) const;
+        display_list_c &display_list(display_list_e id) const;
         
     private:
+        scene_manager_c();
+        ~scene_manager_c() = default;
+
         transition_c *_transition;
         scene_c *_overlay_scene;
         vector_c<scene_c *, 8> _scene_stack;
         vector_c<unique_ptr_c<scene_c>, 8> _deletion_stack;
         
-        void swap_screens();
+        void swap_display_lists();
         
+        inline screen_c& update_clear();
+        inline void update_scene(scene_c &scene, int32_t ticks);
+
         inline void enqueue_delete(scene_c *scene) {
             _deletion_stack.emplace_back(scene);
         }
-        inline void begin_transition(transition_c *transition, const scene_c *from, const scene_c *to);
+        inline void begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obsured);
+        inline void update_transition(int32_t ticks);
         inline void end_transition();
 
-        vector_c<screen_c, 3> _screens;
+        vector_c<display_list_c, 3> _display_lists;
         int _active_physical_screen;
     };
     

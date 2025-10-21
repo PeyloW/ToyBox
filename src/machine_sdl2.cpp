@@ -7,7 +7,8 @@
 #ifdef TOYBOX_HOST
 #include "machine.hpp"
 #include "host_bridge.hpp"
-#include "image.hpp"
+#include "screen.hpp"
+#include "display_list.hpp"
 #include "audio.hpp"
 #include "timer.hpp"
 #include "SDL.h"
@@ -75,11 +76,25 @@ public:
         SDL_QueueAudio(_device_id, sample_data, sample_length);
     }
 
-    void draw_active_image() {
+    void draw_display_list(const display_list_c *display) {
         std::lock_guard<std::recursive_mutex> lock(_timer_mutex);
 
-        auto active_image = machine_c::shared().active_image();
-        auto active_palette = machine_c::shared().active_palette();
+        
+        const image_c *active_image = nullptr;
+        const palette_c *active_palette = nullptr;
+        for (const auto& item : *display) {
+            switch (item.second.index()) {
+                case 0:
+                    active_image = &item.second.get<screen_c>().image();
+                    break;
+                case 1:
+                    active_palette = &item.second.get<palette_c>();
+                    break;
+                default:
+                    hard_assert(false);
+                    break;
+            }
+        }
 
         // Clear buffer to black
         struct  __packed color_s { uint8_t rgb[3]; uint8_t _; };
@@ -157,7 +172,7 @@ public:
 
         while (!s_should_quit.load()) {
             SDL_Event event;
-            image_c *previous_active_image = nullptr;
+            const display_list_c *previous_display_list = nullptr;
             while (SDL_PollEvent(&event)) {
                 switch (event.type) {
                     case SDL_QUIT:
@@ -178,9 +193,10 @@ public:
                 }
             }
             pause_timers();
-            auto active_image = _machine.active_image();
-            if (active_image != previous_active_image) {
-                draw_active_image();
+            auto display_list = _machine.active_display_list();
+            if (display_list != previous_display_list) {
+                draw_display_list(display_list);
+                previous_display_list = display_list;
             }
             resume_timers();
 

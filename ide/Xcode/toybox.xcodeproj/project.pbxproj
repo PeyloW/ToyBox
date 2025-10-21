@@ -275,7 +275,7 @@
 				OTHER_CFLAGS = (
 					"-O0",
 					"-DTOYBOX_TARGET_ATARI=2",
-					"-DTOUBOX_HOST=sdl2",
+					"-DTOYBOX_HOST=sdl2",
 					"-g",
 					"-std=c++23",
 					"-Wno-vla-cxx-extension",
@@ -291,7 +291,7 @@
 				OTHER_CFLAGS = (
 					"-O0",
 					"-DTOYBOX_TARGET_ATARI=2",
-					"-DTOUBOX_HOST=sdl2",
+					"-DTOYBOX_HOST=sdl2",
 					"-g",
 					"-std=c++23",
 					"-Wno-vla-cxx-extension",

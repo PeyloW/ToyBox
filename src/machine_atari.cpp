@@ -7,7 +7,8 @@
 
 #include "machine.hpp"
 #include "timer.hpp"
-#include "image.hpp"
+#include "screen.hpp"
+#include "display_list.hpp"
 #include "algorithm.hpp"
 
 #if TOYBOX_TARGET_ATARI
@@ -130,9 +131,32 @@ uint32_t machine_c::get_cookie(uint32_t cookie, uint32_t def_value) const {
 #endif
 }
 
-const image_c *machine_c::active_image() const {
-    return g_active_image;
+static const display_list_c *s_active_display_list = nullptr;
+
+const display_list_c *machine_c::active_display_list() const {
+    return s_active_display_list;
 }
+
+void machine_c::set_active_display_list(const display_list_c *display_list) {
+    s_active_display_list = display_list;
+    if (display_list) {
+        assert(is_sorted(display_list->begin(), display_list->end()));
+        for (const auto& item : *display_list) {
+            switch (item.second.index()) {
+                case 0:
+                    set_active_image(&item.second.get<screen_c>().image());
+                    break;
+                case 1:
+                    set_active_palette(&item.second.get<palette_c>());
+                    break;
+            }
+        }
+    } else {
+        set_active_image(nullptr);
+        set_active_palette(nullptr);
+    }
+}
+
 
 void machine_c::set_active_image(const image_c *image, point_s offset) {
     assert(offset.x == 0 && offset.y == 0);
@@ -145,10 +169,6 @@ void machine_c::set_active_image(const image_c *image, point_s offset) {
 #endif
         }
     });
-}
-
-const palette_c *machine_c::active_palette() const {
-    return g_active_palette;
 }
 
 void machine_c::set_active_palette(const palette_c *palette) {

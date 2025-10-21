@@ -21,20 +21,24 @@ namespace toybox {
         }
 
         virtual void will_begin(const scene_c *from, const scene_c *to) override {
+            /*
             if (to) {
                 _palette = &to->configuration().palette;
                 if (from) {
                     assert(_palette == &from->configuration().palette);
                 }
             }
+            */
         }
 
-        virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
+        virtual bool tick(int ticks) override {
             if (_transition_state.shade == 0 && _palette) {
-                machine_c::shared().set_active_palette(_palette);
+                //machine_c::shared().set_active_palette(_palette);
                 _palette = nullptr;
             }
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
+            auto &phys_screen = *manager.display_list(scene_manager_c::display_list_e::front).find_first<screen_c>();
+            auto &log_screen = *manager.display_list(scene_manager_c::display_list_e::back).find_first<screen_c>();
             phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
                 const size_s ts(320, 208);
                 for (int y = 0; y < 208; y += ts.height) {
@@ -68,15 +72,17 @@ public:
             _transition_state.full_restores_left = 4;
         }
     
-    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
+    virtual bool tick(int ticks) override {
         if (_transition_state.full_restores_left > 2) {
+            auto &phys_screen = *manager.display_list(scene_manager_c::display_list_e::front).find_first<screen_c>();
+            auto &log_screen = *manager.display_list(scene_manager_c::display_list_e::back).find_first<screen_c>();
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
             phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
                 phys_screen.fill(_through, rect_s(point_s(), phys_screen.size()));
             });
             if (shade == canvas_c::STENCIL_FULLY_OPAQUE) {
                 if (_palette) {
-                    machine_c::shared().set_active_palette(_palette);
+                   // machine_c::shared().set_active_palette(_palette);
                     _palette = nullptr;
                 }
                 _transition_state.full_restores_left--;
@@ -88,7 +94,7 @@ public:
             }
             return false;
         } else {
-            return dither_transition_c::tick(phys_screen, log_screen, ticks);
+            return dither_transition_c::tick(ticks);
         }
     }
 protected:
@@ -103,15 +109,15 @@ public:
     {}
     virtual ~fade_through_transition_c() {
         if (_to_palette) {
-            machine_c::shared().set_active_palette(_to_palette);
+            //machine_c::shared().set_active_palette(_to_palette);
         }
     }
     virtual void will_begin(const scene_c *from, const scene_c *to) override {
         assert(to);
         uint8_t r, g, b;
         _through.get(&r, &g, &b);
-        const palette_c &from_palette = from ? from->configuration().palette : *machine_c::shared().active_palette();
-        const palette_c &to_palette = to->configuration().palette;
+        const palette_c from_palette;
+        const palette_c to_palette;
         _to_palette = &to_palette;
         for (int i = 0; i <= 16; i++) {
             _palettes.emplace_back();
@@ -130,15 +136,17 @@ public:
             }
         }
     }
-    virtual bool tick(screen_c &phys_screen, screen_c &log_screen, int ticks) override {
+    virtual bool tick(int ticks) override {
         const int count = _count / 2;
         auto &m = machine_c::shared();
         if (count < 17) {
-            m.set_active_palette(&_palettes[count]);
+            //m.set_active_palette(&_palettes[count]);
         } else if (count < 18) {
+            auto &phys_screen = *manager.display_list(scene_manager_c::display_list_e::front).find_first<screen_c>();
+            auto &log_screen = *manager.display_list(scene_manager_c::display_list_e::back).find_first<screen_c>();
             phys_screen.draw_aligned(log_screen.image(), point_s());
         } else if (count < 34) {
-            m.set_active_palette(&_palettes[count - 1]);
+            //m.set_active_palette(&_palettes[count - 1]);
         } else {
             return true;
         }
