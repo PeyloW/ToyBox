@@ -82,13 +82,13 @@ public:
         
         const image_c *active_image = nullptr;
         const palette_c *active_palette = nullptr;
-        for (const auto& item : *display) {
-            switch (item.second.index()) {
-                case 0:
-                    active_image = &item.second.get<screen_c>().image();
+        for (const auto& entry : *display) {
+            switch (entry.item.display_type()) {
+                case display_item_c::screen:
+                    active_image = &entry.screen().image();
                     break;
-                case 1:
-                    active_palette = &item.second.get<palette_c>();
+                case display_item_c::palette:
+                    active_palette = &entry.palette();
                     break;
                 default:
                     hard_assert(false);
@@ -111,7 +111,7 @@ public:
             if (active_palette) {
                 // If active palette is set
                 for (int i = 0; i < 16; i++) {
-                    active_palette->colors[i].get(&palette[i].rgb[0], &palette[i].rgb[1], &palette[i].rgb[2]);
+                    (*active_palette)[i].get(&palette[i].rgb[0], &palette[i].rgb[1], &palette[i].rgb[2]);
                     buffer[i]._ = 0;
                 }
             }

@@ -33,6 +33,7 @@ namespace toybox {
 #   error "Unsupported target"
 #endif
         };
+        using enum type_e;
         
         static machine_c &shared();
         

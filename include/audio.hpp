@@ -26,7 +26,7 @@ namespace toybox {
         sound_c(const char *path);
         virtual ~sound_c() {};
         
-        type_e asset_type() const override { return type_e::sound; }
+        type_e asset_type() const override { return sound; }
         
         const int8_t *sample() const { return _sample.get(); }
         uint32_t length() const { return _length; }
@@ -48,7 +48,7 @@ namespace toybox {
         music_c() {};
         virtual ~music_c() {};
         
-        type_e asset_type() const override { return type_e::music; }
+        type_e asset_type() const override { return music; }
         
         virtual const char *title() const = 0;
         virtual const char *composer() const = 0;

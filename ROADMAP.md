@@ -28,8 +28,8 @@ Support siple horizontally scrolling games controlled with joystick. ETA Summer 
 - [x] `screen_c` as a subclass of `canvas_c`
     - [ ] Wrapper for an `image_c` with its own size and offset
     - [ ] Translate & clip drawing primitives to superclass
-- [ ] Rudimentary `display_list_c` only supporting a single `screen_c`
-    - [ ] Use active `display_list_c` not `image_c`
+- [x] Rudimentary `display_list_c` only supporting a sinbgle `screen_c` and `palette_c`
+    - [x] Use active `display_list_c` not `image_c`
     - [ ] Update Atari target to HW scroll display if needed
     - [ ] Update host to gneerate _HW scrolled_ display
 - [ ] `tilemap_c` for defining a tiled display from 16x16 blocks
@@ -43,7 +43,7 @@ Support siple horizontally scrolling games controlled with joystick. ETA Summer 
 - [ ] Implement `audio_mixer_c`
     - [ ] Up to four channels of mixed mono audio
 - [ ] Implement `controller_c` to read ST joystick 1 or 0.
-    - [ ] Implement `state_recognizer_c`
+    - [ ] Implement basic `state_recognizer_c`
     - [ ] Concrete implementations for taps and holds
 
 

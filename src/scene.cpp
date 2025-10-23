@@ -47,8 +47,8 @@ scene_manager_c::scene_manager_c() :
         auto& list = _display_lists.emplace_back();
         palette_c& pal = *new palette_c();
         screen_c& scr = *new screen_c(size_s(320, 208));
-        list.emplace_front(0, pal);
-        list.emplace_front(0, scr);
+        list.emplace_front(PRIMARY_PALETTE, -1, pal);
+        list.emplace_front(PRIMARY_SCREEN, -1, scr);
     }
     srand48(time(nullptr));
 }
@@ -87,9 +87,9 @@ void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_
                         update_scene(scene, ticks);
                         auto &clear = display_list(display_list_e::clear);
                         auto &back = display_list(display_list_e::back);
-                        auto fr_pal = clear.find_first<palette_c>();
-                        auto to_pal = back.find_first<palette_c>();
-                        copy(begin(fr_pal->colors), end(fr_pal->colors), begin(to_pal->colors));
+                        auto &fr_pal = clear.get(PRIMARY_PALETTE).palette();
+                        auto &to_pal = back.get(PRIMARY_PALETTE).palette();
+                        copy(fr_pal.begin(), fr_pal.end(), to_pal.begin());
                     });
                 } else {
                     update_scene(scene, ticks);
@@ -169,9 +169,9 @@ void scene_manager_c::swap_display_lists() {
 
 screen_c& scene_manager_c::update_clear() {
     screen_c *screens[3] = {
-        _display_lists[0].find_first<screen_c>(),
-        _display_lists[1].find_first<screen_c>(),
-        _display_lists[2].find_first<screen_c>(),
+        &_display_lists[0].get(PRIMARY_SCREEN).screen(),
+        &_display_lists[1].get(PRIMARY_SCREEN).screen(),
+        &_display_lists[2].get(PRIMARY_SCREEN).screen(),
     };
     screens[0]->dirtymap()->merge(*screens[2]->dirtymap());
     screens[1]->dirtymap()->merge(*screens[2]->dirtymap());
@@ -203,8 +203,8 @@ void scene_manager_c::begin_transition(transition_c *transition, const scene_c *
         const auto &config = to->configuration();
         if (config.use_clear) {
             auto& clear = display_list(display_list_e::clear);
-            auto screen = clear.find_first<screen_c>();
-            screen->with_dirtymap(screen->dirtymap(), [&]{
+            auto& screen = clear.get(PRIMARY_SCREEN).screen();
+            screen.with_dirtymap(screen.dirtymap(), [&]{
                 to->will_appear(obsured);
             });
         } else {

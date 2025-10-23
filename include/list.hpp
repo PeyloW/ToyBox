@@ -56,7 +56,6 @@ namespace toybox {
             __forceinline _iterator_s& operator++() { _node = _node->next; return *this; }
             __forceinline _iterator_s operator++(int) { auto tmp = *this; _node = _node->next; return tmp; }
             __forceinline bool operator==(const _iterator_s& o) const { return _node == o._node; }
-            __forceinline bool operator!=(const _iterator_s& o) const { return _node != o._node; }
             
             _node_s *_node;
         };

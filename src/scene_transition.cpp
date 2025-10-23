@@ -37,8 +37,8 @@ namespace toybox {
                 _palette = nullptr;
             }
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
-            auto &phys_screen = *manager.display_list(scene_manager_c::display_list_e::front).find_first<screen_c>();
-            auto &log_screen = *manager.display_list(scene_manager_c::display_list_e::back).find_first<screen_c>();
+            auto &phys_screen = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_SCREEN).screen();
+            auto &log_screen = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_SCREEN).screen();
             phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
                 const size_s ts(320, 208);
                 for (int y = 0; y < 208; y += ts.height) {
@@ -74,8 +74,8 @@ public:
     
     virtual bool tick(int ticks) override {
         if (_transition_state.full_restores_left > 2) {
-            auto &phys_screen = *manager.display_list(scene_manager_c::display_list_e::front).find_first<screen_c>();
-            auto &log_screen = *manager.display_list(scene_manager_c::display_list_e::back).find_first<screen_c>();
+            auto &phys_screen = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_SCREEN).screen();
+            auto &log_screen = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_SCREEN).screen();
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
             phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
                 phys_screen.fill(_through, rect_s(point_s(), phys_screen.size()));
@@ -124,7 +124,7 @@ public:
             auto &palette = _palettes.back();
             int shade = i * color_c::MIX_FULLY_OTHER / 16;
             for (int j = 0; j < 16; j++) {
-                palette.colors[j] = from_palette.colors[j].mix(_through, shade);
+                palette[j] = from_palette[j].mix(_through, shade);
             }
         }
         for (int i = 15; i >= 0; i--) {
@@ -132,7 +132,7 @@ public:
             auto &palette = _palettes.back();
             int shade = i * color_c::MIX_FULLY_OTHER / 16;
             for (int j = 0; j < 16; j++) {
-                palette.colors[j] = to_palette.colors[j].mix(_through, shade);
+                palette[j] = to_palette[j].mix(_through, shade);
             }
         }
     }
@@ -142,8 +142,8 @@ public:
         if (count < 17) {
             //m.set_active_palette(&_palettes[count]);
         } else if (count < 18) {
-            auto &phys_screen = *manager.display_list(scene_manager_c::display_list_e::front).find_first<screen_c>();
-            auto &log_screen = *manager.display_list(scene_manager_c::display_list_e::back).find_first<screen_c>();
+            auto &phys_screen = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_SCREEN).screen();
+            auto &log_screen = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_SCREEN).screen();
             phys_screen.draw_aligned(log_screen.image(), point_s());
         } else if (count < 34) {
             //m.set_active_palette(&_palettes[count - 1]);

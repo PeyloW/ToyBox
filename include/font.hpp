@@ -25,7 +25,7 @@ namespace toybox {
         font_c(const shared_ptr_c<image_c> &image, size_s max_size, uint8_t space_width, uint8_t lead_req_space, uint8_t trail_req_space);
         virtual ~font_c() {};
         
-        type_e asset_type() const override { return type_e::font; }
+        type_e asset_type() const override { return font; }
         
         inline const shared_ptr_c<image_c> &image() const {
             return _image;

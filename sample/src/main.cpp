@@ -13,8 +13,8 @@
 
 static asset_manager_c& setup_assets() {
     constexpr pair_c<int,asset_manager_c::asset_def_s> asset_defs[] = {
-        { BACKGROUND, asset_manager_c::asset_def_s(asset_c::type_e::image, 1, "backgrnd.iff") },
-        { SPRITES, asset_manager_c::asset_def_s(asset_c::type_e::tileset, 1, "sprites.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
+        { BACKGROUND, asset_manager_c::asset_def_s(asset_c::image, 1, "backgrnd.iff") },
+        { SPRITES, asset_manager_c::asset_def_s(asset_c::tileset, 1, "sprites.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
             shared_ptr_c<image_c> image = new image_c(path, 0);
             constexpr auto table = canvas_c::remap_table_c({
                 {1, 10}, {2, 11}, {3, 11}, {4, 12}, {5, 13}, {6, 14}
@@ -23,7 +23,7 @@ static asset_manager_c& setup_assets() {
             canvas.remap_colors(table, rect_s(0, 0, 128, 32));
             return new tileset_c(image, size_s(32, 32));
         })},
-        { MUSIC, asset_manager_c::asset_def_s(asset_c::type_e::music, 1, "music.snd") }
+        { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") }
     };
 
     auto &assets = asset_manager_c::shared();

@@ -10,6 +10,7 @@
 #include "cincludes.hpp"
 #include "types.hpp"
 #include "algorithm.hpp"
+#include "display_list.hpp"
 
 namespace toybox {
     
@@ -60,26 +61,52 @@ namespace toybox {
     template<int Count>
     class basic_palette_c : public nocopy_c {
     public:
-        color_c colors[Count];
-        basic_palette_c() { memset(colors, 0, sizeof(colors)); }
-        basic_palette_c(uint16_t *cs) { memcpy(colors, cs, sizeof(colors)); }
+        using value_type = color_c;
+        using pointer = value_type* ;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using iterator = value_type*;
+        using const_iterator = const value_type*;
+
+        basic_palette_c() : _colors(0) { }
+        basic_palette_c(uint16_t *cs) { memcpy(_colors, cs, sizeof(_colors)); }
         basic_palette_c(uint8_t *c) {
             c += 3 * Count;
             int i;
             do_dbra(i, Count - 1) {
                 c -= 3;
-                colors[i] = color_c(c[0], c[1], c[2]);
+                _colors[i] = color_c(c[0], c[1], c[2]);
             } while_dbra(i);
         }
-        const uint16_t *ptr() const __pure { return &this->colors[0].color; }
+        const uint16_t *ptr() const __pure { return &_colors[0].color; }
+
+        __forceinline iterator begin() __pure { return &_colors[0]; }
+        __forceinline const_iterator begin() const __pure { return &_colors[0]; }
+        __forceinline iterator end() __pure { return &_colors[Count]; }
+        __forceinline const_iterator end() const __pure { return &_colors[Count]; }
+        __forceinline int size() const __pure { return Count; }
+        
+        inline reference operator[](const int i) __pure {
+            assert( i >= 0 && i < Count);
+            return _colors[i];
+        }
+        inline const_reference operator[](const int i) const __pure {
+            assert( i >= 0 && i < Count);
+            return _colors[i];
+        }
+
+    private:
+        color_c _colors[Count];
     };
         
     /**
      A `palette_c` is a specialized list of colors with exactly 16 colors.
      TODO: Should Amiga target allow for 32?
      */
-    class palette_c : public basic_palette_c<16> {
+    class palette_c : public basic_palette_c<16>, public display_item_c {
     public:
+        type_e display_type() const override { return palette; }
         palette_c() : basic_palette_c<16>() {}
         palette_c(uint16_t *cs) : basic_palette_c<16>(cs) {}
         palette_c(uint8_t *c) : basic_palette_c<16>(c) {}

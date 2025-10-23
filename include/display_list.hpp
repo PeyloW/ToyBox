@@ -14,48 +14,66 @@ namespace toybox {
 
     class screen_c;
     class palette_c;
-    
-    using display_item_variant_c = reference_variant_c<screen_c, palette_c>;
-    class display_item_c : public pair_c<int, display_item_variant_c> {
+
+    class display_item_c {
     public:
-        template<typename T>
-        display_item_c(int i, T& item) : pair_c(i, display_item_variant_c(item)) {}
-        //display_item_c(int i, T& item) : pair_c(i, display_item_variant_c(item)) {}
+        enum class type_e : uint8_t {
+            screen, palette
+        };
+        using enum type_e;
+        virtual type_e display_type() const __pure = 0;
     };
-    static constexpr bool operator<(const display_item_c &lhs, const display_item_c &rhs) {
-        return lhs.first < rhs.first;
-    }
-
     
-    class display_list_c : public list_c<display_item_c> {
+    enum {
+        PRIMARY_SCREEN = -1,
+        PRIMARY_PALETTE = -2
+    };
+    struct display_list_entry_s {
+        int id;
+        int row;
+        display_item_c &item;
+        screen_c& screen() const {
+            assert(item.display_type() == display_item_c::screen);
+            return (screen_c&)item;
+        }
+        palette_c& palette() const {
+            assert(item.display_type() == display_item_c::palette);
+            return (palette_c&)item;
+        }
+        bool operator<(const display_list_entry_s &rhs) const {
+            return row < rhs.row;
+        }
+    };
+    
+    class display_list_c : public list_c<display_list_entry_s> {
     public:
-
         inline const_iterator insert_sorted(const_reference value) {
-            auto pos = iterator_before(value.first);
+            auto pos = iterator_before(value.row);
             return insert_after(pos, value);
         }
         template<class ...Args>
-        inline iterator emplace_sorted(int first, Args&& ...args) {
-            auto pos = iterator_before(first);
-            return emplace_after(pos, first, forward<Args>(args)...);
+        inline iterator emplace_sorted(int id, int row, Args&& ...args) {
+            auto pos = iterator_before(row);
+            return emplace_after(pos, id, row, forward<Args>(args)...);
         }
 
-        template<typename T>
-        inline T* find_first() const {
+        inline display_list_entry_s& get(int id) const {
+            return *get_if(id);
+        }
+
+        inline display_list_entry_s* get_if(int id) const {
             for (auto& item : *this) {
-                auto screen = item.second.get_if<T>();
-                if (screen) {
-                    return const_cast<T*>(screen);
-                }
+                if (item.id == id) return const_cast<display_list_entry_s*>(&item);
             }
             return nullptr;
         }
+
         
     private:
-        const_iterator iterator_before(int index) const {
+        const_iterator iterator_before(int row) const {
             auto iter = before_begin();
             while (iter._node->next) {
-                if (iter._node->next->value.first >= index) {
+                if (iter._node->next->value.row >= row) {
                     break;
                 }
                 ++iter;

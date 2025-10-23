@@ -33,8 +33,6 @@ namespace toybox {
             __forceinline explicit operator bool() const __pure  { return _ptr != nullptr; }
             __forceinline bool operator==(const basic_ptr_c &o) const __pure { return _ptr == o._ptr; }
             __forceinline bool operator==(T *o) const __pure { return _ptr == o; }
-            __forceinline bool operator!=(const basic_ptr_c &o) const __pure { return _ptr != o._ptr; }
-            __forceinline bool operator!=(T *o) const __pure { return _ptr != o; }
 
         protected:
             T* _ptr;

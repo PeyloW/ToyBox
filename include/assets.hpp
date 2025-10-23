@@ -22,6 +22,7 @@ namespace toybox {
         enum class type_e : uint8_t {
             custom, image, tileset, font, sound, music
         };
+        using enum type_e;
         virtual type_e asset_type() const __pure { return type_e::custom; }
     };
     

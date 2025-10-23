@@ -41,7 +41,7 @@ machine_c::machine_c() {
 #else
     g_active_palette = new palette_c();
 #endif
-    assert(type() != type_e::unknown && type() >= type_e::ste);
+    assert(type() != unknown && type() >= ste);
 }
 
 machine_c::~machine_c() {
@@ -66,7 +66,7 @@ machine_c::type_e machine_c::type() const {
 #ifdef __M68000__
     return static_cast<type_e>((get_cookie(0x5F4D4348) >> 16) + 1); // '_MCH'
 #else
-    return type_e::ste;
+    return ste;
 #endif
 }
 
@@ -141,13 +141,13 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
     s_active_display_list = display_list;
     if (display_list) {
         assert(is_sorted(display_list->begin(), display_list->end()));
-        for (const auto& item : *display_list) {
-            switch (item.second.index()) {
-                case 0:
-                    set_active_image(&item.second.get<screen_c>().image());
+        for (const auto& entry : *display_list) {
+            switch (entry.item.display_type()) {
+                case display_item_c::screen:
+                    set_active_image(&entry.screen().image());
                     break;
-                case 1:
-                    set_active_palette(&item.second.get<palette_c>());
+                case display_item_c::palette:
+                    set_active_palette(&entry.palette());
                     break;
             }
         }
@@ -162,7 +162,7 @@ void machine_c::set_active_image(const image_c *image, point_s offset) {
     assert(offset.x == 0 && offset.y == 0);
     timer_c::with_paused_timers([this, image] {
         g_active_image = image;
-        if (type() > type_e::ste) {
+        if (type() > ste) {
 #ifdef __M68000__
             *((uint16_t*)0x452) = 1;
             *((uint16_t **)0x45E) = image->_bitmap.get();
@@ -174,7 +174,7 @@ void machine_c::set_active_image(const image_c *image, point_s offset) {
 void machine_c::set_active_palette(const palette_c *palette) {
 #ifdef __M68000__
 #   if TOYBOX_TARGET_ATARI
-    memcpy(reinterpret_cast<uint16_t*>(0xffff8240), palette, 32);
+    copy(palette->begin(), palette->end(), reinterpret_cast<color_c*>(0xffff8240));
 #   else
 #       error "Unsupported target"
 #   endif

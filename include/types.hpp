@@ -18,7 +18,7 @@ namespace toybox {
         constexpr point_s() : x(0), y(0) {}
         constexpr point_s(int16_t x, int16_t y) : x(x), y(y) {}
         int16_t x, y;
-        bool operator==(const point_s &p) const {
+        constexpr bool operator==(const point_s &p) const {
             return x == p.x && y == p.y;
         }
     };
@@ -28,13 +28,13 @@ namespace toybox {
         constexpr size_s() : width(0), height(0) {}
         constexpr size_s(int16_t w, int16_t h) : width(w), height(h) {}
         int16_t width, height;
-        bool operator==(const size_s s) const {
+        constexpr bool operator==(const size_s s) const {
             return width == s.width && height == s.height;
         }
-        bool contains(const point_s point) const {
+        constexpr bool contains(const point_s point) const {
             return point.x >= 0 && point.y >= 0 && point.x < width && point.y < height;
         }
-        bool is_empty() const {
+        constexpr bool is_empty() const {
             return width <= 0 || height <= 0;
         }
     };
@@ -47,16 +47,16 @@ namespace toybox {
 
         point_s origin;
         size_s size;
-        __forceinline int16_t max_x() const { return origin.x + size.width - 1; }
-        __forceinline int16_t max_y() const { return origin.y + size.height - 1; }
-        bool operator==(const rect_s &r) const {
+        __forceinline constexpr int16_t max_x() const { return origin.x + size.width - 1; }
+        __forceinline constexpr int16_t max_y() const { return origin.y + size.height - 1; }
+        constexpr bool operator==(const rect_s &r) const {
             return origin == r.origin && size == r.size;
         }
-        bool contains(const point_s &point) const {
+        constexpr bool contains(const point_s point) const {
             const point_s at = point_s(point.x - origin.x, point.y - origin.y);
             return size.contains(at);
         }
-        bool contained_by(const size_s &size) const {
+        constexpr bool contained_by(const size_s size) const {
             if (origin.x < 0 || origin.y < 0) return false;
             if (origin.x + this->size.width > size.width) return false;
             if (origin.y + this->size.height > size.height) return false;

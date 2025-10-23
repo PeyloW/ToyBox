@@ -27,18 +27,18 @@ scene_c::configuration_s &demo_main_scene_c::configuration() const {
 
 void demo_main_scene_c::will_appear(bool obsured) {
     auto &clear_display = manager.display_list(scene_manager_c::display_list_e::clear);
-    auto &clear_screen = *clear_display.find_first<screen_c>();
+    auto &clear_screen = clear_display.get(PRIMARY_SCREEN).screen();
     auto &image = asset_manager_c::shared().image(BACKGROUND);
     clear_screen.draw_aligned(image, point_s(0,0));
     for (int i = 0; i < 16; i++) {
         clear_screen.fill(i, rect_s(i * 20, 198, 20, 2));
     }
-    auto &clear_pal = *clear_display.find_first<palette_c>();
-    copy(begin(image.palette()->colors), end(image.palette()->colors), begin(clear_pal.colors));
+    auto &clear_pal = clear_display.get(PRIMARY_PALETTE).palette();
+    copy(image.palette()->begin(), image.palette()->end(), clear_pal.begin());
 }
 
 void demo_main_scene_c::update(display_list_c& display_list, int ticks) {
-    auto &back_screen = *display_list.find_first<screen_c>();
+    auto &back_screen = display_list.get(PRIMARY_SCREEN).screen();
     const auto idx = timer_c::shared(timer_c::timer_e::vbl).tick() % 64;
     const auto pos = _mouse.postion();
     _pos[idx] = pos;

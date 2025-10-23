@@ -213,7 +213,7 @@ namespace toybox {
     // Base class enforcing no copy constructor or assignment.
     class nocopy_c {
     public:
-        inline  bool operator==(const nocopy_c &other) const {
+        inline bool operator==(const nocopy_c &other) const {
             return this == &other;
         }
     protected:

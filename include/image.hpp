@@ -42,7 +42,7 @@ namespace toybox {
         image_c(const char *path, int masked_cidx = MASKED_CIDX);
         virtual ~image_c() {};
         
-        type_e asset_type() const override { return type_e::image; }
+        type_e asset_type() const override { return image; }
 
 #if TOYBOX_IMAGE_SUPPORTS_SAVE
         bool save(const char *path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);
