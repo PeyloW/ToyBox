@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "cincludes.hpp"
+#include "array.hpp"
 #include "types.hpp"
 #include "algorithm.hpp"
 #include "display_list.hpp"
@@ -59,45 +59,18 @@ namespace toybox {
      A `basic_palette_c` is an arbitrary list of colors.
      */
     template<int Count>
-    class basic_palette_c : public nocopy_c {
+    class basic_palette_c : public array_s<color_c, Count>, public nocopy_c {
     public:
-        using value_type = color_c;
-        using pointer = value_type* ;
-        using const_pointer = const value_type*;
-        using reference = value_type&;
-        using const_reference = const value_type&;
-        using iterator = value_type*;
-        using const_iterator = const value_type*;
-
-        basic_palette_c() : _colors(0) { }
-        basic_palette_c(uint16_t *cs) { memcpy(_colors, cs, sizeof(_colors)); }
+        basic_palette_c() = default;
+        basic_palette_c(uint16_t *cs) { copy(cs, cs + Count, this->begin()); }
         basic_palette_c(uint8_t *c) {
             c += 3 * Count;
             int i;
             do_dbra(i, Count - 1) {
                 c -= 3;
-                _colors[i] = color_c(c[0], c[1], c[2]);
+                this->_data[i] = color_c(c[0], c[1], c[2]);
             } while_dbra(i);
         }
-        const uint16_t *ptr() const __pure { return &_colors[0].color; }
-
-        __forceinline iterator begin() __pure { return &_colors[0]; }
-        __forceinline const_iterator begin() const __pure { return &_colors[0]; }
-        __forceinline iterator end() __pure { return &_colors[Count]; }
-        __forceinline const_iterator end() const __pure { return &_colors[Count]; }
-        __forceinline int size() const __pure { return Count; }
-        
-        __forceinline reference operator[](const int i) __pure {
-            assert( i >= 0 && i < Count && "Index out of bounds");
-            return _colors[i];
-        }
-        __forceinline const_reference operator[](const int i) const __pure {
-            assert( i >= 0 && i < Count && "Index out of bounds");
-            return _colors[i];
-        }
-
-    private:
-        color_c _colors[Count];
     };
         
     /**

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "algorithm.hpp"
+#include "initializer_list.hpp"
 
 namespace toybox {
     
@@ -28,13 +29,20 @@ namespace toybox {
         using const_iterator = const value_type*;
         
         vector_c() : _size(0) {}
+        constexpr vector_c(initializer_list<Type> init) : _size(0) {
+            assert(init.size() <= Count && "Vector capacity exceeded");
+            copy(init.begin(), init.end(), begin());
+            _size = init.size();
+        }
         
         __forceinline iterator begin() __pure { return _data[0].ptr(); }
         __forceinline const_iterator begin() const __pure { return _data[0].ptr(); }
         __forceinline iterator end() __pure { return _data[_size].ptr(); }
         __forceinline const_iterator end() const __pure { return _data[_size].ptr(); }
         __forceinline int size() const __pure { return _size; }
-        
+        __forceinline pointer data() { return _data[0].ptr(); }
+        __forceinline const_pointer data() const { return _data[0].ptr(); }
+
         __forceinline reference operator[](const int i) __pure {
             assert(i < _size && "Index out of bounds");
             assert(i >= 0 && "Index must be non-negative");
@@ -66,33 +74,50 @@ namespace toybox {
             assert(_size < Count && "Vector capacity exceeded");
             *_data[_size++].ptr() = value;
         }
-        iterator insert(const_iterator pos, const_reference value) {
-            assert(_size < Count && pos >= begin() && pos <= end() && "Invalid insert position or capacity exceeded");
-            move_backward(pos, end(), end() + 1);
-            *pos = value;
-            _size++;
-            return ++pos;
-        }
         template<class... Args>
         __forceinline reference emplace_back(Args&&... args) {
             assert(_size < Count && "Vector capacity exceeded");
             return *new (_data[_size++].addr()) Type(forward<Args>(args)...);
         }
+
+        iterator insert(const_iterator pos, const_reference value) {
+            assert(_size < Count && "Vector capacity exceeded");
+            assert(pos >= begin() && pos <= end() && "Invalid insert position");
+            move_backward(pos, (const_iterator)end(), end() + 1);
+            _size++;
+            iterator ins = (iterator)pos;
+            *ins = value;
+            return ins;
+        }
+        __forceinline iterator insert(int at, const_reference value) {
+            insert(begin() + at, forward<value_type>(value));
+        }
         template<class... Args>
         iterator emplace(Type *pos, Args&&... args) {
-            assert(_size < Count && pos >= begin() && pos <= end() && "Invalid emplace position or capacity exceeded");
+            assert(_size < Count && "Vector capacity exceeded");
+            assert(pos >= begin() && pos <= end() && "Invalid insert position");
             move_backward(pos, end(), end() + 1);
-            new (static_cast<void *>(pos)) Type(forward<Args>(args)...);
             _size++;
-            return ++pos;
+            iterator ins = (iterator)pos;
+            new (static_cast<void *>(ins)) Type(forward<Args>(args)...);
+            return ins;
+        }
+        template<class... Args>
+        __forceinline iterator emplace(int at, Args&&... args) {
+            return emplace(begin() + at, forward<Args>(args)...);
         }
 
         iterator erase(const_iterator pos) {
-            assert(_size > 0 && pos >= begin() && pos < end() && "Invalid erase position or vector is empty");
+            assert(_size > 0 && "Vector is empty");
+            assert(pos >= begin() && pos < end() && "Invalid erase position");
             destroy_at(pos);
-            move(pos + 1, this->end(), pos);
+            iterator ins = (iterator)pos;
+            move(pos + 1, (const_iterator)end(), ins);
             _size--;
-            return iterator(pos);
+            return ins;
+        }
+        iterator erase(int at) {
+            return erase(begin() + at);
         }
         void clear() {
             while (_size) {
