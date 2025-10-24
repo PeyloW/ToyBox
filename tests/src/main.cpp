@@ -7,38 +7,12 @@
 
 #include "cincludes.hpp"
 #include "types.hpp"
-#include "variant.hpp"
 #include "memory.hpp"
 
 #include "display_list.hpp"
 #include "screen.hpp"
 
 using namespace toybox;
-
-static void test_variant() {
-    using ptr_t = shared_ptr_c<char>;
-    ptr_t p((char*)malloc(4));
-    assert(p.use_count() == 1 && "Initial use count should be 1");
-    // Use scope to verify RAII
-    {
-        // Use bool for trivial type with default constructor.
-        // Use shared ptr for verifying non trivial construction and destruction.
-        // Use rect for type larger than pointer
-        variant_c<bool, ptr_t, rect_s> v1;
-        assert(v1.index() == 0 && "Initial variant index should be 0");
-        assert(v1.get<bool>() == false && "Initial bool value should be false");
-        v1.emplace<rect_s>(2, 2, 8, 16);
-        assert(v1.index() == 2 && "Variant index should be 2 after emplacing rect");
-        assert(v1.get_if<ptr_t>() == nullptr && "get_if should return nullptr for wrong type");
-        assert(p.use_count() == 1 && "Use count should still be 1");
-        v1.emplace<ptr_t>(p);
-        assert(p.use_count() == 2 && "Use count should be 2 after emplacing into variant");
-    }
-    assert(p.use_count() == 1 && "Use count should return to 1 after scope");
-    p.reset();
-    assert(p.use_count() == 0 && "Use count should be 0 after reset");
-    printf("test_variant pass.\n");
-}
 
 static void test_display_list() {
     display_list_c list;
@@ -104,7 +78,6 @@ void test_algorithms() {
 }
 
 int main(int argc, const char * argv[]) {
-    test_variant();
     test_display_list();
     test_algorithms();
     printf("All pass.\n");

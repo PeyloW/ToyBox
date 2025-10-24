@@ -222,19 +222,6 @@ namespace toybox {
         nocopy_c& operator=(const nocopy_c&) = delete;
     };
 
-    template<typename T>
-    class reference_wrapper_c {
-    public:
-        reference_wrapper_c(T& ref) : _ptr(&ref) {}
-        reference_wrapper_c(const reference_wrapper_c&) = default;
-        reference_wrapper_c& operator=(const reference_wrapper_c&) = default;
-        T& get() const { return *_ptr; }
-        operator T&() const { return *_ptr; }
-        T* operator->() const { return _ptr; }
-    private:
-        T* _ptr;
-    };
-    
     template<typename... Ts>
     struct aligned_membuf_s {
         static constexpr size_t size  = max(sizeof(Ts)...);

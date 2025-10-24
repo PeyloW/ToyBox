@@ -8,7 +8,6 @@
 #pragma once
 
 #include "list.hpp"
-#include "variant.hpp"
 
 namespace toybox {
 
