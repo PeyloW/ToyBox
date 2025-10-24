@@ -23,14 +23,14 @@ namespace toybox {
     public:
         tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size);
         virtual ~tileset_c() {};
-        
-        type_e asset_type() const override final { return tileset; }
-        
-        inline const shared_ptr_c<image_c> &image() const __pure {
+
+        __forceinline type_e asset_type() const override final { return tileset; }
+
+        __forceinline const shared_ptr_c<image_c> &image() const __pure {
             return _image;
         }
-        
-        size_s tile_size() const __pure { return _rects[0].size; }
+
+        __forceinline size_s tile_size() const __pure { return _rects[0].size; }
         
         int16_t max_index() const __pure;
         point_s max_tile() const __pure;

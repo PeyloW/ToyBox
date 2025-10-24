@@ -10,10 +10,10 @@
 
 using namespace toybox;
 
-iffstream_c::iffstream_c(stream_c *stream) : 
+iffstream_c::iffstream_c(stream_c *stream) :
     stream_c(), _stream(stream)
 {
-    assert(stream);
+    assert(stream && "Stream must not be null");
 }
 
 iffstream_c::iffstream_c(const char *path, fstream_c::openmode_e mode) :

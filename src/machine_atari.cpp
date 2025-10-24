@@ -24,7 +24,7 @@ extern "C" {
 machine_c *machine_c::_shared_machine = nullptr;
 
 machine_c &machine_c::shared() {
-    assert(_shared_machine != nullptr);
+    assert(_shared_machine != nullptr && "Shared machine instance not initialized");
     return *_shared_machine;
 }
 
@@ -41,7 +41,7 @@ machine_c::machine_c() {
 #else
     g_active_palette = new palette_c();
 #endif
-    assert(type() != unknown && type() >= ste);
+    assert(type() != unknown && type() >= ste && "Machine type must be STE or higher");
 }
 
 machine_c::~machine_c() {
@@ -55,7 +55,7 @@ machine_c::~machine_c() {
 
 #ifndef TOYBOX_HOST
 int machine_c::with_machine(int argc, const char * argv[], int (*game)(machine_c &machine)) {
-    assert(_shared_machine == nullptr);
+    assert(_shared_machine == nullptr && "Shared machine already initialized");
     machine_c machine;
     _shared_machine = &machine;
     return game(machine);
@@ -140,7 +140,7 @@ const display_list_c *machine_c::active_display_list() const {
 void machine_c::set_active_display_list(const display_list_c *display_list) {
     s_active_display_list = display_list;
     if (display_list) {
-        assert(is_sorted(display_list->begin(), display_list->end()));
+        assert(is_sorted(display_list->begin(), display_list->end()) && "Display list must be sorted");
         for (const auto& entry : *display_list) {
             switch (entry.item.display_type()) {
                 case display_item_c::screen:
@@ -159,7 +159,7 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
 
 
 void machine_c::set_active_image(const image_c *image, point_s offset) {
-    assert(offset.x == 0 && offset.y == 0);
+    assert(offset.x == 0 && offset.y == 0 && "Offset must be zero");
     timer_c::with_paused_timers([this, image] {
         g_active_image = image;
         if (type() > ste) {

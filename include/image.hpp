@@ -33,7 +33,7 @@ namespace toybox {
             deflate    // Non-standard, not supported as of now
         };
         static constexpr int MASKED_CIDX = -1;
-        static constexpr bool is_masked(int i) __pure { return i < 0; }
+        static constexpr __forceinline bool is_masked(int i) __pure { return i < 0; }
         enum class bitplane_layout_e : uint8_t {
             interweaved, interleaved, continious
         };
@@ -41,8 +41,8 @@ namespace toybox {
         image_c(const size_s size, bool masked, shared_ptr_c<palette_c> palette);
         image_c(const char *path, int masked_cidx = MASKED_CIDX);
         virtual ~image_c() {};
-        
-        type_e asset_type() const override { return image; }
+
+        __forceinline type_e asset_type() const override { return image; }
 
 #if TOYBOX_IMAGE_SUPPORTS_SAVE
         bool save(const char *path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);

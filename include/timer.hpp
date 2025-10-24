@@ -32,9 +32,9 @@ namespace toybox {
         using func_i_t = void(*)(int);
         
         static timer_c &shared(timer_e timer);
-        
+
         template<invocable<> Commands>
-        __forceinline static void with_paused_timers(Commands commands) {
+        static inline void with_paused_timers(Commands commands) {
 #ifdef __M68000__
             uint16_t saved_sr;
             __asm__ volatile ("move.w %%sr,%0" : "=d"(saved_sr));

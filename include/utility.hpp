@@ -12,7 +12,7 @@
 namespace toybox {
     
     /*
-     This file containes a minimal set of funtionality from C++ stdlib.
+     This file contains a minimal set of functionality from C++ stdlib.
      */
 
 #pragma mark - Byte order helpers
@@ -22,38 +22,38 @@ namespace toybox {
 #else
     template<arithmetic Type>
     requires (sizeof(Type) == 1)
-    static inline void hton(Type &value) { }
-    
+    void hton(Type &value) { }
+
     template<arithmetic Type>
     requires (sizeof(Type) == 2)
-    static void inline hton(Type &value) { value = htons(value); }
-    
+    __forceinline void hton(Type &value) { value = htons(value); }
+
     template<arithmetic Type>
     requires (sizeof(Type) == 4)
-    static void inline hton(Type &value) { value = htonl(value); }
+    __forceinline void hton(Type &value) { value = htonl(value); }
     
     void hton_struct(void *ptr, const char *layout);
     template<class_type T>
-    static void inline hton(T &value) {
+    __forceinline void hton(T &value) {
         hton_struct(&value, struct_layout<T>::value);
     }
 
     template<class Type>
-    static void inline hton(Type *buf, size_t count) {
+    void hton(Type *buf, size_t count) {
         while (count--) {
             hton(*buf);
             buf++;
         }
     }
     template<class Type, size_t Count>
-    static void inline hton(Type (&array)[Count]) {
+    __forceinline void hton(Type (&array)[Count]) {
         hton(&array[0], Count);
     }
 #endif
     
 #pragma mark - Math functions
     
-    static inline __pure int sqrt(int x) {
+    static inline int sqrt(int x) {
         if (x == 0 || x == 1) {
             return x;
         } else {
@@ -81,8 +81,8 @@ namespace toybox {
     
     static uint16_t fast_rand_seed = 0xace1u;
     
-    static inline uint16_t fast_rand(uint16_t seed) {
-        assert(seed != 0);
+    static __forceinline uint16_t fast_rand(uint16_t seed) {
+        assert(seed != 0 && "Seed must be non-zero");
     #ifdef __m68k__
         asm volatile (
             "lsr.w   #1,%0       \n\t"
@@ -101,7 +101,7 @@ namespace toybox {
         return seed;
     }
 
-    static inline uint16_t fast_rand() {
+    static __forceinline uint16_t fast_rand() {
         return (fast_rand_seed = fast_rand(fast_rand_seed));
     }
     
@@ -109,8 +109,8 @@ namespace toybox {
      Blue noise random number series with 256 index repeat. 
      Number are in range 0..63 inclusive.
      */
-    static inline __pure int brand(int idx) {
-        constexpr static uint8_t s_blue[256] = {
+    static __forceinline int brand(int idx) {
+        static constexpr uint8_t s_blue[256] = {
             10,  2, 17, 23, 10, 34,  4, 28, 37,  2, 19,  7,  3,  1,  5, 62,
              0,  8, 55, 46,  1, 61, 19,  0,  1,  9, 45, 25, 34, 16,  0, 24,
             13, 28,  5,  0,  3, 26, 12,  6, 42, 14, 59,  0, 11,  2, 50, 42,
@@ -177,25 +177,25 @@ namespace toybox {
     
 #pragma mark - C++ language helpers
     
-    template<class C> inline auto begin(C& c) -> decltype(c.begin()) { return c.begin(); };
-    template<class C> inline auto begin(const C& c) -> decltype(c.begin()) { return c.begin(); };
-    template<class T, size_t N> inline T* begin(T (&array)[N]) { return &array[0]; };
-    template<class C> inline auto end(C& c) -> decltype(c.end()) { return c.end(); };
-    template<class C> inline auto end(const C& c) -> decltype(c.end()) { return c.end(); };
-    template<class T, size_t N> inline T* end(T (&array)[N]) { return &array[N]; };
+    template<class C> __forceinline auto begin(C& c) -> decltype(c.begin()) { return c.begin(); };
+    template<class C> __forceinline auto begin(const C& c) -> decltype(c.begin()) { return c.begin(); };
+    template<class T, size_t N> __forceinline T* begin(T (&array)[N]) { return &array[0]; };
+    template<class C> __forceinline auto end(C& c) -> decltype(c.end()) { return c.end(); };
+    template<class C> __forceinline auto end(const C& c) -> decltype(c.end()) { return c.end(); };
+    template<class T, size_t N> __forceinline T* end(T (&array)[N]) { return &array[N]; };
 
-    template<typename T> constexpr T&& forward(typename remove_reference<T>::type& t) noexcept {
+    template<typename T> constexpr T&& forward(typename remove_reference<T>::type& t) {
         return static_cast<T&&>(t);
     }
-    template<typename T> constexpr T&& forward(typename remove_reference<T>::type&& t) noexcept {
+    template<typename T> constexpr T&& forward(typename remove_reference<T>::type&& t) {
         return static_cast<T&&>(t);
     }
-    template<typename T> constexpr typename remove_reference<T>::type&& move(T&& t) noexcept {
+    template<typename T> constexpr typename remove_reference<T>::type&& move(T&& t) {
         return static_cast<typename remove_reference<T>::type&&>(t);
     }
     
     template<typename T>
-    __forceinline void swap(T& a, T& b) {
+    void swap(T& a, T& b) {
         T t = move(a);
         a = move(b);
         b = move(t);
@@ -205,7 +205,7 @@ namespace toybox {
     constexpr T* construct_at(T* p, Args&&... args) {
         return new (static_cast<void *>(p)) T(forward<Args>(args)...);
     }
-    template<class T> inline  void destroy_at(T* p) { p->~T(); }
+    template<class T> __forceinline void destroy_at(T* p) { p->~T(); }
 
     
 #pragma mark - Helper classes
@@ -213,11 +213,11 @@ namespace toybox {
     // Base class enforcing no copy constructor or assignment.
     class nocopy_c {
     public:
-        inline bool operator==(const nocopy_c &other) const {
+        __forceinline bool operator==(const nocopy_c &other) const {
             return this == &other;
         }
     protected:
-        constexpr __forceinline nocopy_c() {}
+        constexpr nocopy_c() {}
         nocopy_c(const nocopy_c&) = delete;
         nocopy_c& operator=(const nocopy_c&) = delete;
     };
@@ -261,6 +261,6 @@ namespace toybox {
     };
 
     template< class T1, class T2 >
-    inline pair_c<T1, T1> make_pair( T1&& f, T2&& s) { return pair_c<T1, T2>(forward<T1>(f), forward<T2>(s)); }
+    __forceinline pair_c<T1, T1> make_pair( T1&& f, T2&& s) { return pair_c<T1, T2>(forward<T1>(f), forward<T2>(s)); }
 
 }

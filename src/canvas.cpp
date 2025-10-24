@@ -17,7 +17,7 @@ dirtymap_c *canvas_c::create_dirtymap() const {
 }
 
 void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
-    assert(rect.contained_by(_image.size()));
+    assert(rect.contained_by(_image.size()) && "Rect must be contained within image bounds");
     for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {
         for (int16_t x = rect.origin.x; x < rect.origin.x + rect.size.width; x++) {
             const point_s at(x, y);
@@ -32,7 +32,7 @@ void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) cons
 
 using with_clipped_rect_f = void(*)(const rect_s &rect, point_s at);
 template<typename WithClipped>
-__forceinline static bool with_clipped_rect(const canvas_c *canvas, const rect_s &rect, point_s at, WithClipped func) {
+static __forceinline bool with_clipped_rect(const canvas_c *canvas, const rect_s &rect, point_s at, WithClipped func) {
     //assert(canvas._clipping);
     rect_s r = rect;
     if (r.clip_to(canvas->image().size(), at)) {
@@ -45,8 +45,8 @@ __forceinline static bool with_clipped_rect(const canvas_c *canvas, const rect_s
 }
 
 void canvas_c::fill(uint8_t ci, const rect_s &rect) const {
-    assert(_image._maskmap == nullptr);
-    assert(rect.contained_by(size()));
+    assert(_image._maskmap == nullptr && "Image must not have a maskmap");
+    assert(rect.contained_by(size()) && "Rect must be contained within canvas bounds");
     if (_clipping) {
         if (with_clipped_rect(this, rect, rect.origin, [&] (const rect_s &rect, point_s at) {
             fill(ci, rect);
@@ -61,20 +61,20 @@ void canvas_c::fill(uint8_t ci, const rect_s &rect) const {
 }
 
 void canvas_c::draw_aligned(const image_c &src, point_s at) const {
-    assert((at.x & 0xf) == 0);
-    assert((src._size.width & 0xf) == 0);
-    assert(_image._maskmap == nullptr);
-    assert(src._maskmap == nullptr);
+    assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
+    assert((src._size.width & 0xf) == 0 && "Source width must be 16-byte aligned");
+    assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
+    assert(src._maskmap == nullptr && "Source image must not have a maskmap");
     rect_s rect(point_s(), src.size());
     draw_aligned(src, rect, at);
 }
 
 void canvas_c::draw_aligned(const image_c &src, const rect_s &rect, point_s at) const {
-    assert((at.x & 0xf) == 0);
-    assert((rect.origin.x &0xf) == 0);
-    assert((rect.size.width & 0xf) == 0);
-    assert(_image._maskmap == nullptr);
-    assert(src._maskmap == nullptr);
+    assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
+    assert((rect.origin.x &0xf) == 0 && "Rect origin X must be 16-byte aligned");
+    assert((rect.size.width & 0xf) == 0 && "Rect width must be 16-byte aligned");
+    assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
+    assert(src._maskmap == nullptr && "Source image must not have a maskmap");
     if (_clipping) {
         if (with_clipped_rect(this, rect, at, [&] (const rect_s &rect, point_s at) {
             draw_aligned(src, rect, at);
@@ -104,8 +104,8 @@ void canvas_c::draw(const image_c &src, point_s at, const int color) const {
 }
 
 void canvas_c::draw(const image_c &src, const rect_s &rect, point_s at, const int color) const {
-    assert(_image._maskmap == nullptr);
-    assert(rect.contained_by(size()));
+    assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
+    assert(rect.contained_by(size()) && "Rect must be contained within canvas bounds");
     if (_clipping) {
         if (with_clipped_rect(this, rect, at, [&] (const rect_s &rect, point_s at) {
             draw(src, rect, at, color);
@@ -124,7 +124,7 @@ void canvas_c::draw(const image_c &src, const rect_s &rect, point_s at, const in
             imp_draw_color(src, rect, at, color);
         }
     } else {
-        assert(image_c::is_masked(color));
+        assert(image_c::is_masked(color) && "Color must be masked when source has no maskmap");
         imp_draw(src, rect, at);
     }
 }
@@ -143,9 +143,9 @@ void canvas_c::draw_3_patch(const image_c &src, int16_t cap, const rect_s &in) c
 }
 
 void canvas_c::draw_3_patch(const image_c &src, const rect_s &rect, int16_t cap, const rect_s &in) const {
-    assert(in.size.width >= cap * 2);
-    assert(rect.size.width > cap * 2);
-    assert(rect.size.height == in.size.height);
+    assert(in.size.width >= cap * 2 && "Input rect width must be at least twice the cap size");
+    assert(rect.size.width > cap * 2 && "Source rect width must be greater than twice the cap size");
+    assert(rect.size.height == in.size.height && "Source and input rect heights must match");
     if (_dirtymap) {
         _dirtymap->mark(in);
     }

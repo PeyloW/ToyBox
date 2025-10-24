@@ -104,7 +104,7 @@ struct __packed_struct ilbm_header_s {
     uint8_t aspect[2];
     size_s page_size;
 };
-static_assert(sizeof(ilbm_header_s) == 20, "Heade size mismatch");
+static_assert(sizeof(ilbm_header_s) == 20, "Header size mismatch");
 
 
 namespace toybox {
@@ -209,9 +209,9 @@ image_c::image_c(const char *path, int masked_cidx) :
                 return;
             }
             _size = bmhd.size;
-            assert(bmhd.plane_count == 4);
+            assert(bmhd.plane_count == 4 && "Only 4-plane images are supported");
             if (masked_cidx != MASKED_CIDX) {
-                assert(bmhd.mask_type != mask_type_e::mask_type_plane);
+                assert(bmhd.mask_type != mask_type_e::mask_type_plane && "Plane mask type conflicts with custom mask color");
                 bmhd.mask_color = masked_cidx;
                 masked = true;
             } else if (bmhd.mask_type == mask_type_e::mask_type_color) {
@@ -220,10 +220,10 @@ image_c::image_c(const char *path, int masked_cidx) :
             } else if (bmhd.mask_type == mask_type_e::mask_type_plane) {
                 masked = true;
             } else {
-                assert(bmhd.mask_type == mask_type_e::mask_type_none);
+                assert(bmhd.mask_type == mask_type_e::mask_type_none && "Mask type must be none when not using color or plane masks");
             }
             // DeluxePain ST format and custom deflate not supported
-            assert(bmhd.compression_type < compression_type_e::vertical); // DeluxePain ST format not supported
+            assert(bmhd.compression_type < compression_type_e::vertical && "DeluxePaint ST vertical compression not supported");
         } else if (iff_id_match(chunk.id, IFF_CMAP)) {
             uint8_t cmpa[48];
             if (file.read(cmpa, 48) != 48) {
@@ -236,7 +236,7 @@ image_c::image_c(const char *path, int masked_cidx) :
             const bool needs_mask_words = masked || (bmhd.mask_type == mask_type_e::mask_type_plane);
             const uint16_t mask_words = needs_mask_words ? (bitmap_words >> 2) : 0;
             _bitmap.reset((uint16_t*)(_malloc((bitmap_words + mask_words) << 1)));
-            assert(_bitmap);
+            assert(_bitmap && "Failed to allocate bitmap memory");
             if (needs_mask_words) {
                 _maskmap = _bitmap + bitmap_words;
             } else {
@@ -300,7 +300,7 @@ static void image_write(iffstream_c &file, uint16_t line_words, uint16_t next_li
 }
 
 static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, int row_byte_count) {
-    assert(row_byte_count >= 2);
+    assert(row_byte_count >= 2 && "Row byte count must be at least 2");
 #define PACKBITS_MIN_RUN 3
 #define PACKBITS_MAX_BYTES 128
     enum class state_e : uint8_t {
@@ -409,7 +409,7 @@ static void image_write_packbits(iffstream_c &file, uint16_t line_words, uint16_
 
 bool image_c::save(const char *path, compression_type_e compression, bool masked, int masked_cidx) {
     // DeluxePain ST format and custom deflate not supported
-    assert(compression < compression_type_vertical); // DeluxePain ST format not supported
+    assert(compression < compression_type_vertical && "DeluxePaint ST vertical compression not supported");
 
     iffstream_c ilbm(path, fstream_c::openmode_e::input | fstream_c::openmode_e::output);
     if (ilbm.tell() >= 0) {
@@ -464,7 +464,7 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
                         break;
 #endif
                     default:
-                        assert(0);
+                        assert(0 && "Unsupported compression type");
                         break;
                 }
                 ilbm.end(chunk);

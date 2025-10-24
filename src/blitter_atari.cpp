@@ -44,7 +44,7 @@ void blitter_s::start(bool hog) {
             case hop_e::halftone: src = halftone(); break;
             case hop_e::src: src = buffer >> get_skew(); break;
             case hop_e::src_and_halftone: src = (buffer >> get_skew()) & halftone(); break;
-            default: assert(0); break;
+            default: assert(0 && "Unsupported HOP mode"); break;
         }
         const uint16_t dst = *pDst;
         uint16_t opd;
@@ -54,7 +54,7 @@ void blitter_s::start(bool hog) {
             case lop_e::src: opd = src; break;
             case lop_e::src_or_dst: opd = src | dst; break;
             case lop_e::notsrc_and_dst: opd = ~src & dst; break;
-            default: assert(0); opd = 0; break;
+            default: assert(0 && "Unsupported LOP mode"); opd = 0; break;
         }
         if (mask == 0xffff) {
             *pDst = opd;
@@ -66,7 +66,7 @@ void blitter_s::start(bool hog) {
         pDst += (is_last ? dstIncY : dstIncX) / 2;
     };
     do {
-        // Firs word
+        // First word
         do_shift();
         if (is_fxsr()) {
             // Handle first extra, including no reading outside buffer
@@ -74,7 +74,7 @@ void blitter_s::start(bool hog) {
             inc_src(false);
             do_shift();
             if (countX > 1 || countY > 1) {
-                // This is not how the blitter work, but unless skipepd we will read outside buffer
+                // This is not how the blitter works, but unless skipped we will read outside buffer
                 read_src();
             }
         } else {

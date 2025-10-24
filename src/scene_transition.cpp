@@ -113,7 +113,7 @@ public:
         }
     }
     virtual void will_begin(const scene_c *from, const scene_c *to) override {
-        assert(to);
+        assert(to && "Target scene must not be null");
         uint8_t r, g, b;
         _through.get(&r, &g, &b);
         const palette_c from_palette;

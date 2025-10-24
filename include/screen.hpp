@@ -19,12 +19,12 @@ namespace toybox {
      */
     class screen_c : public canvas_c, public display_item_c {
     public:
-        type_e display_type() const override { return screen; }
-        
+        __forceinline type_e display_type() const override { return screen; }
+
         screen_c(size_s screen_size = TOYBOX_SCREEN_SIZE_DEFAULT);
         ~screen_c();
-        
-        dirtymap_c *dirtymap() const { return _dirtymap; }
+
+        __forceinline dirtymap_c *dirtymap() const { return _dirtymap; }
 
     private:
         image_c _image;

@@ -59,7 +59,7 @@ asset_c &asset_manager_c::asset(int id) const {
 }
 
 void asset_manager_c::add_asset_def(int id, const asset_def_s &def) {
-    assert(def.sets != 0);
+    assert(def.sets != 0 && "Asset definition must have at least one set defined");
     while (_asset_defs.size() <= id) {
         _asset_defs.emplace_back(asset_c::custom, 0);
     }

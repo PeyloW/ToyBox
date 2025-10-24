@@ -55,9 +55,9 @@ namespace toybox {
         
         canvas_c(image_c &image) : _image(image) {};
         ~canvas_c() {};
-        
-        image_c &image() const { return _image; }
-        size_s size() const { return _image.size(); }
+
+        __forceinline image_c &image() const { return _image; }
+        __forceinline size_s size() const { return _image.size(); }
         
         static const stencil_t *const stencil(stencil_e type, int shade);
         
@@ -68,23 +68,23 @@ namespace toybox {
         static void make_stencil(stencil_t stencil, stencil_e type, int shade);
         
         template<invocable<> Commands>
-        __forceinline void with_clipping(bool clip, Commands commands) const {
+        void with_clipping(bool clip, Commands commands) const {
             const bool old_clip = _clipping;
             _clipping = clip;
             commands();
             _clipping = old_clip;
         }
-        
+
         template<invocable<> Commands>
-        __forceinline void with_stencil(const stencil_t *const stencil, Commands commands) const {
+        void with_stencil(const stencil_t *const stencil, Commands commands) const {
             const auto old_stencil = _stencil;
             _stencil = stencil;
             commands();
             _stencil = old_stencil;
         }
-        
+
         template<invocable<> Commands>
-        __forceinline void with_dirtymap(dirtymap_c *dirtymap, Commands commands) const {
+        void with_dirtymap(dirtymap_c *dirtymap, Commands commands) const {
             dirtymap_c *old_dirtymap = _dirtymap;
             _dirtymap = dirtymap;
             commands();

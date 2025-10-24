@@ -27,7 +27,7 @@ namespace toybox {
         
     /**
      A `scene_c` is an abstraction for managing one screen of content.
-     A scene is forexample the menu, one level, or the hi-score table.
+     A scene is for example the menu, one level, or the hi-score table.
      */
     class scene_c : public nocopy_c {
     public:
@@ -76,7 +76,7 @@ namespace toybox {
         
     /**
      The `scene_manager_c` handles a stack of scenes, and a set of screens.
-     The top-most scene is the active scene curebtly displayed.
+     The top-most scene is the active scene currently displayed.
      The optional overlay scene is always handled ontop of the top-most scene,
      and can be used for handling a persistent mouse cursor, or status bar.
      The screens are the front screen being displayed, the back screen being
@@ -95,9 +95,9 @@ namespace toybox {
         void run(scene_c *rootscene, scene_c *overlay_scene = nullptr, transition_c *transition = nullptr);
         
         void set_overlay_scene(scene_c *overlay_cene);
-        scene_c *overlay_scene() const { return _overlay_scene; };
-        
-        scene_c &top_scene() const {
+        __forceinline scene_c *overlay_scene() const { return _overlay_scene; };
+
+        __forceinline scene_c &top_scene() const {
             return *_scene_stack.back();
         };
         void push(scene_c *scene, transition_c *transition = transition_c::create(color_c()));
@@ -123,7 +123,7 @@ namespace toybox {
         inline screen_c& update_clear();
         inline void update_scene(scene_c &scene, int32_t ticks);
 
-        inline void enqueue_delete(scene_c *scene) {
+        __forceinline void enqueue_delete(scene_c *scene) {
             _deletion_stack.emplace_back(scene);
         }
         inline void begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obsured);

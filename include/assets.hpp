@@ -23,7 +23,7 @@ namespace toybox {
             custom, image, tileset, font, sound, music
         };
         using enum type_e;
-        virtual type_e asset_type() const __pure { return type_e::custom; }
+        __forceinline virtual type_e asset_type() const __pure { return type_e::custom; }
     };
     
     class image_c;
@@ -51,13 +51,13 @@ namespace toybox {
         asset_c &asset(int id) const;
 
         template<derived_from<asset_c> T>
-        T &asset(int id) const { return (T&)(asset(id)); };
-        
-        image_c &image(int id) const { return (image_c&)(asset(id)); }
-        tileset_c &tileset(int id) const { return (tileset_c&)(asset(id)); }
-        font_c &font(int id) const { return (font_c&)(asset(id)); }
-        sound_c &sound(int id) const { return (sound_c&)(asset(id)); }
-        music_c &music(int id) const { return (music_c&)(asset(id)); }
+        __forceinline T &asset(int id) const { return (T&)(asset(id)); };
+
+        __forceinline image_c &image(int id) const { return (image_c&)(asset(id)); }
+        __forceinline tileset_c &tileset(int id) const { return (tileset_c&)(asset(id)); }
+        __forceinline font_c &font(int id) const { return (font_c&)(asset(id)); }
+        __forceinline sound_c &sound(int id) const { return (sound_c&)(asset(id)); }
+        __forceinline music_c &music(int id) const { return (music_c&)(asset(id)); }
 
         unique_ptr_c<char> data_path(const char *file) const;
         unique_ptr_c<char> user_path(const char *file) const;

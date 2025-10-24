@@ -34,7 +34,7 @@ void toybox::hton_struct(void *ptr, const char *layout) {
                 break;
             }
             default:
-                assert(0);
+                assert(0 && "Unsupported struct layout specifier");
                 break;
         }
     }

@@ -13,11 +13,11 @@
 namespace toybox {
     
     /*
-     This file containes a minimal set of cuntionality from C++ stdlib.
+     This file contains a minimal set of functionality from C++ stdlib.
      */
 
     template<const_forward_iterator I, forward_iterator J>
-    __forceinline J copy(I first, I last, J d_first) {
+    J copy(I first, I last, J d_first) {
         while (first != last) {
             *(d_first) = *(first);
             ++d_first; ++first;
@@ -26,7 +26,7 @@ namespace toybox {
     }
 
     template<const_backward_iterator I, backward_iterator J>
-    __forceinline J copy_backward(I first, I last, J d_last) {
+    J copy_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = *(--last);
         }
@@ -34,7 +34,7 @@ namespace toybox {
     }
 
     template<const_forward_iterator I, forward_iterator J>
-    __forceinline J move(I first, I last, J d_first) {
+    J move(I first, I last, J d_first) {
         while (first != last) {
             *(d_first) = move(*(first));
             ++d_first; ++first;
@@ -43,7 +43,7 @@ namespace toybox {
     }
 
     template<const_backward_iterator I, backward_iterator J>
-    __forceinline I move_backward(I first, I last, J d_last) {
+    I move_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = move(*(--last));
         }

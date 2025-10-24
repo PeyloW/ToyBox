@@ -10,7 +10,7 @@
 
 using namespace toybox;
 
-static uint8_t g_prev_mouse_butons;
+static uint8_t g_prev_mouse_buttons;
 uint8_t g_mouse_buttons;
 static button_state_e g_mouse_button_states[2];
 point_s g_mouse_position;
@@ -47,13 +47,13 @@ static void update_state() {
     do_dbra(button, 1) {
         if (g_mouse_buttons & (1 << button)) {
             g_mouse_button_states[button] = button_state_e::pressed;
-        } else if (g_prev_mouse_butons & (1 << button)) {
+        } else if (g_prev_mouse_buttons & (1 << button)) {
             g_mouse_button_states[button] = button_state_e::clicked;
         } else {
             g_mouse_button_states[button] = button_state_e::released;
         }
     } while_dbra(button);
-    g_prev_mouse_butons = g_mouse_buttons;
+    g_prev_mouse_buttons = g_mouse_buttons;
 }
 
 bool mouse_c::is_pressed(button_e button) const {
@@ -69,7 +69,7 @@ button_state_e mouse_c::state(button_e button) const {
     return g_mouse_button_states[(int)button];
 }
 
-point_s mouse_c::postion() {
+point_s mouse_c::position() {
     point_s clamped_point = point_s(
         MIN(_limits.max_x(), MAX(g_mouse_position.x, _limits.origin.x)),
         MIN(_limits.max_y(), MAX(g_mouse_position.y, _limits.origin.y))

@@ -12,7 +12,7 @@
 namespace toybox {
     
     /*
-     This file containes a minimal set of funtionality from C++ stdlib.
+     This file contains a minimal set of functionality from C++ stdlib.
      */
         
     template<class T, T v>
@@ -71,7 +71,7 @@ namespace toybox {
         template<typename T, typename U = T&&> U declval_imp(int);
         template<typename T> T declval_imp(long);
     }
-    template<typename T> auto declval() noexcept -> decltype(detail::declval_imp<T>(0));
+    template<typename T> auto declval() -> decltype(detail::declval_imp<T>(0));
         
 #pragma mark - Relationship and property queries
     
@@ -138,7 +138,7 @@ namespace toybox {
     template<typename I>
     struct iterator_traits : indirectly_readable_traits<I> {};
     
-#pragma mark - Struct layout helper for EA IFF 85 compiance
+#pragma mark - Struct layout helper for EA IFF 85 compliance
     
     template<typename T>
     struct struct_layout;

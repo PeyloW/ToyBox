@@ -110,8 +110,8 @@ void make_dither_mask(canvas_c::stencil_t stencil, int (*func)(int), int shade) 
 }
 
 void canvas_c::make_stencil(stencil_t stencil, stencil_e type, int shade) {
-    assert(shade >= STENCIL_FULLY_TRANSPARENT);
-    assert(shade <= STENCIL_FULLY_OPAQUE);
+    assert(shade >= STENCIL_FULLY_TRANSPARENT && "Shade must be at least STENCIL_FULLY_TRANSPARENT");
+    assert(shade <= STENCIL_FULLY_OPAQUE && "Shade must not exceed STENCIL_FULLY_OPAQUE");
     switch (type) {
         case stencil_e::orderred:
             make_dither_mask(stencil, bayer_8x8, shade);
@@ -126,15 +126,15 @@ void canvas_c::make_stencil(stencil_t stencil, stencil_e type, int shade) {
             make_dither_mask(stencil, circle_16x16, shade);
             break;
         default:
-            assert(0);
+            assert(0 && "Unsupported stencil type");
             break;
     }
 }
 
 const canvas_c::stencil_t *const canvas_c::stencil(stencil_e type, int shade) {
-    assert(shade >= canvas_c::STENCIL_FULLY_TRANSPARENT);
-    assert(shade <= canvas_c::STENCIL_FULLY_OPAQUE);
-    assert((int)type < (int)stencil_e::random);
+    assert(shade >= canvas_c::STENCIL_FULLY_TRANSPARENT && "Shade must be at least STENCIL_FULLY_TRANSPARENT");
+    assert(shade <= canvas_c::STENCIL_FULLY_OPAQUE && "Shade must not exceed STENCIL_FULLY_OPAQUE");
+    assert((int)type < (int)stencil_e::random && "Stencil type must be less than random");
     static canvas_c::stencil_t _none_stencil = { 0 };
     static bool _initialized = false;
     static stencil_t _stencils[4][canvas_c::STENCIL_FULLY_OPAQUE + 1];

@@ -114,7 +114,7 @@ namespace toybox {
         { i[n] = typename indirectly_readable_traits<I>::value_type{} };
     };
     
-#pragma mark - Iterator conceps
+#pragma mark - Iterator concepts
     
     template<typename I>
     concept forward_iterator = incrementable<I> && dereferencable<I>;

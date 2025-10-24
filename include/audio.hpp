@@ -17,7 +17,7 @@ namespace toybox {
     using namespace toybox;
     
     /**
-     A `cound_c` is an 8 bit PCM sound sample.
+     A `sound_c` is an 8 bit PCM sound sample.
      Sounds can be loaded for EA 85 AIFF files.
      */
     class sound_c final : public asset_c {
@@ -26,11 +26,11 @@ namespace toybox {
         sound_c(const char *path);
         virtual ~sound_c() {};
         
-        type_e asset_type() const override { return sound; }
-        
-        const int8_t *sample() const { return _sample.get(); }
-        uint32_t length() const { return _length; }
-        uint16_t rate() const { return _rate; }
+        __forceinline type_e asset_type() const override { return sound; }
+
+        __forceinline const int8_t *sample() const { return _sample.get(); }
+        __forceinline uint32_t length() const { return _length; }
+        __forceinline uint16_t rate() const { return _rate; }
         
     private:
         unique_ptr_c<int8_t> _sample;
@@ -47,8 +47,8 @@ namespace toybox {
     public:
         music_c() {};
         virtual ~music_c() {};
-        
-        type_e asset_type() const override { return music; }
+
+        __forceinline type_e asset_type() const override { return music; }
         
         virtual const char *title() const = 0;
         virtual const char *composer() const = 0;
@@ -67,10 +67,10 @@ namespace toybox {
         ymmusic_c(const char *path);
         virtual ~ymmusic_c() {};
         
-        const char *title() const override { return _title; }
-        const char *composer() const override  { return _composer; }
-        int track_count() const override { return _track_count; }
-        uint8_t replay_freq() const override { return _freq; }
+        __forceinline const char *title() const override { return _title; }
+        __forceinline const char *composer() const override  { return _composer; }
+        __forceinline int track_count() const override { return _track_count; }
+        __forceinline uint8_t replay_freq() const override { return _freq; }
         
     private:
         unique_ptr_c<uint8_t> _sndh;

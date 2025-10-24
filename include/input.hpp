@@ -38,7 +38,7 @@ namespace toybox {
         bool is_pressed(button_e button) const;
         button_state_e state(button_e button) const;
         
-        point_s postion();
+        point_s position();
         
     private:
         mouse_c();

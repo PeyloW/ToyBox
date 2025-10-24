@@ -15,7 +15,7 @@ tileset_c::tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size) :
     _max_tile(image->size().width / tile_size.width, image->size().height / tile_size.height),
     _rects()
 {
-    assert(_max_tile.x > 0 && _max_tile.y > 0);
+    assert(_max_tile.x > 0 && _max_tile.y > 0 && "Tileset must have at least one tile");
     _rects.reset((rect_s*)_malloc(sizeof(rect_s) * max_index()));
     int i = 0;
     for (int y = 0; y < _max_tile.y; y++) {
@@ -37,10 +37,10 @@ point_s tileset_c::max_tile() const {
 }
 
 const rect_s &tileset_c::tile_rect(const int16_t i) const {
-    assert(i >= 0 && i < max_index());
+    assert(i >= 0 && i < max_index() && "Tile index out of bounds");
     return _rects[i];
 }
 const rect_s &tileset_c::tile_rect(const point_s tile) const {
-    assert(tile.x >= 0 && tile.x < _max_tile.x && tile.y >= 0 && tile.y < _max_tile.y);
+    assert(tile.x >= 0 && tile.x < _max_tile.x && tile.y >= 0 && tile.y < _max_tile.y && "Tile coordinates out of bounds");
     return _rects[tile.x + _max_tile.x * tile.y];
 }

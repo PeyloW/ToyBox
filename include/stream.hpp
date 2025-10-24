@@ -15,7 +15,7 @@
 namespace toybox {
     
     /**
-     `stream_c` is vaguelly related to `std::iostream`.
+     `stream_c` is vaguely related to `std::iostream`.
      TODO: Rewrite from scratch, instead copy boost concepts of streams, source, sink, and filters.
      */
     class stream_c : public nocopy_c {
@@ -41,13 +41,13 @@ namespace toybox {
         virtual size_t write(const uint8_t *buf, size_t count = 1) = 0;
 
         template<typename T> requires (!same_as<T, uint8_t>)
-        inline size_t read(T *buf, size_t count = 1) { return read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T)); }
+        __forceinline size_t read(T *buf, size_t count = 1) { return read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T)); }
         template<typename T> requires (!same_as<T, uint8_t>)
-        inline size_t write(const T *buf, size_t count = 1) { return write(reinterpret_cast<const uint8_t*>(buf), count * sizeof(T)); }
-        
-        int width() const { return _width; }
+        __forceinline size_t write(const T *buf, size_t count = 1) { return write(reinterpret_cast<const uint8_t*>(buf), count * sizeof(T)); }
+
+        __forceinline int width() const { return _width; }
         int width(int w) { int t = _width; _width = w; return t; }
-        char fill() const { return _fill; }
+        __forceinline char fill() const { return _fill; }
         char fill(char d) { int t = _fill; _fill = d; return t; }
 
         stream_c &operator<<(manipulator_f m);
@@ -60,7 +60,7 @@ namespace toybox {
         stream_c &operator<<(const uint32_t i);
 
     protected:
-        bool assert_on_error() const __pure { return _assert_on_error; }
+        __forceinline bool assert_on_error() const __pure { return _assert_on_error; }
         bool _assert_on_error;
         int _width;
         char _fill;
@@ -76,13 +76,13 @@ namespace toybox {
 
     namespace detail {
         struct setw_s { int w; };
-        static stream_c& operator<<(stream_c &s, const setw_s &m) { s.width(m.w); return s; }
+        static inline stream_c& operator<<(stream_c &s, const setw_s &m) { s.width(m.w); return s; }
         struct setfill_s { char c; };
-        static stream_c& operator<<(stream_c &s, const setfill_s &m) { s.fill(m.c); return s; }
+        static inline stream_c& operator<<(stream_c &s, const setfill_s &m) { s.fill(m.c); return s; }
     }
-    
-    static constexpr detail::setw_s setw(int w) { return (detail::setw_s){ w }; };
-    static constexpr detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
+
+    static constexpr __forceinline detail::setw_s setw(int w) { return (detail::setw_s){ w }; };
+    static constexpr __forceinline detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
     
 
     class fstream_c final : public stream_c {
@@ -97,9 +97,9 @@ namespace toybox {
         fstream_c(FILE *file);
         fstream_c(const char *path, openmode_e mode = openmode_e::input);
         virtual ~fstream_c();
-        
-        openmode_e mode() const __pure { return _mode; }
-        bool is_open() const __pure { return _file != nullptr; }
+
+        __forceinline openmode_e mode() const __pure { return _mode; }
+        __forceinline bool is_open() const __pure { return _file != nullptr; }
         bool open();
         bool close();
 
@@ -127,9 +127,9 @@ namespace toybox {
         strstream_c(size_t len);
         strstream_c(char *buf, size_t len);
         virtual ~strstream_c() {};
-        
-        void reset() { _pos = 0; }
-        char* str() { return _buf; };
+
+        __forceinline void reset() { _pos = 0; }
+        __forceinline char* str() { return _buf; };
         
         virtual ptrdiff_t tell() const override __pure;
         virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;

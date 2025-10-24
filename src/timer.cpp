@@ -115,7 +115,7 @@ void timer_c::remove_func(const func_a_t func, const void *context) {
             prev = curr;
             ++curr;
         }
-        assert(0);
+        assert(0 && "Timer function not found in list");
     });
 }
 

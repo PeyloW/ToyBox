@@ -2,10 +2,10 @@
 
 ### v1.1 - A modern toolchain
 
-Split out ToyBox from ChromGrid, allowing it to be used as a standalone piece of software for building simple mouse driven games.
+Split out ToyBox from ChromaGrid, allowing it to be used as a standalone piece of software for building simple mouse driven games.
 
 - [x] Move toybox code into its own git repository
-- [x] Seperate Makefiles for toybox and ChromaGrid
+- [x] Separate Makefiles for toybox and ChromaGrid
 - [x] Unified Makefile target for Atari target and macOS host
     - [x] Move game loop to `machine_c::with_machine(...)`
     - [x] Add new Xcode project with external build system
@@ -16,22 +16,22 @@ Split out ToyBox from ChromGrid, allowing it to be used as a standalone piece of
 - [x] Update sources to ~~C++20~~ C++23
 - [-] Add unit tests
 - [x] Add sample project
-- [x] Update documentation 
+- [x] Update documentation
 - [x] Add Xcode IDE to toybox project
 
 
 ### v2.0 - A basic general purpose game engine
 
-Support siple horizontally scrolling games controlled with joystick. ETA Summer 2026.
+Support simple horizontally scrolling games controlled with joystick. ETA Summer 2026.
 
 - [ ] `fixed16_t` math library, 12:4 bits
 - [x] `screen_c` as a subclass of `canvas_c`
     - [ ] Wrapper for an `image_c` with its own size and offset
     - [ ] Translate & clip drawing primitives to superclass
-- [x] Rudimentary `display_list_c` only supporting a sinbgle `screen_c` and `palette_c`
+- [x] Rudimentary `display_list_c` only supporting a single `screen_c` and `palette_c`
     - [x] Use active `display_list_c` not `image_c`
     - [ ] Update Atari target to HW scroll display if needed
-    - [ ] Update host to gneerate _HW scrolled_ display
+    - [ ] Update host to generate _HW scrolled_ display
 - [ ] `tilemap_c` for defining a tiled display from 16x16 blocks
     - [ ] Source from `tileset_c`
     - [ ] Support at least two layers of graphics in input
@@ -62,10 +62,10 @@ Support static one screen or eight way scrolling games with rasters and split-sc
     - [ ] Basic path following AI entity
     - [ ] AI able to walk on ground
     - [ ] AI able to fly
-    - [ ] AI controllable by decissions tree
+    - [ ] AI controllable by decisions tree
 - [ ] `world_c` and `level_c` as a concept of a persistent game world
     - [ ] Dynamically load a `level_c` from a new `scene_c`
-    - [ ] Persist state for a `level_c` when unloaded (picked items, dead enemies, etc)
+    - [ ] Persist state for a `level_c` when unloaded (picked items, dead enemies, etc.)
     - [ ] Support loading and saving game state
 - [ ] Add jagpad support to `controller_c`
 - [ ] Add `modmusic_c` as a concrete `music_c` subclass
@@ -76,6 +76,5 @@ Support static one screen or eight way scrolling games with rasters and split-sc
 - [ ] Amiga target
 - [ ] Atari STfm target
 - [ ] Jaguar64 target
-- [ ] Linux host
-- [ ] Window host
+- [ ] Sega Genesis target
 

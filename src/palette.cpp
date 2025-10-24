@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 color_c color_c::mix(color_c other, int shade) const {
-    assert(shade >= MIX_FULLY_THIS && shade <= MIX_FULLY_OTHER);
+    assert(shade >= MIX_FULLY_THIS && shade <= MIX_FULLY_OTHER && "Shade must be between MIX_FULLY_THIS and MIX_FULLY_OTHER");
     int r = from_ste(color, 8) * (MIX_FULLY_OTHER - shade) + from_ste(other.color, 8) * shade;
     int g = from_ste(color, 4) * (MIX_FULLY_OTHER - shade) + from_ste(other.color, 4) * shade;
     int b = from_ste(color, 0) * (MIX_FULLY_OTHER - shade) + from_ste(other.color, 0) * shade;

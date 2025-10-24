@@ -20,7 +20,7 @@ extern "C" {
 static host_bridge_c *s_bridge = nullptr;
 
 host_bridge_c& host_bridge_c::shared() {
-    assert(s_bridge);
+    assert(s_bridge && "Host bridge not initialized");
     return *s_bridge;
 }
 void host_bridge_c::set_shared(host_bridge_c *bridge) {

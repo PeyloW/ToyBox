@@ -55,7 +55,7 @@ void audio_mixer_c::play(const music_c &_music, int track) {
     if (_active_music) {
         stop(*_active_music);
     }
-    assert(track > 0);
+    assert(track > 0 && "Track number must be positive");
 #ifdef __M68000__
     timer_c::with_paused_timers([this, &music, track] {
         timer_c &clock = timer_c::shared(timer_c::timer_e::clock);
@@ -71,7 +71,7 @@ void audio_mixer_c::play(const music_c &_music, int track) {
 
 void audio_mixer_c::stop(const music_c &_music) {
     ymmusic_c &music = (ymmusic_c&)_music;
-    assert(_active_music == &music);
+    assert(_active_music == &music && "Music being stopped must be the active music");
 #ifdef __M68000__
     timer_c::with_paused_timers([this, &music] {
         timer_c &clock = timer_c::shared(timer_c::timer_e::clock);

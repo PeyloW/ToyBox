@@ -14,7 +14,7 @@ demo_main_scene_c::demo_main_scene_c() :
     _sprites(asset_manager_c::shared().tileset(SPRITES))
 {
     _mouse.set_limits(rect_s(8, 8, 280, 160));
-    const auto pos = _mouse.postion();
+    const auto pos = _mouse.position();
     for (int i = 0; i < 64; i++) {
         _pos[i] = pos;
     }
@@ -40,7 +40,7 @@ void demo_main_scene_c::will_appear(bool obsured) {
 void demo_main_scene_c::update(display_list_c& display_list, int ticks) {
     auto &back_screen = display_list.get(PRIMARY_SCREEN).screen();
     const auto idx = timer_c::shared(timer_c::timer_e::vbl).tick() % 64;
-    const auto pos = _mouse.postion();
+    const auto pos = _mouse.position();
     _pos[idx] = pos;
     int i;
     while_dbra_count(i, 4) {

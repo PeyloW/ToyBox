@@ -30,7 +30,7 @@ static constexpr uint16_t pBlitter_mask[17] = {
 
 static const canvas_c::stencil_t *pActiveStencil = nullptr;
 
-__forceinline static void set_active_stencil(struct blitter_s *blitter, const canvas_c::stencil_t *const stencil) {
+static __forceinline void set_active_stencil(struct blitter_s *blitter, const canvas_c::stencil_t *const stencil) {
     if (pActiveStencil != stencil) {
         memcpy((void *)blitter->halftoneRAM, stencil, 32);
         pActiveStencil = stencil;
@@ -99,13 +99,13 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
 }
 
 void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s at) const {
-    assert((rect.origin.x & 0xf) == 0);
-    assert((rect.size.width & 0xf) == 0);
-    assert((at.x & 0xf) == 0);
-    assert((srcImage.size().width & 0xf) == 0);
-    assert(!rect.size.is_empty());
-    assert(rect_s(at, rect.size).contained_by(size()));
-    assert(rect.contained_by(srcImage.size()));
+    assert((rect.origin.x & 0xf) == 0 && "Rect origin X must be 16-byte aligned");
+    assert((rect.size.width & 0xf) == 0 && "Rect width must be 16-byte aligned");
+    assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
+    assert((srcImage.size().width & 0xf) == 0 && "Source image width must be 16-byte aligned");
+    assert(!rect.size.is_empty() && "Rect size must not be empty");
+    assert(rect_s(at, rect.size).contained_by(size()) && "Destination rect must be within canvas bounds");
+    assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
         
     auto blitter = pBlitter;
     const int16_t copy_words = (rect.size.width / 16);
@@ -155,9 +155,9 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
 }
 
 void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at) const {
-    assert(!rect.size.is_empty());
-    assert(rect_s(at, rect.size).contained_by(size()));
-    assert(rect.contained_by(srcImage.size()));
+    assert(!rect.size.is_empty() && "Rect size must not be empty");
+    assert(rect_s(at, rect.size).contained_by(size()) && "Destination rect must be within canvas bounds");
+    assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
     auto blitter = pBlitter;
 
     const int16_t src_max_x       = rect.max_x();
@@ -227,9 +227,9 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
 }
 
 void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
-    assert(!rect.size.is_empty());
-    assert(rect_s(at, rect.size).contained_by(size()));
-    assert(rect.contained_by(srcImage.size()));
+    assert(!rect.size.is_empty() && "Rect size must not be empty");
+    assert(rect_s(at, rect.size).contained_by(size()) && "Destination rect must be within canvas bounds");
+    assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
     auto blitter = pBlitter;
 
     const int16_t src_max_x       = rect.max_x();
@@ -321,9 +321,9 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
 }
 
 void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
-    assert(!rect.size.is_empty());
-    assert(rect_s(at, rect.size).contained_by(size()));
-    assert(rect.contained_by(srcImage.size()));
+    assert(!rect.size.is_empty() && "Rect size must not be empty");
+    assert(rect_s(at, rect.size).contained_by(size()) && "Destination rect must be within canvas bounds");
+    assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
     auto blitter = pBlitter;
 
     const int16_t src_max_x       = rect.max_x();
@@ -397,9 +397,9 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
 }
 
 void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
-    assert(!rect.size.is_empty());
-    assert(rect_s(at, rect.size).contained_by(size()));
-    assert(rect.contained_by(srcImage.size()));
+    assert(!rect.size.is_empty() && "Rect size must not be empty");
+    assert(rect_s(at, rect.size).contained_by(size()) && "Destination rect must be within canvas bounds");
+    assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
     int y;
     do_dbra(y, rect.size.height - 1) {
         int x;

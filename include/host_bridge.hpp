@@ -29,10 +29,10 @@ namespace toybox {
         static host_bridge_c& shared();
         static void set_shared(host_bridge_c *bridge);
 
-        // Host must call on a 50/60hz interval
+        // Host must call on a 50/60Hz interval
         void vbl_interupt();
-        
-        // Host must call on a 200hz interval
+
+        // Host must call on a 200Hz interval
         void clock_interupt();
                 
         // Host must call when mouse state changes

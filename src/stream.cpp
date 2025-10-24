@@ -134,8 +134,8 @@ static constexpr const char *mode_for_mode(fstream_c::openmode_e mode) {
         nullptr, "r", "w", "r+",
         "a", "a+", "a+", nullptr
     };
-    assert((uint8_t)mode < 8);
-    assert(s_table[(uint8_t)mode]);
+    assert((uint8_t)mode < 8 && "Mode value must be less than 8");
+    assert(s_table[(uint8_t)mode] && "Mode must have a valid string representation");
     return s_table[(uint8_t)mode];
 }
 
@@ -201,7 +201,7 @@ ptrdiff_t strstream_c::tell() const {
     return _pos;
 }
 ptrdiff_t strstream_c::seek(ptrdiff_t pos, seekdir_e way) {
-    assert(ABS(pos <= _len));
+    assert(ABS(pos <= _len) && "Seek position must be within buffer length");
     switch (way) {
         case seekdir_e::beg:
             _pos = static_cast<int>(pos);

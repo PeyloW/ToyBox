@@ -21,9 +21,9 @@ extern "C" {
 
     
 #ifdef __M68000__
-#define __target_volatite volatile
+#define __target_volatile volatile
 #else
-#define __target_volatite
+#define __target_volatile
 #endif
 
 #ifndef MAX
@@ -93,7 +93,7 @@ extern "C" {
 
 #ifndef TOYBOX_HOST
 // Required for inplace new
-extern void* operator new (size_t count, void *p) noexcept;
+extern void* operator new (size_t count, void *p);
 #else
 #include <new>
 #endif

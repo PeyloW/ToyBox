@@ -221,7 +221,7 @@ void scene_manager_c::begin_transition(transition_c *transition, const scene_c *
 }
 
 void scene_manager_c::update_transition(int32_t ticks) {
-    assert(_transition);
+    assert(_transition && "Transition must not be null");
     debug_cpu_color(DEBUG_CPU_RUN_TRANSITION);
     bool done = _transition->tick(ticks);
     if (done) {
@@ -230,7 +230,7 @@ void scene_manager_c::update_transition(int32_t ticks) {
 }
 
 void scene_manager_c::end_transition() {
-    assert(_transition);
+    assert(_transition && "Transition must not be null");
     delete _transition;
     _transition = nullptr;
 }

@@ -43,20 +43,20 @@ namespace toybox {
         static constexpr uint8_t hog_bit = (1<<6);
         static constexpr uint8_t busy_bit = (1<<7);
 
-        __target_volatite uint16_t halftoneRAM[16];
-        __target_volatite int16_t srcIncX;
-        __target_volatite int16_t srcIncY;
-        __target_volatite uint16_t *pSrc;
-        __target_volatite uint16_t endMask[3];
-        __target_volatite int16_t dstIncX;
-        __target_volatite int16_t dstIncY;
-        __target_volatite uint16_t *pDst;
-        __target_volatite uint16_t countX;
-        __target_volatite uint16_t countY;
-        __target_volatite hop_e HOP;
-        __target_volatite lop_e LOP;
-        __target_volatite uint8_t mode;
-        __target_volatite uint8_t skew;
+        __target_volatile uint16_t halftoneRAM[16];
+        __target_volatile int16_t srcIncX;
+        __target_volatile int16_t srcIncY;
+        __target_volatile uint16_t *pSrc;
+        __target_volatile uint16_t endMask[3];
+        __target_volatile int16_t dstIncX;
+        __target_volatile int16_t dstIncY;
+        __target_volatile uint16_t *pDst;
+        __target_volatile uint16_t countX;
+        __target_volatile uint16_t countY;
+        __target_volatile hop_e HOP;
+        __target_volatile lop_e LOP;
+        __target_volatile uint8_t mode;
+        __target_volatile uint8_t skew;
         
         __forceinline uint8_t get_skew() const {
             return skew & skew_mask;
@@ -71,7 +71,7 @@ namespace toybox {
             return halftoneRAM[mode & 0xf];
         }
 #ifdef __M68000__
-        inline void start(bool hog = false) {
+        void start(bool hog = false) {
             if (hog) {
                 __asm__ volatile ("move.b #0xc0,0xffff8A3C.w \n\t"  : : : );
             } else {

@@ -23,7 +23,7 @@ extern "C" {
 }
 
 timer_c::timer_c(timer_e timer) : _timer(timer) {
-    assert(timer == timer_e::vbl || timer == timer_e::clock);
+    assert(timer == timer_e::vbl || timer == timer_e::clock && "Timer must be VBL or clock");
     machine_c::shared();
     with_paused_timers([timer] {
         switch (timer) {
@@ -79,7 +79,7 @@ uint8_t timer_c::base_freq() const {
         case timer_e::clock:
             return 200;
         default:
-            assert(0);
+            assert(0 && "Unsupported timer type");
             return 0;
     }
 }

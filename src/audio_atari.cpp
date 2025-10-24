@@ -22,8 +22,8 @@ ymmusic_c::ymmusic_c(const char *path) {
     _sndh.reset((uint8_t *)_malloc(size));
     _length = size;
     size_t read = file.read(_sndh.get(), size);
-    assert(read == size);
-    assert(memcmp(_sndh + 12, "SNDH", 4) == 0);
+    assert(read == size && "Failed to read complete SNDH file");
+    assert(memcmp(_sndh + 12, "SNDH", 4) == 0 && "File must be a valid SNDH file");
     _title = nullptr;
     _composer = nullptr;
     _track_count = 1;
@@ -47,7 +47,7 @@ ymmusic_c::ymmusic_c(const char *path) {
                        strncmp(header_str, "TD", 2) == 0 ||
                        strncmp(header_str, "!V", 2) == 0) {
                 _freq = atoi(header_str + 2);
-                assert(_freq != 0);
+                assert(_freq != 0 && "Music frequency must be non-zero");
             }
         }
         header_str += len;

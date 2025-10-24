@@ -12,7 +12,7 @@
 namespace toybox {
 
     /*
-     This file containes a minimal set of funtionality from C++ stdlib.
+     This file contains a minimal set of functionality from C++ stdlib.
      */
 
     namespace detail {
@@ -73,10 +73,10 @@ namespace toybox {
             shared_count_t() : count(1) {}
             uint16_t count;
             void *operator new(size_t count) {
-                assert(allocator::alloc_size >= count);
+                assert(allocator::alloc_size >= count && "Allocation size exceeds allocator capacity");
                 return allocator::allocate();
             }
-            void operator delete(void *ptr) noexcept {
+            void operator delete(void *ptr) {
                 allocator::deallocate(ptr);
             }
             using allocator = static_allocator_c<shared_count_t, 64>;

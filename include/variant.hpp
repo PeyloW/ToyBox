@@ -21,7 +21,7 @@ namespace toybox {
         template<int I>
         using type_at_t = toybox::type_at<I, Ts...>::type;
         template<typename T>
-        inline static constexpr int index_of = toybox::index_of<typename remove_cvref<T>::type, Ts...>::value;
+        static inline constexpr int index_of = toybox::index_of<typename remove_cvref<T>::type, Ts...>::value;
         
         constexpr variant_c() {
             emplace<0>();

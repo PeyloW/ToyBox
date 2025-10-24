@@ -12,7 +12,7 @@
 namespace toybox {
 
 /**
- A `static_alloctor_c` is a vaguelly related to `std::allocator`, but always
+ A `static_allocator_c` is vaguely related to `std::allocator`, but always
  allocates single blocks of a static size.
  This exists for performance, as `malloc` can be expensive.
  */
@@ -24,7 +24,7 @@ public:
     static constexpr size_t max_alloc_count = Count;
     using type = block_t *;
     static void *allocate() {
-        assert(first_block);
+        assert(first_block && "Allocator pool exhausted");
 #ifndef __M68000__
         _alloc_count++;
         _peak_alloc_count = MAX(_peak_alloc_count, _alloc_count);
@@ -50,10 +50,10 @@ private:
         uint8_t data[alloc_size];
     };
 #ifndef __M68000__
-    inline static int _alloc_count = 0;
-    inline static int _peak_alloc_count = 0;
+    static inline int _alloc_count = 0;
+    static inline int _peak_alloc_count = 0;
 #endif
-    inline static block_t *first_block = [] {
+    static inline block_t *first_block = [] {
         static block_t s_blocks[Count];
         for (int i = 0; i < Count - 1; i++) {
             s_blocks[i].next = &s_blocks[i + 1];

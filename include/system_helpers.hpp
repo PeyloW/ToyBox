@@ -14,15 +14,15 @@ namespace toybox {
 #define DEBUG_CPU_CLOCK_INTERUPT 0x011
 #define DEBUG_CPU_MOUSE_INTERUPT 0x101
 #if TOYBOX_DEBUG_CPU
-    __forceinline static void debug_cpu_color(uint16_t c) {
+    static __forceinline void debug_cpu_color(uint16_t c) {
         __asm__ volatile ("move.w %[d],0xffff8240.w" :  : [d] "g" (c) : );
     }
 #else
-    inline static void debug_cpu_color(uint16_t) { }
+    static void debug_cpu_color(uint16_t) { }
 #endif
 
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void move_inc_to(T src, void* &dst) {
+    __forceinline void move_inc_to(T src, void* &dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
 #ifdef __M68000__
         if constexpr (Bytes == 1) {
@@ -38,12 +38,12 @@ namespace toybox {
 #endif
     }
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void move_inc_to(T src, T* &dst) {
+    __forceinline void move_inc_to(T src, T* &dst) {
         move_inc_to(src, reinterpret_cast<void*&>(dst));
     }
 
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void move_inc_from(void* &src, T &dst) {
+    __forceinline void move_inc_from(void* &src, T &dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
 #ifdef __M68000__
         if constexpr (Bytes == 1) {
@@ -60,7 +60,7 @@ namespace toybox {
     }
 
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void move_inc_from_to(void* &src, void* &dst) {
+    __forceinline void move_inc_from_to(void* &src, void* &dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
 #ifdef __M68000__
         if constexpr (Bytes == 1) {
@@ -78,7 +78,7 @@ namespace toybox {
     }
 
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void or_inc_to(T src, void* &dst) {
+    __forceinline void or_inc_to(T src, void* &dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
 #ifdef __M68000__
         if constexpr (Bytes == 1) {
@@ -94,12 +94,12 @@ namespace toybox {
 #endif
     }
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void or_inc_to(T src, T* &dst) {
+    __forceinline void or_inc_to(T src, T* &dst) {
         return or_inc_to(src, reinterpret_cast<void*&>(dst));
     }
-    
+
     template<typename T, const int Bytes = sizeof(T)>
-    inline __attribute__((always_inline)) void move_dec_from_to(void* &src, void* &dst) {
+    __forceinline void move_dec_from_to(void* &src, void* &dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
 #ifdef __M68000__
         if constexpr (Bytes == 1) {

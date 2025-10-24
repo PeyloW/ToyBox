@@ -15,19 +15,19 @@ namespace toybox {
     using iff_id_t = uint32_t;
 
 #ifdef __M68000__
-    __forceinline static constexpr iff_id_t iff_id_make(const char *const str) {
+    static constexpr __forceinline iff_id_t iff_id_make(const char *const str) {
         return (uint32_t)str[0]<<24 | (uint32_t)str[1]<<16 | (uint32_t)str[2]<<8 | str[3];
     }
 #else
-    __forceinline static constexpr iff_id_t iff_id_make(const char *const str) {
-        assert(str[0] != 0 && str[1] != 0 && str[2] != 0 && str[3] != 0 && str[4] == 0);
+    static constexpr __forceinline iff_id_t iff_id_make(const char *const str) {
+        assert(str[0] != 0 && str[1] != 0 && str[2] != 0 && str[3] != 0 && str[4] == 0 && "IFF ID must be exactly 4 characters");
         return static_cast<uint32_t>(str[0])<<24 | static_cast<uint32_t>(str[1])<<16 | static_cast<uint32_t>(str[2])<<8 | str[3];
     }
 #endif
-    __forceinline static void iff_id_str(iff_id_t id, char buf[5]) {
+    static void iff_id_str(iff_id_t id, char buf[5]) {
         buf[0] = id >> 24; buf[1] = id >> 16; buf[2] = id >> 8; buf[3] = id; buf[4] = 0;
     }
-    __forceinline static bool iff_id_match(const iff_id_t id, const char *const str) {
+    static bool iff_id_match(const iff_id_t id, const char *const str) {
         if (strcmp(str, "*") != 0) {
             return iff_id_make(str) == id;
         }

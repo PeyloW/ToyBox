@@ -32,43 +32,43 @@ namespace toybox {
         int id;
         int row;
         display_item_c &item;
-        screen_c& screen() const {
-            assert(item.display_type() == display_item_c::screen);
+        __forceinline screen_c& screen() const {
+            assert(item.display_type() == display_item_c::screen && "Display item is not a screen");
             return (screen_c&)item;
         }
-        palette_c& palette() const {
-            assert(item.display_type() == display_item_c::palette);
+        __forceinline palette_c& palette() const {
+            assert(item.display_type() == display_item_c::palette && "Display item is not a palette");
             return (palette_c&)item;
         }
-        bool operator<(const display_list_entry_s &rhs) const {
+        __forceinline bool operator<(const display_list_entry_s &rhs) const {
             return row < rhs.row;
         }
     };
     
     class display_list_c : public list_c<display_list_entry_s> {
     public:
-        inline const_iterator insert_sorted(const_reference value) {
+        const_iterator insert_sorted(const_reference value) {
             auto pos = iterator_before(value.row);
             return insert_after(pos, value);
         }
         template<class ...Args>
-        inline iterator emplace_sorted(int id, int row, Args&& ...args) {
+        iterator emplace_sorted(int id, int row, Args&& ...args) {
             auto pos = iterator_before(row);
             return emplace_after(pos, id, row, forward<Args>(args)...);
         }
 
-        inline display_list_entry_s& get(int id) const {
+        __forceinline display_list_entry_s& get(int id) const {
             return *get_if(id);
         }
 
-        inline display_list_entry_s* get_if(int id) const {
+        display_list_entry_s* get_if(int id) const {
             for (auto& item : *this) {
                 if (item.id == id) return const_cast<display_list_entry_s*>(&item);
             }
             return nullptr;
         }
 
-        
+
     private:
         const_iterator iterator_before(int row) const {
             auto iter = before_begin();

@@ -62,7 +62,7 @@ void dirtymap_c::mark(const rect_s &rect) {
     const int16_t x1 = rect.origin.x / TOYBOX_DIRTYMAP_TILE_SIZE.width;
     const int16_t x2 = (rect.max_x()) / TOYBOX_DIRTYMAP_TILE_SIZE.width;
     const int16_t y1 = rect.origin.y / TOYBOX_DIRTYMAP_TILE_SIZE.height;
-    assert(y1 < _size.height);
+    assert(y1 < _size.height && "Y coordinate must be within dirtymap height");
 #define BITS_PER_BYTE 8
     static constexpr uint8_t first_byte_masks[BITS_PER_BYTE] = {
         0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80
@@ -72,15 +72,15 @@ void dirtymap_c::mark(const rect_s &rect) {
     };
 
     const int16_t extra_rows = ((rect.origin.y + rect.size.height - 1) / TOYBOX_DIRTYMAP_TILE_SIZE.height - y1);
-    assert(y1 + extra_rows < _size.height);
+    assert(y1 + extra_rows < _size.height && "Y extent must be within dirtymap height");
     const int16_t start_byte = x1 / BITS_PER_BYTE;
-    assert(start_byte < _size.width);
+    assert(start_byte < _size.width && "Start byte must be within dirtymap width");
     const int16_t end_byte = x2 / BITS_PER_BYTE;
-    assert(end_byte < _size.width);
+    assert(end_byte < _size.width && "End byte must be within dirtymap width");
     const int16_t start_bit = x1 % BITS_PER_BYTE;
-    assert(start_bit < 8);
+    assert(start_bit < 8 && "Start bit must be less than 8");
     const int16_t end_bit = x2 % BITS_PER_BYTE;
-    assert(end_bit < 8);
+    assert(end_bit < 8 && "End bit must be less than 8");
     
     uint8_t *data = _data + (start_byte + _size.width * y1);
 
@@ -139,11 +139,11 @@ void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
     s_restore_generation++;
 #endif
     auto &image = canvas.image();
-    assert(image.size() == clean_image.size());
-    assert(_size.width * TOYBOX_DIRTYMAP_TILE_SIZE.width * 8 >= clean_image.size().width);
-    assert(_size.height * TOYBOX_DIRTYMAP_TILE_SIZE.height == clean_image.size().height);
-    assert((image.size().width % TOYBOX_DIRTYMAP_TILE_SIZE.width) == 0);
-    assert((image.size().height % TOYBOX_DIRTYMAP_TILE_SIZE.height) == 0);
+    assert(image.size() == clean_image.size() && "Canvas and clean image sizes must match");
+    assert(_size.width * TOYBOX_DIRTYMAP_TILE_SIZE.width * 8 >= clean_image.size().width && "Dirtymap width must cover image width");
+    assert(_size.height * TOYBOX_DIRTYMAP_TILE_SIZE.height == clean_image.size().height && "Dirtymap height must match image height");
+    assert((image.size().width % TOYBOX_DIRTYMAP_TILE_SIZE.width) == 0 && "Image width must be a multiple of tile width");
+    assert((image.size().height % TOYBOX_DIRTYMAP_TILE_SIZE.height) == 0 && "Image height must be a multiple of tile height");
     const_cast<canvas_c&>(canvas).with_clipping(false, [&] {
         canvas.with_dirtymap(nullptr, [&] {
             auto data = _data;

@@ -246,7 +246,7 @@ private:
 };
 
 int machine_c::with_machine(int argc, const char * argv[], machine_f f) {
-    assert(_shared_machine == nullptr);
+    assert(_shared_machine == nullptr && "Shared machine already initialized");
     char *dir = dirname((char *)argv[0]);
     hard_assert(chdir(dir) == 0);
     

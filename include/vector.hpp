@@ -13,7 +13,7 @@ namespace toybox {
     
     /**
      `vector_c` is a minimal implementation of `std::vector` with a statically
-     allocated backiong store, for performance reasons.
+     allocated backing store, for performance reasons.
      TODO: Treat Count of 0 as a dynamic vector.
      */
     template<class Type, int Count>
@@ -27,7 +27,7 @@ namespace toybox {
         using iterator = value_type*;
         using const_iterator = const value_type*;
         
-        inline vector_c() : _size(0) {}
+        vector_c() : _size(0) {}
         
         __forceinline iterator begin() __pure { return _data[0].ptr(); }
         __forceinline const_iterator begin() const __pure { return _data[0].ptr(); }
@@ -35,72 +35,72 @@ namespace toybox {
         __forceinline const_iterator end() const __pure { return _data[_size].ptr(); }
         __forceinline int size() const __pure { return _size; }
         
-        inline reference operator[](const int i) __pure {
-            assert(i < _size);
-            assert(i >= 0);
+        __forceinline reference operator[](const int i) __pure {
+            assert(i < _size && "Index out of bounds");
+            assert(i >= 0 && "Index must be non-negative");
             return *_data[i].ptr();
         }
-        inline const_reference operator[](const int i) const __pure {
-            assert(i < _size);
-            assert(i >= 0);
+        __forceinline const_reference operator[](const int i) const __pure {
+            assert(i < _size && "Index out of bounds");
+            assert(i >= 0 && "Index must be non-negative");
             return *_data[i].ptr();
         }
-        inline reference front() __pure {
-            assert(_size > 0);
+        __forceinline reference front() __pure {
+            assert(_size > 0 && "Vector is empty");
             return *_data[0].ptr();
         }
-        inline const_reference front() const __pure {
-            assert(_size > 0);
+        __forceinline const_reference front() const __pure {
+            assert(_size > 0 && "Vector is empty");
             return *_data[0].ptr();
         }
-        inline reference back() __pure {
-            assert(_size > 0);
+        __forceinline reference back() __pure {
+            assert(_size > 0 && "Vector is empty");
             return *_data[_size - 1].ptr();
         }
-        inline const_reference back() const __pure {
-            assert(_size > 0);
+        __forceinline const_reference back() const __pure {
+            assert(_size > 0 && "Vector is empty");
             return *_data[_size - 1].ptr();
         }
 
-        inline void push_back(const_reference value) {
-            assert(_size < Count);
+        __forceinline void push_back(const_reference value) {
+            assert(_size < Count && "Vector capacity exceeded");
             *_data[_size++].ptr() = value;
         }
-        inline iterator insert(const_iterator pos, const_reference value) {
-            assert(_size < Count && pos >= begin() && pos <= end());
+        iterator insert(const_iterator pos, const_reference value) {
+            assert(_size < Count && pos >= begin() && pos <= end() && "Invalid insert position or capacity exceeded");
             move_backward(pos, end(), end() + 1);
             *pos = value;
             _size++;
             return ++pos;
         }
         template<class... Args>
-        inline reference emplace_back(Args&&... args) {
-            assert(_size < Count);
+        __forceinline reference emplace_back(Args&&... args) {
+            assert(_size < Count && "Vector capacity exceeded");
             return *new (_data[_size++].addr()) Type(forward<Args>(args)...);
         }
         template<class... Args>
-        inline iterator emplace(Type *pos, Args&&... args) {
-            assert(_size < Count && pos >= begin() && pos <= end());
+        iterator emplace(Type *pos, Args&&... args) {
+            assert(_size < Count && pos >= begin() && pos <= end() && "Invalid emplace position or capacity exceeded");
             move_backward(pos, end(), end() + 1);
             new (static_cast<void *>(pos)) Type(forward<Args>(args)...);
             _size++;
             return ++pos;
         }
-        
-        inline iterator erase(const_iterator pos) {
-            assert(_size > 0 && pos >= begin() && pos < end());
+
+        iterator erase(const_iterator pos) {
+            assert(_size > 0 && pos >= begin() && pos < end() && "Invalid erase position or vector is empty");
             destroy_at(pos);
             move(pos + 1, this->end(), pos);
             _size--;
             return iterator(pos);
         }
-        inline void clear() {
+        void clear() {
             while (_size) {
                 destroy_at(_data[--_size].ptr());
             }
         }
-        inline void pop_back() {
-            assert(_size > 0);
+        __forceinline void pop_back() {
+            assert(_size > 0 && "Vector is empty");
             destroy_at(_data[--_size].ptr());
         }
         

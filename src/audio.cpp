@@ -75,18 +75,18 @@ sound_c::sound_c(const char *path) :
             if (!file.read(&common)) {
                 return;
             }
-            assert(common.num_channels == 1); // Only mono supported
-            assert(common.sample_size == 8); // Only 8 bit audio
+            assert(common.num_channels == 1 && "Only mono audio is supported");
+            assert(common.sample_size == 8 && "Only 8-bit audio is supported");
             _length = common.num_sample_frames;
             _rate = common.sample_rate.to_uint16();
-            assert(_rate >= 11000 && _rate <= 14000); // Ball park ;)
+            assert(_rate >= 11000 && _rate <= 14000 && "Sample rate must be between 11kHz and 14kHz");
         } else if (iff_id_match(chunk.id, IFF_SSND)) {
             aiff_ssnd_data_s data;
             if (!file.read(&data)) {
                 return;
             }
-            assert(data.offset == 0);
-            assert(chunk.size - 8 == common.num_sample_frames);
+            assert(data.offset == 0 && "SSND offset must be zero");
+            assert(chunk.size - 8 == common.num_sample_frames && "SSND data size must match sample frame count");
             _sample.reset((int8_t *)_malloc(_length));
             file.read(_sample.get(), _length);
         } else {

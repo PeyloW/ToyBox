@@ -30,12 +30,12 @@ namespace toybox {
             value_type value;
             template<class... Args>
             _node_s(_node_s *next, Args&&... args) : next(next), value(forward<Args>(args)...) {}
-            inline ~_node_s() = default;
+            ~_node_s() = default;
             void *operator new(size_t count) {
-                assert(allocator::alloc_size >= count);
+                assert(allocator::alloc_size >= count && "Allocation size exceeds allocator capacity");
                 return allocator::allocate();
             }
-            void operator delete(void *ptr) noexcept {
+            void operator delete(void *ptr) {
                 allocator::deallocate(ptr);
             }
         };
@@ -48,8 +48,8 @@ namespace toybox {
 
             _iterator_s() = delete;
             _iterator_s(const _iterator_s& o) = default;
-            __forceinline _iterator_s(_node_s *node) : _node(node) {}
-            __forceinline _iterator_s(const _iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
+            _iterator_s(_node_s *node) : _node(node) {}
+            _iterator_s(const _iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
 
             __forceinline reference operator*() const { return _node->value; }
             __forceinline pointer operator->() const { return &_node->value; }
@@ -65,7 +65,7 @@ namespace toybox {
         list_c() { _head = nullptr; }
         ~list_c() { clear(); }
         
-        inline bool empty() const __pure { return _head == nullptr; }
+        __forceinline bool empty() const __pure { return _head == nullptr; }
         void clear() {
             auto it = before_begin();
             while (it._node->next) {
@@ -73,53 +73,53 @@ namespace toybox {
             }
         }
         
-        inline reference front() __pure { return _head->value; }
-        inline const_reference front() const __pure { return _head->value; }
+        __forceinline reference front() __pure { return _head->value; }
+        __forceinline const_reference front() const __pure { return _head->value; }
         
-        inline iterator before_begin() __pure {
+        iterator before_begin() __pure {
             auto before_head = const_cast<_node_s**>(&_head);
             return iterator(reinterpret_cast<_node_s*>(before_head));
         }
-        inline const_iterator before_begin() const __pure {
+        const_iterator before_begin() const __pure {
             auto before_head = const_cast<_node_s**>(&_head);
             return const_iterator(reinterpret_cast<_node_s*>(before_head));
         }
-        inline iterator begin() __pure { return iterator(_head); }
-        inline const_iterator begin() const __pure { return const_iterator(_head); }
-        inline iterator end() __pure { return iterator(nullptr); }
-        inline const_iterator end() const __pure { return const_iterator(nullptr); }
+        __forceinline iterator begin() __pure { return iterator(_head); }
+        __forceinline const_iterator begin() const __pure { return const_iterator(_head); }
+        __forceinline iterator end() __pure { return iterator(nullptr); }
+        __forceinline const_iterator end() const __pure { return const_iterator(nullptr); }
     
-        inline void push_front(const_reference value) {
+        __forceinline void push_front(const_reference value) {
             insert_after(before_begin(), value);
         }
         template<class ...Args>
-        inline reference emplace_front(Args&& ...args) {
+        __forceinline reference emplace_front(Args&& ...args) {
             return *emplace_after(before_begin(), forward<Args>(args)...);
         }
-        inline iterator insert_after(const_iterator pos, const_reference value) {
-            assert(owns_node(pos._node));
+        iterator insert_after(const_iterator pos, const_reference value) {
+            assert(owns_node(pos._node) && "Node not owned by this list");
             pos._node->next = new _node_s{pos._node->next, value};
             return iterator(pos._node->next);
         }
         template<class ...Args>
-        inline iterator emplace_after(const_iterator pos, Args&& ...args) {
-            assert(owns_node(pos._node));
+        iterator emplace_after(const_iterator pos, Args&& ...args) {
+            assert(owns_node(pos._node) && "Node not owned by this list");
             pos._node->next = new _node_s(pos._node->next, forward<Args>(args)...);
             return iterator(pos._node->next);
         }
-        inline void pop_front() {
+        __forceinline void pop_front() {
             erase_after(before_begin());
         }
-        inline iterator erase_after(const_iterator pos) {
-            assert(owns_node(pos._node));
+        iterator erase_after(const_iterator pos) {
+            assert(owns_node(pos._node) && "Node not owned by this list");
             auto tmp = pos._node->next;
             pos._node->next = tmp->next;
             delete tmp;
             return iterator(pos._node->next);
         }
         void splice_after(const_iterator pos, list_c &other, const_iterator it) {
-            assert(owns_node(pos._node));
-            assert(other.owns_node(it._node));
+            assert(owns_node(pos._node) && "Node not owned by this list");
+            assert(other.owns_node(it._node) && "Node not owned by other list");
             auto tmp = it._node->next;
             it._node->next = tmp->next;
             tmp->next = pos._node->next;
