@@ -29,10 +29,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A68D50312EA2AB1A00174946 /* Exceptions for "tests" folder in "toybox_index" target */ = {
+		A627180E2EC12B6800F365D7 /* Exceptions for "tests" folder in "toybox_index" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				src/main.cpp,
+				src/test_algorithms.cpp,
+				src/test_collections.cpp,
+				src/test_display.cpp,
+				src/test_lifetime.cpp,
+				src/test_math.cpp,
 			);
 			target = A68D49DD2EA1343F00174946 /* toybox_index */;
 		};
@@ -111,7 +116,7 @@
 		A68D49D62EA132E700174946 /* tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A68D50312EA2AB1A00174946 /* Exceptions for "tests" folder in "toybox_index" target */,
+				A627180E2EC12B6800F365D7 /* Exceptions for "tests" folder in "toybox_index" target */,
 			);
 			name = tests;
 			path = ../../tests;

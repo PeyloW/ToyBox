@@ -16,12 +16,12 @@
 
 namespace toybox {
 
-    constexpr float trunc(float x) {
+    constexpr float truncf(float x) {
         return (float)(int32_t)x;
     }
     
-    constexpr float round(float x) {
-        return trunc(x + (x < 0 ? -0.5f : 0.5f));
+    constexpr float roundf(float x) {
+        return truncf(x + (x < 0 ? -0.5f : 0.5f));
     }
     
     template<integral Int>
@@ -99,7 +99,7 @@ namespace toybox {
 
         template<integral OInt>
         constexpr base_fix_t(OInt v) : raw(static_cast<Int>(v) << Bits) {}
-        constexpr base_fix_t(float v) : raw(static_cast<Int>(round(v * (1 << Bits)))) {}
+        constexpr base_fix_t(float v) : raw(static_cast<Int>(roundf(v * (1 << Bits)))) {}
         
         constexpr explicit operator bool() const { return raw != 0; }
         template<integral OInt>
