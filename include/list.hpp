@@ -13,9 +13,9 @@
 namespace toybox {
     
     /**
-     `list_c` is a minimal implementation of `std::forward_list` with a
-     statically allocated backing store, for performance reasons.
-     TODO: Treat Count of 0 as a dynamic list.
+     A singly-linked forward list with statically allocated node storage.
+     Similar to `std::forward_list` but uses a fixed-size allocator for O(1) allocation
+     with no heap overhead. All node allocations come from a pool of `Count` pre-reserved slots.
      */
     template<class Type, size_t Count = 16>
     class list_c {
@@ -80,12 +80,14 @@ namespace toybox {
         
         __forceinline reference front() __pure { return _head->value; }
         __forceinline const_reference front() const __pure { return _head->value; }
-        
+
+        /// Returns iterator to position before the first element. Required for insert/erase operations.
         iterator before_begin() __pure {
             using node_s = detail::node_s;
             auto before_head = const_cast<node_s**>(&_head);
             return iterator(reinterpret_cast<node_s*>(before_head));
         }
+        /// Returns const iterator to position before the first element. Required for insert/erase operations.
         const_iterator before_begin() const __pure {
             using node_s = detail::node_s;
             auto before_head = const_cast<node_s**>(&_head);
@@ -95,7 +97,8 @@ namespace toybox {
         __forceinline const_iterator begin() const __pure { return const_iterator(_head); }
         __forceinline iterator end() __pure { return iterator(nullptr); }
         __forceinline const_iterator end() const __pure { return const_iterator(nullptr); }
-    
+
+        /// Returns number of elements. O(n) operation as list must be traversed.
         int size() const __pure {
             int count = 0;
             auto it = before_begin();
@@ -136,6 +139,10 @@ namespace toybox {
             delete tmp;
             return iterator(pos._node->next);
         }
+        /**
+         Moves the element after `it` from `other` to after `pos` in this list.
+         No copy or move constructors are called. O(1) operation.
+         */
         void splice_after(const_iterator pos, list_c &other, const_iterator it) {
             assert(owns_node(pos._node) && "Node not owned by this list");
             assert(other.owns_node(it._node) && "Node not owned by other list");
@@ -145,6 +152,10 @@ namespace toybox {
             tmp->next = pos._node->next;        // Link to destination's next
             pos._node->next = tmp;              // Link destination to spliced element
         }
+        /**
+         Moves elements in range (first, last) from `other` to after `pos` in this list.
+         No copy or move constructors are called. O(n) operation where n is distance from first to last.
+         */
         void splice_after(const_iterator pos, list_c &other, const_iterator first, const_iterator last) {
             assert(owns_node(pos._node) && "Node not owned by this list");
             assert(other.owns_node(first._node) && "First iterator not owned by other list");
@@ -159,9 +170,11 @@ namespace toybox {
             before_last->next = pos._node->next;      // Link range end to dest
             pos._node->next = range_first;            // Link dest to range start
         }
+        /// Convenience wrapper for splicing a single element to the front of this list.
         void splice_front(list_c &other, const_iterator it) {
             splice_after(before_begin(), other, it);
         }
+        /// Convenience wrapper for splicing a range of elements to the front of this list.
         void splice_front(list_c &other, const_iterator first, const_iterator last) {
             splice_after(before_begin(), other, first, last);
         }

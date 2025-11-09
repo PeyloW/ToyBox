@@ -17,52 +17,6 @@ Make no assumption of integer/pointer size. Host may use 32 bit integers, target
 
 Rely on `static_assert` to ensure expected sizes for structs are correct. Asserts are enabled on host, but not on Atari target. Asserts with `hard_assert` are used liberally to ensure correctness.
     
-## Code Style
-
-### Naming Conventions
-
-Types use suffix, variables do not:
-
-* `_t` - POD, plain old type.
-* `_e` - Enumeration.
-* `_s` - Simple structs
-    * Must never implement constructors or destructors.
-    * For direct access to all members.
-* `_c` - Classes
-    * Classes **must** support move semantics.
-    * **Never** assume copy semantics are available.
-        * Most classes explicitly forbid copy semantics by use of `nocopy_c` subclassing.
-
-Variables use optional prefixes:
-
-* `_` - Private/protected member variable.
-* `s_` - Static variable.
-* `g_` - Global variable.
-
-Variables with no prefix are local variables, public members, or function arguments.
-
-### Inline and Qualifier Order
-
-Function inlining:
-* Use `__forceinline` for single-statement functions (excluding assert statements and non-Atari preprocessor blocks).
-
-Qualifier order:
-1. Storage class (`static`, `extern`, `mutable`)
-2. Compile-time semantics (`constexpr`, `inline`, `__forceinline`)
-3. Type qualifiers (`const`, `volatile`)
-4. Other attributes (`explicit`, `friend`, `virtual`)
-5. Return type
-
-Function qualifiers after parameters: `const`, `override`, `final` (in that order).
-
-### Error Handling
-
-* All `assert()` statements must include descriptive error messages: `assert(condition && "Error message")`.
-* Use `assert()` liberally for error checking, as asserts are compiled out in release builds (`-DNDEBUG`) and do not impact Atari target performance.
-* Use `hard_assert()` for critical errors that must be caught on Atari target as well.
-* Assert statements do not count as statements for inline classification purposes.
-* No `noexcept` specifications are used (project always compiles without exceptions).
-
 ### Game Setup
 
 ToyBox games are intended to run from identical code on an Atari target machine, as on a modern host such as macOS. This is abstracted away in the `machine_c` class.
