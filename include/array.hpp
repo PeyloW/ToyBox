@@ -31,11 +31,11 @@ namespace toybox {
         __forceinline pointer data() { return _data[0].ptr(); }
         __forceinline const_pointer data() const { return _data[0].ptr(); }
 
-        __forceinline reference operator[](const int i) __pure {
+        __forceinline reference operator[](int i) __pure {
             assert(i >= 0 && i < Count && "Index out of bounds");
             return _data[i];
         }
-        __forceinline const_reference operator[](const int i) const __pure {
+        __forceinline const_reference operator[](int i) const __pure {
             assert(i >= 0 && i < Count && "Index out of bounds");
             return _data[i];
         }

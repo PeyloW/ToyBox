@@ -35,7 +35,7 @@ namespace toybox {
         int16_t max_index() const __pure;
         point_s max_tile() const __pure;
 
-        const rect_s &tile_rect(const int16_t i) const __pure;
+        const rect_s &tile_rect(int16_t i) const __pure;
         const rect_s &tile_rect(const point_s tile) const __pure;
 
     private:

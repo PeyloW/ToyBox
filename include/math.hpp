@@ -99,12 +99,12 @@ namespace toybox {
 
         template<integral OInt>
         constexpr base_fix_t(OInt v) : raw(static_cast<Int>(v) << Bits) {}
-        constexpr base_fix_t(float v) : raw(static_cast<Int>(roundf(v * (1 << Bits)))) {}
+        constexpr base_fix_t(float v) : raw(static_cast<Int>(roundf(v * (static_cast<LargerInt>(1) << Bits)))) {}
         
         constexpr explicit operator bool() const { return raw != 0; }
         template<integral OInt>
         constexpr explicit operator OInt() const { return static_cast<OInt>(raw >> Bits); }
-        constexpr explicit operator float() const { return static_cast<float>(raw) / (1 << Bits); }
+        constexpr explicit operator float() const { return static_cast<float>(raw) / (static_cast<LargerInt>(1) << Bits); }
         
         constexpr base_fix_t operator+(const base_fix_t o) const {
             return base_fix_t(static_cast<Int>(raw + o.raw), true);

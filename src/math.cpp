@@ -89,8 +89,8 @@ namespace toybox {
         static __forceinline constexpr base_fix_t<Int, Bits> exp(base_fix_t<Int, Bits> x) {
             using fix_t = base_fix_t<Int, Bits>;
             // Check bounds: exp(-7) ≈ 0.0009, exp(7) ≈ 1096
-            if (x.raw < -(7 << Bits)) return fix_t(0);
-            if (x.raw > (7 << Bits)) {
+            if (x.raw < -(static_cast<Int>(7) << Bits)) return fix_t(0);
+            if (x.raw > (static_cast<Int>(7) << Bits)) {
                 // Return max positive value (all bits set except sign bit)
                 constexpr Int max_val = static_cast<Int>((~Int(0)) >> 1);
                 return fix_t(max_val, true);
@@ -123,11 +123,11 @@ namespace toybox {
             Int raw = x.raw;
             int exponent = 0;
             // Scale to [1, 2) range by counting shifts
-            while (raw >= (2 << Bits)) {
+            while (raw >= (static_cast<Int>(2) << Bits)) {
                 raw >>= 1;
                 exponent++;
             }
-            while (raw < (1 << Bits)) {
+            while (raw < (static_cast<Int>(1) << Bits)) {
                 raw <<= 1;
                 exponent--;
             }
@@ -213,7 +213,7 @@ namespace toybox {
             const fix32_t exp_32 = fix32_t(static_cast<int32_t>(exp.raw) << 16, true);
             const fix32_t result = detail::exp(exp_32 * detail::log(base_32));
             // Add 1 << 15 to round to nearest instead of truncating
-            return fix16_t(static_cast<int16_t>((result.raw + (1 << 15)) >> 16), true);
+            return fix16_t(static_cast<int16_t>((result.raw + (static_cast<int32_t>(1) << 15)) >> 16), true);
         }
     }
 

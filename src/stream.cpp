@@ -29,21 +29,21 @@ stream_c &stream_c::operator<<(const char *str) {
     return *this;
 }
 
-stream_c &stream_c::operator<<(const char c) {
+stream_c &stream_c::operator<<(char c) {
     write(reinterpret_cast<const uint8_t*>(&c), 1);
     return *this;
 }
-stream_c &stream_c::operator<<(const unsigned char c) {
+stream_c &stream_c::operator<<(unsigned char c) {
     write(reinterpret_cast<const uint8_t*>(&c), 1);
     return *this;
 }
-stream_c &stream_c::operator<<(const int16_t i) {
+stream_c &stream_c::operator<<(int16_t i) {
     return *this << static_cast<int32_t>(i);
 }
-stream_c &stream_c::operator<<(const uint16_t i) {
+stream_c &stream_c::operator<<(uint16_t i) {
     return *this << static_cast<uint32_t>(i);
 }
-stream_c &stream_c::operator<<(const int32_t i) {
+stream_c &stream_c::operator<<(int32_t i) {
     char buf[12];
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -65,7 +65,7 @@ stream_c &stream_c::operator<<(const int32_t i) {
     }
     return *this << static_cast<const char *>(buf);
 }
-stream_c &stream_c::operator<<(const uint32_t i) {
+stream_c &stream_c::operator<<(uint32_t i) {
     if (i > 0x7fffffff) {
         if (_width > 6) {
             int ow = _width;

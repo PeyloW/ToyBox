@@ -26,7 +26,7 @@ void *context;
 #define TIMER_FUNC_MAX_CNT 16
 using timer_func_list_c = list_c<timer_func_s, TIMER_FUNC_MAX_CNT>;
 #ifdef __M68000__
-static_assert(sizeof(timer_func_list_c::_node_s) == 14, "timer_func_list_c::_node_s) size mismatch");
+static_assert(sizeof(timer_func_list_c::detail::node_s) == 14, "timer_func_list_c::detail::node_s size mismatch");
 #endif
 
 timer_func_list_c g_vbl_functions;

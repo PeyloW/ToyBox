@@ -36,7 +36,7 @@ point_s tileset_c::max_tile() const {
     return _max_tile;
 }
 
-const rect_s &tileset_c::tile_rect(const int16_t i) const {
+const rect_s &tileset_c::tile_rect(int16_t i) const {
     assert(i >= 0 && i < max_index() && "Tile index out of bounds");
     return _rects[i];
 }

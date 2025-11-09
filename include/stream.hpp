@@ -51,12 +51,12 @@ namespace toybox {
 
         stream_c &operator<<(manipulator_f m);
         stream_c &operator<<(const char *str);
-        stream_c &operator<<(const char c);
-        stream_c &operator<<(const unsigned char c);
-        stream_c &operator<<(const int16_t i);
-        stream_c &operator<<(const uint16_t i);
-        stream_c &operator<<(const int32_t i);
-        stream_c &operator<<(const uint32_t i);
+        stream_c &operator<<(char c);
+        stream_c &operator<<(unsigned char c);
+        stream_c &operator<<(int16_t i);
+        stream_c &operator<<(uint16_t i);
+        stream_c &operator<<(int32_t i);
+        stream_c &operator<<(uint32_t i);
 
     protected:
         __forceinline bool assert_on_error() const __pure { return _assert_on_error; }

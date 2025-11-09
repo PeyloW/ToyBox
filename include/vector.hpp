@@ -141,12 +141,12 @@ namespace toybox {
             return this->__buffer()[0].template ptr<0>();
         }
 
-        __forceinline reference operator[](const int i) __pure {
+        __forceinline reference operator[](int i) __pure {
             assert(i < _size && "Index out of bounds");
             assert(i >= 0 && "Index must be non-negative");
             return *this->__buffer()[i].template ptr<0>();
         }
-        __forceinline const_reference operator[](const int i) const __pure {
+        __forceinline const_reference operator[](int i) const __pure {
             assert(i < _size && "Index out of bounds");
             assert(i >= 0 && "Index must be non-negative");
             return *this->__buffer()[i].template ptr<0>();

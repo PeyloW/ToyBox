@@ -34,10 +34,10 @@ void blitter_s::start(bool hog) {
     const auto read_src = [this, &buffer] {
         buffer |= *pSrc;
     };
-    const auto inc_src = [this, &buffer] (const bool is_last) {
+    const auto inc_src = [this, &buffer] (bool is_last) {
         pSrc += (is_last ? srcIncY : srcIncX) / 2;
     };
-    const auto write_dst = [this, &buffer] (const uint16_t mask) {
+    const auto write_dst = [this, &buffer] (uint16_t mask) {
         uint16_t src;
         switch (HOP) {
             case hop_e::one: src = 0xffff; break;
@@ -62,7 +62,7 @@ void blitter_s::start(bool hog) {
             *pDst = (opd & mask) | (dst & ~mask);
         }
     };
-    const auto inc_dst = [this] (const bool is_last) {
+    const auto inc_dst = [this] (bool is_last) {
         pDst += (is_last ? dstIncY : dstIncX) / 2;
     };
     do {

@@ -30,7 +30,7 @@ namespace toybox {
         __forceinline const shared_ptr_c<image_c> &image() const {
             return _image;
         }
-        const rect_s &char_rect(const char c) const {
+        const rect_s &char_rect(char c) const {
             if (c < 32 || c > 127) {
                 return _rects[0];
             } else {

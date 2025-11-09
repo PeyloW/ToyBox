@@ -8,6 +8,9 @@
 - **Integer/Pointer Sizes:** Make no assumptions about integer/pointer size.
 	- Host may use 32-bit integers, target **must** use 16-bit integers.
 	- Whenever possible use explicitly sized types: `int16_t` not `short`.
+	- Use `int` instead of `size_t` when sizes are reasonably within 30k.
+		- Collection sizes, etc.
+		- Use `size_t` for file sizes, or when the C++ standard absolutely requires. 
 - **Struct Sizes:** Use `static_assert` to ensure expected sizes for structs are correct.
 - **Compiler Attributes:** Common attributes used throughout the codebase:
 	- `__forceinline` - Force function inlining (for single-statement functions).
@@ -87,7 +90,9 @@
 	- Use `unique_ptr_c` and `shared_ptr_c` to manage memory that outlives current scope.
 		- Always prefer `unique_ptr_c` when possible.
 - **Argument Passing:** Any type that does not fit in 4 bytes should be passed as a reference.
-	- Always pass as const when possible.
+- **Const Usage** Always prefer using `const`.
+	- Also for temporaries, and arguments.
+	- Do not use `const` for pod arguments that are implied `const`. 
 - **Error Handling:**
 	- Use `assert()` to catch errors when building for host machine.
 	- All `assert()` statements should include a **succinct** error message: `assert(condition && "Error message")`.
@@ -100,6 +105,9 @@
 	- When applicable use helper functions in `system_helpers.hpp` to boost target performance.
 	- Make use of `constexpr` instead of run-time when possible.
 	- Use `fix16_t` instead of floating point math.
+- **Type Casting** Prefer to use `static_cast`.
+	- Use `const_cast` and `reinterpret_cast` when applicable.
+	- Never use `dynamic_cast`. 
 - **Standard Library Usage:** You **must never** use the standard C++ library.
 	- When needed minimal implementations of stdlib functionality is recreated, such as `vector_c` for `std::vector` and `forward(...)` for `std::forward(...)`.
 
