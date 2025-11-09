@@ -25,42 +25,47 @@ namespace toybox {
         using const_pointer = const value_type*;
         using reference = value_type&;
         using const_reference = const value_type&;
-        struct _node_s {
-            _node_s *next;
-            value_type value;
-            template<class... Args>
-            _node_s(_node_s *next, Args&&... args) : next(next), value(forward<Args>(args)...) {}
-            ~_node_s() = default;
-            void *operator new(size_t count) {
-                assert(allocator::alloc_size >= count && "Allocation size exceeds allocator capacity");
-                return allocator::allocate();
-            }
-            void operator delete(void *ptr) {
-                allocator::deallocate(ptr);
-            }
-        };
-        using allocator= static_allocator_c<_node_s, Count>;
-        template<class TypeI>
-        struct _iterator_s {
-            using value_type = TypeI;
-            using pointer = value_type*;
-            using reference = value_type&;
 
-            _iterator_s() = delete;
-            _iterator_s(const _iterator_s& o) = default;
-            _iterator_s(_node_s *node) : _node(node) {}
-            _iterator_s(const _iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
+        struct detail {
+            struct node_s {
+                node_s *next;
+                value_type value;
+                template<class... Args>
+                node_s(node_s *next, Args&&... args) : next(next), value(forward<Args>(args)...) {}
+                ~node_s() = default;
+                void *operator new(size_t count) {
+                    assert(allocator::alloc_size >= count && "Allocation size exceeds allocator capacity");
+                    return allocator::allocate();
+                }
+                void operator delete(void *ptr) {
+                    allocator::deallocate(ptr);
+                }
+            };
 
-            __forceinline reference operator*() const { return _node->value; }
-            __forceinline pointer operator->() const { return &_node->value; }
-            __forceinline _iterator_s& operator++() { _node = _node->next; return *this; }
-            __forceinline _iterator_s operator++(int) { auto tmp = *this; _node = _node->next; return tmp; }
-            __forceinline bool operator==(const _iterator_s& o) const { return _node == o._node; }
-            
-            _node_s *_node;
+            template<class TypeI>
+            struct iterator_s {
+                using value_type = TypeI;
+                using pointer = value_type*;
+                using reference = value_type&;
+
+                iterator_s() = delete;
+                iterator_s(const iterator_s& o) = default;
+                iterator_s(node_s *node) : _node(node) {}
+                iterator_s(const iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
+
+                __forceinline reference operator*() const { return _node->value; }
+                __forceinline pointer operator->() const { return &_node->value; }
+                __forceinline iterator_s& operator++() { _node = _node->next; return *this; }
+                __forceinline iterator_s operator++(int) { auto tmp = *this; _node = _node->next; return tmp; }
+                __forceinline bool operator==(const iterator_s& o) const { return _node == o._node; }
+
+                node_s *_node;
+            };
         };
-        using iterator = _iterator_s<Type>;
-        using const_iterator = _iterator_s<const Type>;
+
+        using allocator = static_allocator_c<typename detail::node_s, Count>;
+        using iterator = typename detail::template iterator_s<Type>;
+        using const_iterator = typename detail::template iterator_s<const Type>;
         
         list_c() { _head = nullptr; }
         ~list_c() { clear(); }
@@ -77,12 +82,14 @@ namespace toybox {
         __forceinline const_reference front() const __pure { return _head->value; }
         
         iterator before_begin() __pure {
-            auto before_head = const_cast<_node_s**>(&_head);
-            return iterator(reinterpret_cast<_node_s*>(before_head));
+            using node_s = detail::node_s;
+            auto before_head = const_cast<node_s**>(&_head);
+            return iterator(reinterpret_cast<node_s*>(before_head));
         }
         const_iterator before_begin() const __pure {
-            auto before_head = const_cast<_node_s**>(&_head);
-            return const_iterator(reinterpret_cast<_node_s*>(before_head));
+            using node_s = detail::node_s;
+            auto before_head = const_cast<node_s**>(&_head);
+            return const_iterator(reinterpret_cast<node_s*>(before_head));
         }
         __forceinline iterator begin() __pure { return iterator(_head); }
         __forceinline const_iterator begin() const __pure { return const_iterator(_head); }
@@ -107,14 +114,16 @@ namespace toybox {
             return *emplace_after(before_begin(), forward<Args>(args)...);
         }
         iterator insert_after(const_iterator pos, const_reference value) {
+            using node_s = detail::node_s;
             assert(owns_node(pos._node) && "Node not owned by this list");
-            pos._node->next = new _node_s{pos._node->next, value};
+            pos._node->next = new node_s{pos._node->next, value};
             return iterator(pos._node->next);
         }
         template<class ...Args>
         iterator emplace_after(const_iterator pos, Args&& ...args) {
+            using node_s = detail::node_s;
             assert(owns_node(pos._node) && "Node not owned by this list");
-            pos._node->next = new _node_s(pos._node->next, forward<Args>(args)...);
+            pos._node->next = new node_s(pos._node->next, forward<Args>(args)...);
             return iterator(pos._node->next);
         }
         __forceinline void pop_front() {
@@ -130,22 +139,44 @@ namespace toybox {
         void splice_after(const_iterator pos, list_c &other, const_iterator it) {
             assert(owns_node(pos._node) && "Node not owned by this list");
             assert(other.owns_node(it._node) && "Node not owned by other list");
-            auto tmp = it._node->next;
-            it._node->next = tmp->next;
-            tmp->next = pos._node->next;
-            pos._node->next = tmp;
+
+            auto tmp = it._node->next;          // Element to splice
+            it._node->next = tmp->next;         // Remove from source
+            tmp->next = pos._node->next;        // Link to destination's next
+            pos._node->next = tmp;              // Link destination to spliced element
+        }
+        void splice_after(const_iterator pos, list_c &other, const_iterator first, const_iterator last) {
+            assert(owns_node(pos._node) && "Node not owned by this list");
+            assert(other.owns_node(first._node) && "First iterator not owned by other list");
+            assert((last._node == nullptr || other.owns_node(last._node)) && "Last iterator not owned by other list");
+            if (first._node->next == last._node) return;
+            auto before_last = first._node;
+            while (before_last->next != last._node) {
+                before_last = before_last->next;
+            }
+            auto range_first = first._node->next;     // First element in range to splice
+            first._node->next = last._node;           // Remove range from source
+            before_last->next = pos._node->next;      // Link range end to dest
+            pos._node->next = range_first;            // Link dest to range start
+        }
+        void splice_front(list_c &other, const_iterator it) {
+            splice_after(before_begin(), other, it);
+        }
+        void splice_front(list_c &other, const_iterator first, const_iterator last) {
+            splice_after(before_begin(), other, first, last);
         }
     private:
-        bool owns_node(_node_s * node) const __pure {
-            auto before_head = const_cast<_node_s**>(&_head);
-            auto n = reinterpret_cast<_node_s*>(before_head);
+        bool owns_node(detail::node_s * node) const __pure {
+            using node_s = detail::node_s;
+            auto before_head = const_cast<node_s**>(&_head);
+            auto n = reinterpret_cast<node_s*>(before_head);
             while (n) {
                 if (n == node) return true;
                 n = n->next;
             }
             return false;;
         }
-        _node_s *_head;
+        detail::node_s *_head;
     };
     
 }
