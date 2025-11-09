@@ -11,14 +11,97 @@
 #include "initializer_list.hpp"
 
 namespace toybox {
-    
+
+    namespace detail {
+
+        /**
+         Static storage base class for vector_c when Count > 0.
+         Provides fixed-capacity storage using a statically allocated array.
+         */
+        template<class Type, int Count>
+        class base_vector_static_c {
+        protected:
+            // Storage interface for vector_c
+            __forceinline aligned_membuf_s<Type>* __buffer() __pure {
+                return _buffer;
+            }
+            __forceinline const aligned_membuf_s<Type>* __buffer() const __pure {
+                return _buffer;
+            }
+            __forceinline constexpr int __capacity() const __pure {
+                return Count;
+            }
+            __forceinline void __ensure_capacity(int needed, int current_size) const {
+                (void)current_size;  // Unused for static storage
+                assert(needed <= Count && "Vector capacity exceeded");
+            }
+        private:
+            aligned_membuf_s<Type> _buffer[Count];
+        };
+
+        /**
+         Dynamic storage base class for vector_c when Count == 0.
+         Provides growable heap-allocated storage with automatic reallocation.
+         */
+        template<class Type>
+        class base_vector_dynamic_c {
+        protected:
+            ~base_vector_dynamic_c() {
+                if (_buffer) delete[] _buffer;
+            }
+
+            // Storage interface for vector_c
+            __forceinline aligned_membuf_s<Type>* __buffer() __pure {
+                return _buffer;
+            }
+            __forceinline const aligned_membuf_s<Type>* __buffer() const __pure {
+                return _buffer;
+            }
+            __forceinline int __capacity() const __pure {
+                return _capacity;
+            }
+
+            void __ensure_capacity(int needed, int current_size) {
+                if (needed <= _capacity) return;
+                int new_cap = needed;
+                if (_capacity > 0) {
+                    new_cap = _capacity * 2;
+                    if (new_cap < needed) new_cap = needed;
+                } else {
+                    if (new_cap < 8) new_cap = 8;
+                }
+                auto* new_buffer = new aligned_membuf_s<Type>[new_cap];
+
+                // Move existing constructed elements to new buffer
+                if (current_size > 0) {
+                    const Type* src_first = _buffer[0].template ptr<0>();
+                    const Type* src_last = _buffer[current_size].template ptr<0>();
+                    Type* dst_first = new_buffer[0].template ptr<0>();
+                    uninitialized_move(src_first, src_last, dst_first);
+                    destroy(src_first, src_last);
+                }
+
+                if (_buffer) delete[] _buffer;
+                _buffer = new_buffer;
+                _capacity = new_cap;
+            }
+        private:
+            aligned_membuf_s<Type>* _buffer = nullptr;
+            int _capacity = 0;
+        };
+
+    } // namespace detail
+
     /**
-     `vector_c` is a minimal implementation of `std::vector` with a statically
-     allocated backing store, for performance reasons.
-     TODO: Treat Count of 0 as a dynamic vector.
+     `vector_c` is a minimal implementation of `std::vector`.
+     When Count > 0: Uses statically allocated backing store for performance.
+     When Count == 0: Uses dynamically allocated backing store with automatic growth.
      */
     template<class Type, int Count>
-    class vector_c : public nocopy_c {
+    class vector_c : public nocopy_c,
+                     private conditional<Count == 0,
+                                        detail::base_vector_dynamic_c<Type>,
+                                        detail::base_vector_static_c<Type, Count>>::type {
     public:
         using value_type = Type;
         using pointer = value_type* ;
@@ -30,76 +113,103 @@ namespace toybox {
         
         vector_c() : _size(0) {}
         constexpr vector_c(initializer_list<Type> init) : _size(0) {
-            assert(init.size() <= Count && "Vector capacity exceeded");
+            this->__ensure_capacity(init.size(), _size);
             copy(init.begin(), init.end(), begin());
             _size = init.size();
         }
-        
-        __forceinline iterator begin() __pure { return _data[0].ptr(); }
-        __forceinline const_iterator begin() const __pure { return _data[0].ptr(); }
-        __forceinline iterator end() __pure { return _data[_size].ptr(); }
-        __forceinline const_iterator end() const __pure { return _data[_size].ptr(); }
+        ~vector_c() {
+            clear();
+        }
+            
+        __forceinline iterator begin() __pure {
+            return this->__buffer()[0].template ptr<0>();
+        }
+        __forceinline const_iterator begin() const __pure {
+            return this->__buffer()[0].template ptr<0>();
+        }
+        __forceinline iterator end() __pure {
+            return this->__buffer()[_size].template ptr<0>();
+        }
+        __forceinline const_iterator end() const __pure {
+            return this->__buffer()[_size].template ptr<0>();
+        }
         __forceinline int size() const __pure { return _size; }
-        __forceinline pointer data() { return _data[0].ptr(); }
-        __forceinline const_pointer data() const { return _data[0].ptr(); }
+        __forceinline pointer data() {
+            return this->__buffer()[0].template ptr<0>();
+        }
+        __forceinline const_pointer data() const {
+            return this->__buffer()[0].template ptr<0>();
+        }
 
         __forceinline reference operator[](const int i) __pure {
             assert(i < _size && "Index out of bounds");
             assert(i >= 0 && "Index must be non-negative");
-            return *_data[i].ptr();
+            return *this->__buffer()[i].template ptr<0>();
         }
         __forceinline const_reference operator[](const int i) const __pure {
             assert(i < _size && "Index out of bounds");
             assert(i >= 0 && "Index must be non-negative");
-            return *_data[i].ptr();
+            return *this->__buffer()[i].template ptr<0>();
         }
         __forceinline reference front() __pure {
             assert(_size > 0 && "Vector is empty");
-            return *_data[0].ptr();
+            return *this->__buffer()[0].template ptr<0>();
         }
         __forceinline const_reference front() const __pure {
             assert(_size > 0 && "Vector is empty");
-            return *_data[0].ptr();
+            return *this->__buffer()[0].template ptr<0>();
         }
         __forceinline reference back() __pure {
             assert(_size > 0 && "Vector is empty");
-            return *_data[_size - 1].ptr();
+            return *this->__buffer()[_size - 1].template ptr<0>();
         }
         __forceinline const_reference back() const __pure {
             assert(_size > 0 && "Vector is empty");
-            return *_data[_size - 1].ptr();
+            return *this->__buffer()[_size - 1].template ptr<0>();
         }
 
         __forceinline void push_back(const_reference value) {
-            assert(_size < Count && "Vector capacity exceeded");
-            *_data[_size++].ptr() = value;
+            this->__ensure_capacity(_size + 1, _size);
+            construct_at(this->__buffer()[_size++].template ptr<0>(), value);
         }
         template<class... Args>
         __forceinline reference emplace_back(Args&&... args) {
-            assert(_size < Count && "Vector capacity exceeded");
-            return *new (_data[_size++].addr()) Type(forward<Args>(args)...);
+            this->__ensure_capacity(_size + 1, _size);
+            return *construct_at(this->__buffer()[_size++].template ptr<0>(), forward<Args>(args)...);
         }
 
         iterator insert(const_iterator pos, const_reference value) {
-            assert(_size < Count && "Vector capacity exceeded");
+            this->__ensure_capacity(_size + 1, _size);
             assert(pos >= begin() && pos <= end() && "Invalid insert position");
-            move_backward(pos, (const_iterator)end(), end() + 1);
-            _size++;
             iterator ins = (iterator)pos;
-            *ins = value;
+            // Construct new element at end first (into uninitialized memory)
+            construct_at(end(), value);
+            _size++;
+            // Rotate the new element into position using move-assignment
+            if (ins != end() - 1) {
+                Type temp = move(*(end() - 1));
+                move_backward(ins, end() - 1, end());
+                *ins = move(temp);
+            }
             return ins;
         }
         __forceinline iterator insert(int at, const_reference value) {
-            insert(begin() + at, forward<value_type>(value));
+            return insert(begin() + at, forward<value_type>(value));
         }
         template<class... Args>
         iterator emplace(Type *pos, Args&&... args) {
-            assert(_size < Count && "Vector capacity exceeded");
+            this->__ensure_capacity(_size + 1, _size);
             assert(pos >= begin() && pos <= end() && "Invalid insert position");
-            move_backward(pos, end(), end() + 1);
-            _size++;
             iterator ins = (iterator)pos;
-            new (static_cast<void *>(ins)) Type(forward<Args>(args)...);
+            // Construct new element at end first (into uninitialized memory)
+            construct_at(end(), forward<Args>(args)...);
+            _size++;
+            // Rotate the new element into position using move-assignment
+            if (ins != end() - 1) {
+                Type temp = move(*(end() - 1));
+                move_backward(ins, end() - 1, end());
+                *ins = move(temp);
+            }
             return ins;
         }
         template<class... Args>
@@ -113,6 +223,8 @@ namespace toybox {
             destroy_at(pos);
             iterator ins = (iterator)pos;
             move(pos + 1, (const_iterator)end(), ins);
+            // Destroy the moved-from duplicate at the old end
+            destroy_at(end() - 1);
             _size--;
             return ins;
         }
@@ -121,16 +233,23 @@ namespace toybox {
         }
         void clear() {
             while (_size) {
-                destroy_at(_data[--_size].ptr());
+                destroy_at(this->__buffer()[--_size].template ptr<0>());
             }
         }
         __forceinline void pop_back() {
             assert(_size > 0 && "Vector is empty");
-            destroy_at(_data[--_size].ptr());
+            destroy_at(this->__buffer()[--_size].template ptr<0>());
         }
-        
+
+        __forceinline int capacity() const __pure {
+            return this->__capacity();
+        }
+
+        void reserve(int new_cap) requires (Count == 0) {
+            this->__ensure_capacity(new_cap, _size);
+        }
+
     private:
-        aligned_membuf_s<Type> _data[Count];
         int _size;
     };
     

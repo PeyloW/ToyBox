@@ -49,7 +49,16 @@ namespace toybox {
         }
         return d_last;
     }
-    
+
+    template<const_forward_iterator I, forward_iterator J>
+    J uninitialized_move(I first, I last, J d_first) {
+        while (first != last) {
+            construct_at(&*d_first, move(*first));
+            ++d_first; ++first;
+        }
+        return d_first;
+    }
+
     template<const_random_access_iterator FI, typename T>
     FI lower_bound(FI first, FI last, const T& value) {
         int16_t count = last - first;

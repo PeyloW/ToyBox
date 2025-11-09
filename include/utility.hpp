@@ -230,7 +230,14 @@ namespace toybox {
         return new (static_cast<void *>(p)) T(forward<Args>(args)...);
     }
     template<class T> __forceinline void destroy_at(T* p) { p->~T(); }
-
+    
+    template<forward_iterator I>
+    void destroy(I first, I last) {
+        while (first != last) {
+            destroy_at(&*first);
+            ++first;
+        }
+    }
     
 #pragma mark - Helper classes
     

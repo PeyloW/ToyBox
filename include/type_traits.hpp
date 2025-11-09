@@ -77,7 +77,12 @@ namespace toybox {
     
     template<class T, class U> struct is_same : false_type {};
     template<class T> struct is_same<T, T> : true_type {};
-    
+
+    template<bool B, class T, class F>
+    struct conditional { using type = T; };
+    template<class T, class F>
+    struct conditional<false, T, F> { using type = F; };
+
     template<class T>
     struct is_void : is_same<void, typename remove_const<T>::type> {};
     
