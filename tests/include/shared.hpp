@@ -24,7 +24,7 @@ struct non_trivial_s {
     non_trivial_s(const non_trivial_s& other)
         : value(other.value), generation(other.generation + 1), moved(false) {}
 
-    non_trivial_s(non_trivial_s&& other) noexcept
+    non_trivial_s(non_trivial_s&& other)
         : value(other.value), generation(other.generation), moved(false) {
         other.moved = true;
     }

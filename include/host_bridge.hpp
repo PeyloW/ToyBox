@@ -22,7 +22,6 @@ namespace toybox {
     /**
      A `host_bridge_c` is the abstraction needed for running a target emulated
      on a modern host machine, such as macOS.
-     TODO: Abstract this for more targets such as Linux/SDL
      */
     class host_bridge_c : nocopy_c {
     public:

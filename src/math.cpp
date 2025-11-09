@@ -86,7 +86,7 @@ namespace toybox {
         }
         
         template<integral Int, int Bits>
-        __forceinline static constexpr base_fix_t<Int, Bits> exp(base_fix_t<Int, Bits> x) {
+        static __forceinline constexpr base_fix_t<Int, Bits> exp(base_fix_t<Int, Bits> x) {
             using fix_t = base_fix_t<Int, Bits>;
             // Check bounds: exp(-7) ≈ 0.0009, exp(7) ≈ 1096
             if (x.raw < -(7 << Bits)) return fix_t(0);
@@ -109,7 +109,7 @@ namespace toybox {
         }
 
         template<integral Int, int Bits>
-        __forceinline static constexpr base_fix_t<Int, Bits> log(base_fix_t<Int, Bits> x) {
+        static __forceinline constexpr base_fix_t<Int, Bits> log(base_fix_t<Int, Bits> x) {
             using fix_t = base_fix_t<Int, Bits>;
             // log(2) ≈ 0.693147180559945309417
             static constexpr const fix_t log2(0.693147180559945309417f);

@@ -59,11 +59,12 @@
 	- Keep braces and statement on single line if not exceeding 80 characters.
 - **Qualifier Order:**
 	1. Storage class (`static`, `extern`, `mutable`)
-	2. Compile-time semantics (`constexpr`, `inline`, `__forceinline`)
+	2. Compile-time semantics (`inline`, `__forceinline`,`constexpr`)
 	3. Type qualifiers (`const`, `volatile`)
 	4. Other attributes (`explicit`, `friend`, `virtual`)
 	5. Return type
 	- Function qualifiers after parameters: `const`, `override`, `final` (in that order).
+	- If several qualifiers from same group appears, use order as defined for the group.
 - **Function Inlining:**
 	- Use `__forceinline` for single-statement functions.
 	- Exclude assert statements and non-Atari preprocessor blocks from statement count.

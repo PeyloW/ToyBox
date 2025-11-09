@@ -16,7 +16,6 @@ namespace toybox {
     
     /**
      `stream_c` is vaguely related to `std::iostream`.
-     TODO: Rewrite from scratch, instead copy boost concepts of streams, source, sink, and filters.
      */
     class stream_c : public nocopy_c {
     public:
@@ -81,8 +80,8 @@ namespace toybox {
         static inline stream_c& operator<<(stream_c &s, const setfill_s &m) { s.fill(m.c); return s; }
     }
 
-    static constexpr __forceinline detail::setw_s setw(int w) { return (detail::setw_s){ w }; };
-    static constexpr __forceinline detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
+    static __forceinline constexpr detail::setw_s setw(int w) { return (detail::setw_s){ w }; };
+    static __forceinline constexpr detail::setfill_s setfill(char c) { return (detail::setfill_s){ c }; };
     
 
     class fstream_c final : public stream_c {

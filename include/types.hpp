@@ -47,8 +47,8 @@ namespace toybox {
 
         point_s origin;
         size_s size;
-        constexpr __forceinline int16_t max_x() const { return origin.x + size.width - 1; }
-        constexpr __forceinline int16_t max_y() const { return origin.y + size.height - 1; }
+        __forceinline constexpr int16_t max_x() const { return origin.x + size.width - 1; }
+        __forceinline constexpr int16_t max_y() const { return origin.y + size.height - 1; }
         constexpr bool operator==(const rect_s &r) const {
             return origin == r.origin && size == r.size;
         }

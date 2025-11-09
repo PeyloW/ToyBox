@@ -12,6 +12,8 @@ using namespace toybox;
 
 namespace toybox {
     
+    // TODO: All of these transitions needs to be revisited now that we have display lists.
+    
     class dither_transition_c : public transition_c {
     public:
         dither_transition_c(canvas_c::stencil_e dither) : transition_c(), _palette(nullptr) {

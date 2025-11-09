@@ -84,8 +84,7 @@ namespace toybox {
     template<const_forward_iterator FI, typename P>
     requires predicate<P, typename iterator_traits<FI>::value_type> ||
         predicate<P, const typename iterator_traits<FI>::reference>
-    FI find_if(FI first, FI last, P pred)
-    {
+    FI find_if(FI first, FI last, P pred) {
         for (; first != last; ++first) {
             if (pred(*first)) {
                 return first;

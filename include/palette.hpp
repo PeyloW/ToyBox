@@ -18,7 +18,7 @@ namespace toybox {
 
     /**
      A 12 bit color in a 16 bit word.
-     TODO: Make STe hacks for Atari target only.
+     MOTE: Make STe hacks for Atari target only, once Amiga is to be supported.
      */
     class color_c {
     public:
@@ -44,11 +44,11 @@ namespace toybox {
         static constexpr int MIX_FULLY_THIS = 0;
         static constexpr int MIX_FULLY_OTHER = 64;
     private:
-        static constexpr __forceinline uint16_t to_ste(const uint8_t c, const uint8_t shift) {
+        static __forceinline constexpr uint16_t to_ste(const uint8_t c, const uint8_t shift) {
             constexpr uint8_t STE_TO_SEQ[16] = { 0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15 };
             return STE_TO_SEQ[c >> 4] << shift;
         }
-        static constexpr __forceinline uint8_t from_ste(const uint16_t c, const uint8_t shift) {
+        static __forceinline constexpr uint8_t from_ste(const uint16_t c, const uint8_t shift) {
             constexpr uint8_t STE_FROM_SEQ[16] = { 0x00, 0x22, 0x44, 0x66, 0x88, 0xaa, 0xcc, 0xee,
                 0x11, 0x33, 0x55, 0x77, 0x99, 0xbb, 0xdd, 0xff};
             return STE_FROM_SEQ[(c >> shift) & 0x0f];
@@ -75,7 +75,7 @@ namespace toybox {
         
     /**
      A `palette_c` is a specialized list of colors with exactly 16 colors.
-     TODO: Should Amiga target allow for 32?
+     NOTE: Should Amiga target allow for 32?
      */
     class palette_c : public basic_palette_c<16>, public display_item_c {
     public:

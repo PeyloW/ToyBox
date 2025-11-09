@@ -22,7 +22,7 @@ namespace toybox {
     /**
      A `dirtymap_c` represents dirty areas of a `canvas_c` that is in need of
      redrawing.
-     TODO: Support dirty grids other than 16x16 pixels.
+     NOTO: Is support for dirty grids other than 16x16 pixels needed.
      */
     class dirtymap_c : public nocopy_c {
         friend class canvas_c;

@@ -17,7 +17,7 @@ canvas_c::stencil_e canvas_c::effective_type(stencil_e type) {
     return type;
 }
 
-const static uint8_t bayer_8x8[8][8] = {
+static const uint8_t bayer_8x8[8][8] = {
     { 0, 32,  8, 40,  2, 34, 10, 42},
     {48, 16, 56, 24, 50, 18, 58, 26},
     {12, 44,  4, 36, 14, 46,  6, 38},
@@ -28,7 +28,7 @@ const static uint8_t bayer_8x8[8][8] = {
     {63, 31, 55, 23, 61, 29, 53, 21}
 };
 
-const static uint8_t diag_16x16[16][16] = {    
+static const uint8_t diag_16x16[16][16] = {    
     {  0,  2,  4,  6,  8, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 32 },
     {  2,  4,  6,  8, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 32, 34 },
     {  4,  6,  8, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 32, 34, 36 },

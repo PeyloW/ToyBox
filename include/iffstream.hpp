@@ -15,11 +15,11 @@ namespace toybox {
     using iff_id_t = uint32_t;
 
 #ifdef __M68000__
-    static constexpr __forceinline iff_id_t iff_id_make(const char *const str) {
+    static __forceinline constexpr iff_id_t iff_id_make(const char *const str) {
         return (uint32_t)str[0]<<24 | (uint32_t)str[1]<<16 | (uint32_t)str[2]<<8 | str[3];
     }
 #else
-    static constexpr __forceinline iff_id_t iff_id_make(const char *const str) {
+    static __forceinline constexpr iff_id_t iff_id_make(const char *const str) {
         assert(str[0] != 0 && str[1] != 0 && str[2] != 0 && str[3] != 0 && str[4] == 0 && "IFF ID must be exactly 4 characters");
         return static_cast<uint32_t>(str[0])<<24 | static_cast<uint32_t>(str[1])<<16 | static_cast<uint32_t>(str[2])<<8 | str[3];
     }
@@ -73,7 +73,7 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
     
     /**
      An `iffstream_c` handles reading and writing to an EA IFF file.
-     TODO: This was a bad idea, IFF file access should not be exposed as a stream!
+     TODO: Macros for IFF cc4 identifiers was a bad idea. We should use a nice constexp class.
      */
     class iffstream_c final : public stream_c {
     public:

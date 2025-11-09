@@ -20,7 +20,7 @@ namespace toybox {
      An image with a mask is a sprite.
      Images can be loaded from EA 85 ILBM files, or created at runtime.
      On emulated host machines only, images can also be saved.
-     TODO: Support bitplane layout other than interweaved.
+     NOTO: For Amiga we will need to support bitplane layout other than interweaved.
      */
     class image_c final : public asset_c {
         friend class canvas_c;
@@ -33,7 +33,7 @@ namespace toybox {
             deflate    // Non-standard, not supported as of now
         };
         static constexpr int MASKED_CIDX = -1;
-        static constexpr __forceinline bool is_masked(int i) __pure { return i < 0; }
+        static __forceinline constexpr bool is_masked(int i) __pure { return i < 0; }
         enum class bitplane_layout_e : uint8_t {
             interweaved, interleaved, continious
         };

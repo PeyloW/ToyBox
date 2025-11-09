@@ -25,13 +25,13 @@ namespace toybox {
     }
     
     template<integral Int>
-    static constexpr __forceinline next_larger<Int>::type mul_fast(Int x, Int y) {
+    static __forceinline constexpr next_larger<Int>::type mul_fast(Int x, Int y) {
         typename next_larger<Int>::type t = x;
         return t * y;
     }
 #if __M68000__
     template<>
-    constexpr __forceinline uint32_t mul_fast(uint16_t x, uint16_t y) {
+    __forceinline constexpr uint32_t mul_fast(uint16_t x, uint16_t y) {
         if consteval {
             uint32_t t = x;
             return t * y;
@@ -42,7 +42,7 @@ namespace toybox {
         }
     }
     template<>
-    constexpr __forceinline int32_t mul_fast(int16_t x, int16_t y) {
+    __forceinline constexpr int32_t mul_fast(int16_t x, int16_t y) {
         if consteval {
             int32_t t = x;
             return t * y;
@@ -65,7 +65,7 @@ namespace toybox {
     }
 #if __M68000__
     template<>
-    constexpr __forceinline div_t<uint16_t> div_fast(uint32_t x, uint16_t y) {
+    __forceinline constexpr div_t<uint16_t> div_fast(uint32_t x, uint16_t y) {
         if consteval {
             return div_t<uint16_t>{ static_cast<uint16_t>(x % y), static_cast<uint16_t>(x / y) };
         } else {
@@ -75,7 +75,7 @@ namespace toybox {
         }
     }
     template<>
-    constexpr __forceinline div_t<int16_t> div_fast(int32_t x, int16_t y) {
+    __forceinline constexpr div_t<int16_t> div_fast(int32_t x, int16_t y) {
         if consteval {
             return div_t<int16_t>{ static_cast<int16_t>(x % y), static_cast<int16_t>(x / y) };
         } else {
