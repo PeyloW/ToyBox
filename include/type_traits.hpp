@@ -81,6 +81,14 @@ namespace toybox {
     template<class T>
     struct is_void : is_same<void, typename remove_const<T>::type> {};
     
+    template<typename T> struct next_larger;
+    template<> struct next_larger<uint8_t> { using type = uint16_t; };
+    template<> struct next_larger<uint16_t> { using type = uint32_t; };
+    template<> struct next_larger<uint32_t> { using type = uint64_t; };
+    template<> struct next_larger<int8_t> { using type = int16_t; };
+    template<> struct next_larger<int16_t> { using type = int32_t; };
+    template<> struct next_larger<int32_t> { using type = int64_t; };
+
 #pragma mark - Supported operations
 
     template<typename T, typename... Args>

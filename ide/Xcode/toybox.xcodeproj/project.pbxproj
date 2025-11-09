@@ -58,6 +58,7 @@
 				input.cpp,
 				machine_atari.cpp,
 				machine_sdl2.cpp,
+				math.cpp,
 				palette.cpp,
 				scene_transition.cpp,
 				scene.cpp,

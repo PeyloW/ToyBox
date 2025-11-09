@@ -67,7 +67,6 @@ namespace toybox {
             return nullptr;
         }
 
-
     private:
         const_iterator iterator_before(int row) const {
             auto iter = before_begin();

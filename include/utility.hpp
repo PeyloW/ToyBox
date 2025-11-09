@@ -53,17 +53,23 @@ namespace toybox {
     
 #pragma mark - Math functions
     
-    static inline int sqrt(int x) {
-        if (x == 0 || x == 1) {
-            return x;
-        } else {
-            int i = 1, result = 1;
-            while (result <= x) {
-                i++;
-                result = i * i;
+    static inline int sqrti(int x) {
+        if (x == 0 || x == 1) return x;
+        // Binary search for sqrt(x)
+        int low = 1, high = x, result = 1;
+        while (low <= high) {
+            int mid = low + ((high - low) >> 1);
+            int square = mid * mid;
+            if (square == x) {
+                return mid;
+            } else if (square < x) {
+                low = mid + 1;
+                result = mid;
+            } else {
+                high = mid - 1;
             }
-            return i - 1;
         }
+        return result;
     }
 
     template<ordered T>
@@ -174,6 +180,24 @@ namespace toybox {
         static constexpr int value = detail::index_of_impl<T, 0, Ts...>::value;
         static_assert(value != -1, "index_of: type not found in parameter pack");
     };
+    
+#pragma mark - Relational operators
+    
+    namespace rel_ops {
+        
+        template<equality_comparable T>
+        constexpr bool operator!=( const T& lhs, const T& rhs ) { return !(lhs == rhs); }
+        
+        template<less_than_comparable T>
+        constexpr bool operator>( const T& lhs, const T& rhs ) { return rhs < lhs; }
+        
+        template<less_than_comparable T>
+        constexpr bool operator<=( const T& lhs, const T& rhs ) { return !(rhs < lhs); }
+        
+        template<less_than_comparable T>
+        constexpr bool operator>=( const T& lhs, const T& rhs ) { return !(lhs < rhs); }
+        
+    }
     
 #pragma mark - C++ language helpers
     
