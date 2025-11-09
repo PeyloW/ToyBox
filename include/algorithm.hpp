@@ -33,7 +33,7 @@ namespace toybox {
         return d_last;
     }
 
-    template<const_forward_iterator I, forward_iterator J>
+    template<forward_iterator I, forward_iterator J>
     J move(I first, I last, J d_first) {
         while (first != last) {
             *(d_first) = move(*(first));
@@ -42,7 +42,7 @@ namespace toybox {
         return d_first;
     }
 
-    template<const_backward_iterator I, backward_iterator J>
+    template<backward_iterator I, backward_iterator J>
     I move_backward(I first, I last, J d_last) {
         while (first != last) {
             *(--d_last) = move(*(--last));

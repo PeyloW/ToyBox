@@ -74,8 +74,8 @@ namespace toybox {
 
                 // Move existing constructed elements to new buffer
                 if (current_size > 0) {
-                    const Type* src_first = _buffer[0].template ptr<0>();
-                    const Type* src_last = _buffer[current_size].template ptr<0>();
+                    Type* src_first = _buffer[0].template ptr<0>();
+                    Type* src_last = _buffer[current_size].template ptr<0>();
                     Type* dst_first = new_buffer[0].template ptr<0>();
                     uninitialized_move(src_first, src_last, dst_first);
                     destroy(src_first, src_last);
@@ -222,18 +222,22 @@ namespace toybox {
             assert(pos >= begin() && pos < end() && "Invalid erase position");
             destroy_at(pos);
             iterator ins = (iterator)pos;
-            move(pos + 1, (const_iterator)end(), ins);
+            move((iterator)pos + 1, end(), ins);
             // Destroy the moved-from duplicate at the old end
-            destroy_at(end() - 1);
             _size--;
+            destroy_at(end());
             return ins;
         }
         iterator erase(int at) {
             return erase(begin() + at);
         }
         void clear() {
-            while (_size) {
-                destroy_at(this->__buffer()[--_size].template ptr<0>());
+            if constexpr (is_trivially_destructible<Type>::value) {
+                _size = 0;
+            } else {
+                while (_size) {
+                    destroy_at(this->__buffer()[--_size].template ptr<0>());
+                }
             }
         }
         __forceinline void pop_back() {

@@ -227,15 +227,26 @@ namespace toybox {
 
     template<class T, class... Args>
     constexpr T* construct_at(T* p, Args&&... args) {
-        return new (static_cast<void *>(p)) T(forward<Args>(args)...);
+        if constexpr (is_trivially_constructible<T, Args...>::value) {
+            *p = T(forward<Args>(args)...);
+            return p;
+        } else {
+            return new (static_cast<void *>(p)) T(forward<Args>(args)...);
+        }
     }
-    template<class T> __forceinline void destroy_at(T* p) { p->~T(); }
+    template<class T> __forceinline void destroy_at(T* p) {
+        if constexpr (!is_trivially_destructible<T>::value) {
+            p->~T();
+        }
+    }
     
     template<forward_iterator I>
     void destroy(I first, I last) {
-        while (first != last) {
-            destroy_at(&*first);
-            ++first;
+        if constexpr (!is_trivially_destructible<typename iterator_traits<I>::value_type>::value) {
+            while (first != last) {
+                destroy_at(&*first);
+                ++first;
+            }
         }
     }
     

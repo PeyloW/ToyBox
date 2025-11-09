@@ -89,6 +89,16 @@ namespace toybox {
         __forceinline iterator end() __pure { return iterator(nullptr); }
         __forceinline const_iterator end() const __pure { return const_iterator(nullptr); }
     
+        int size() const __pure {
+            int count = 0;
+            auto it = before_begin();
+            while (it._node->next) {
+                ++count;
+                ++it;
+            }
+            return count;
+        }
+        
         __forceinline void push_front(const_reference value) {
             insert_after(before_begin(), value);
         }

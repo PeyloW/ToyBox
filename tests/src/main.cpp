@@ -16,6 +16,43 @@
 
 using namespace toybox;
 
+struct non_trivial_s {
+    int value;
+    int generation;
+    bool moved;
+
+    non_trivial_s() : value(0), generation(0), moved(false) {}
+
+    explicit non_trivial_s(int v) : value(v), generation(0), moved(false) {}
+
+    non_trivial_s(const non_trivial_s& other)
+        : value(other.value), generation(other.generation + 1), moved(false) {}
+
+    non_trivial_s(non_trivial_s&& other) noexcept
+        : value(other.value), generation(other.generation), moved(false) {
+        other.moved = true;
+    }
+
+    non_trivial_s& operator=(const non_trivial_s& other) {
+        if (this != &other) {
+            value = other.value;
+            generation = other.generation + 1;
+            moved = false;
+        }
+        return *this;
+    }
+
+    non_trivial_s& operator=(non_trivial_s&& other) {
+        if (this != &other) {
+            value = other.value;
+            generation = other.generation;
+            moved = false;
+            other.moved = true;
+        }
+        return *this;
+    }
+};
+
 static __neverinline void test_array_and_vector() {
     array_s<int, 4> arr = { 1, 5, 2, 1 };
     hard_assert(arr.size() == 4);
@@ -253,7 +290,7 @@ static __neverinline void test_math() {
 static __neverinline void test_math_functions() {
     using namespace rel_ops;
     using namespace numbers;
-    
+
     hard_assert(pow(2, 2) == fix16_t(4));
     hard_assert(pow(3.0f, 3.0f) == fix16_t(27.0f));
     hard_assert(pow(25, 0.5f) == fix16_t(5));
@@ -266,7 +303,7 @@ static __neverinline void test_math_functions() {
     hard_assert(sqrt(25) == 5);
     hard_assert(sqrt(10) == fix16_t(3.1622f));
     hard_assert(sqrt(2) == fix16_t(1.4142f));
-    
+
     hard_assert(sin(0) == fix16_t(0));
     hard_assert(sin(1) == fix16_t(0.841471f));
     hard_assert(sin(2) == fix16_t(0.909297f));
@@ -279,15 +316,153 @@ static __neverinline void test_math_functions() {
     hard_assert(sin(-pi) == fix16_t(0));
     hard_assert(sin(-pi2x) == fix16_t(0));
     hard_assert(sin(-pi_2) == fix16_t(-1));
-    
+
     hard_assert(sin(0) == cos(pi_2));
-    
+
     hard_assert(tan(0) == 0);
     hard_assert(tan(pi_2) > fix16_t(1000));
     hard_assert(tan(-(pi / 4)) == -tan(pi / 4));
     hard_assert(tan(pi) == 0);
-    
+
     printf("test_math_functions pass.\n\r");
+}
+
+static __neverinline void test_object_lifetime() {
+    // Test direct copy semantics
+    non_trivial_s obj1(42);
+    hard_assert(obj1.value == 42 && "Initial value should be 42");
+    hard_assert(obj1.generation == 0 && "Initial generation should be 0");
+    hard_assert(!obj1.moved && "Initial object should not be moved");
+
+    non_trivial_s obj2(obj1);
+    hard_assert(obj2.value == 42 && "Copied value should be 42");
+    hard_assert(obj2.generation == 1 && "Copied generation should be 1");
+    hard_assert(!obj2.moved && "Copied object should not be marked as moved");
+    hard_assert(!obj1.moved && "Original object should not be marked as moved after copy");
+
+    non_trivial_s obj3(100);
+    obj3 = obj2;
+    hard_assert(obj3.value == 42 && "Assigned value should be 42");
+    hard_assert(obj3.generation == 2 && "Assigned generation should be 2");
+    hard_assert(!obj3.moved && "Assigned object should not be marked as moved");
+
+    // Test direct move semantics
+    non_trivial_s obj4(move(obj3));
+    hard_assert(obj4.value == 42 && "Moved value should be 42");
+    hard_assert(obj4.generation == 2 && "Moved generation should remain 2");
+    hard_assert(!obj4.moved && "Destination object should not be marked as moved");
+    hard_assert(obj3.moved && "Source object should be marked as moved");
+
+    non_trivial_s obj5(200);
+    obj5 = move(obj4);
+    hard_assert(obj5.value == 42 && "Move-assigned value should be 42");
+    hard_assert(obj5.generation == 2 && "Move-assigned generation should remain 2");
+    hard_assert(!obj5.moved && "Destination object should not be marked as moved");
+    hard_assert(obj4.moved && "Source object should be marked as moved");
+
+    // Test with static vector_c
+    vector_c<non_trivial_s, 5> static_vec;
+
+    // 1. Push back
+    static_vec.push_back(non_trivial_s(10));
+    hard_assert(static_vec.size() == 1 && "Static vector size should be 1");
+    hard_assert(static_vec[0].value == 10 && "Back element value should be 10");
+    hard_assert(static_vec[0].generation == 1 && "Back element generation should be 1 (copied from temporary)");
+    hard_assert(!static_vec[0].moved && "Back element should not be moved after push_back");
+
+    // 2. Insert front (back was moved during shift)
+    static_vec.insert(static_vec.begin(), non_trivial_s(5));
+    hard_assert(static_vec.size() == 2 && "Static vector size should be 2");
+    hard_assert(static_vec[0].value == 5 && "Front element should be 5");
+    hard_assert(static_vec[0].generation == 1 && "Front element generation should be 1 (copied from temporary)");
+    hard_assert(!static_vec[0].moved && "Front element should not be moved");
+    hard_assert(static_vec[1].value == 10 && "Back element should be 10");
+    hard_assert(static_vec[1].generation == 1 && "Back element generation should remain 1 (moved, not copied)");
+    hard_assert(!static_vec[1].moved && "Back element is destination of move, not marked as moved");
+
+    // 3. Push back (back is not moved)
+    static_vec.push_back(non_trivial_s(20));
+    hard_assert(static_vec.size() == 3 && "Static vector size should be 3");
+    hard_assert(static_vec[2].value == 20 && "New back element value should be 20");
+    hard_assert(static_vec[2].generation == 1 && "New back element generation should be 1 (copied from temporary)");
+    hard_assert(!static_vec[2].moved && "New back element should not be moved after push_back");
+
+    // 4. Erase front (elements moved during shift)
+    static_vec.erase(static_vec.begin());
+    hard_assert(static_vec.size() == 2 && "Static vector size should be 2 after erase");
+    hard_assert(static_vec[0].value == 10 && "First element should be 10 after erase");
+    hard_assert(static_vec[0].generation == 1 && "First element generation should remain 1 (moved, not copied)");
+    hard_assert(!static_vec[0].moved && "First element is destination of move, not marked as moved");
+    hard_assert(static_vec[1].value == 20 && "Back element should be 20");
+    hard_assert(static_vec[1].generation == 1 && "Back element generation should remain 1 (moved, not copied)");
+    hard_assert(!static_vec[1].moved && "Back element is destination of move, not marked as moved");
+
+    // Test with dynamic vector_c
+    vector_c<non_trivial_s, 0> dynamic_vec;
+    hard_assert(dynamic_vec.size() == 0 && "Dynamic vector initial size should be 0");
+
+    // 1. Push back
+    dynamic_vec.push_back(non_trivial_s(100));
+    hard_assert(dynamic_vec.size() == 1 && "Dynamic vector size should be 1");
+    hard_assert(dynamic_vec[0].value == 100 && "Back element value should be 100");
+    hard_assert(dynamic_vec[0].generation == 1 && "Back element generation should be 1 (copied from temporary)");
+    hard_assert(!dynamic_vec[0].moved && "Back element should not be moved after push_back");
+
+    // 2. Insert front (back was moved during shift)
+    dynamic_vec.insert(dynamic_vec.begin(), non_trivial_s(50));
+    hard_assert(dynamic_vec.size() == 2 && "Dynamic vector size should be 2");
+    hard_assert(dynamic_vec[0].value == 50 && "Front element should be 50");
+    hard_assert(dynamic_vec[0].generation == 1 && "Front element generation should be 1 (copied from temporary)");
+    hard_assert(!dynamic_vec[0].moved && "Front element should not be moved");
+    hard_assert(dynamic_vec[1].value == 100 && "Back element should be 100");
+    hard_assert(dynamic_vec[1].generation == 1 && "Back element generation should remain 1 (moved, not copied)");
+    hard_assert(!dynamic_vec[1].moved && "Back element is destination of move, not marked as moved");
+
+    // 3. Push back (back is not moved)
+    dynamic_vec.push_back(non_trivial_s(200));
+    hard_assert(dynamic_vec.size() == 3 && "Dynamic vector size should be 3");
+    hard_assert(dynamic_vec[2].value == 200 && "New back element value should be 200");
+    hard_assert(dynamic_vec[2].generation == 1 && "New back element generation should be 1 (copied from temporary)");
+    hard_assert(!dynamic_vec[2].moved && "New back element should not be moved after push_back");
+
+    // 4. Erase front (elements moved during shift)
+    dynamic_vec.erase(dynamic_vec.begin());
+    hard_assert(dynamic_vec.size() == 2 && "Dynamic vector size should be 2 after erase");
+    hard_assert(dynamic_vec[0].value == 100 && "First element should be 100 after erase");
+    hard_assert(dynamic_vec[0].generation == 1 && "First element generation should remain 1 (moved, not copied)");
+    hard_assert(!dynamic_vec[0].moved && "First element is destination of move, not marked as moved");
+    hard_assert(dynamic_vec[1].value == 200 && "Back element should be 200");
+    hard_assert(dynamic_vec[1].generation == 1 && "Back element generation should remain 1 (moved, not copied)");
+    hard_assert(!dynamic_vec[1].moved && "Back element is destination of move, not marked as moved");
+
+    // Test with list_c
+    list_c<non_trivial_s, 5> list;
+    list.push_front(non_trivial_s(1000));
+    hard_assert(list.size() == 1 && "List size should be 1");
+    hard_assert(list.front().value == 1000 && "List front value should be 1000");
+
+    // Test insert_after with lvalue (copy)
+    non_trivial_s temp3(2000);
+    list.insert_after(list.begin(), temp3);
+    hard_assert(list.size() == 2 && "List size should be 2");
+    auto it = list.begin();
+    ++it;
+    hard_assert(it->value == 2000 && "Second element value should be 2000");
+    hard_assert(it->generation == 1 && "Second element should be copied (generation 1)");
+
+    // Test emplace_after
+    list.emplace_after(it, 3000);
+    hard_assert(list.size() == 3 && "List size should be 3");
+
+    // Verify list order
+    it = list.begin();
+    hard_assert(it->value == 1000 && "First list element should be 1000");
+    ++it;
+    hard_assert(it->value == 2000 && "Second list element should be 2000");
+    ++it;
+    hard_assert(it->value == 3000 && "Third list element should be 3000");
+
+    printf("test_object_lifetime pass.\n\r");
 }
 
 int main(int argc, const char * argv[]) {
@@ -297,6 +472,7 @@ int main(int argc, const char * argv[]) {
     test_algorithms();
     test_math();
     test_math_functions();
+    test_object_lifetime();
     printf("All pass.\n\r");
 #ifndef TOYBOX_HOST
     while (getc(stdin) != ' ');
