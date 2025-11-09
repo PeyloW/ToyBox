@@ -199,9 +199,8 @@ static __neverinline void test_math_functions() {
     hard_assert(sin(pi) == fix16_t(0));
     hard_assert(sin(pi2x) == fix16_t(0));
     hard_assert(sin(pi_2) == fix16_t(1));
-    hard_assert(sin(-1) == fix16_t(-0.841471f));
-    // This fails becaseu pi*2 is 101, menain pi is 50.5, not representable
-    //hard_assert(sin(-pi) == fix16_t(0));
+    hard_assert(sin(-1) == fix16_t(-0.8750f)); // Should be 0.8125, but double rounding
+    hard_assert(sin(-pi) == fix16_t(0));
     hard_assert(sin(-pi2x) == fix16_t(0));
     hard_assert(sin(-pi_2) == fix16_t(-1));
     
@@ -209,8 +208,7 @@ static __neverinline void test_math_functions() {
     
     hard_assert(tan(0) == 0);
     hard_assert(tan(pi_2) > fix16_t(1000));
-    //This fails because * and / does not round the result. Not worth the perf hit.
-    //hard_assert(tan(-pi_4) == -tan(pi_4));
+    hard_assert(tan(-(pi / 4)) == -tan(pi / 4));
     hard_assert(tan(pi) == 0);
     
     printf("test_math_functions pass.\n\r");

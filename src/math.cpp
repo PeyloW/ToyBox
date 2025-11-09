@@ -30,8 +30,8 @@ namespace toybox {
         // Newton-Raphson: x_{n+1} = (x_n + a/x_n) / 2
         // Iterate up to 6 times with early termination on convergence
         for (int i = 0; i < 6; ++i) {
-            fix16_t sum = guess + x / guess;
-            fix16_t next = fix16_t((sum.raw + 1) >> 1, true);  // Round instead of truncate
+            fix16_t sum = guess + x.div(guess);
+            fix16_t next = sum.div(2);  // Divide by 2
             if (next.raw == guess.raw) break;  // Converged
             guess = next;
         }
@@ -100,7 +100,7 @@ namespace toybox {
             fix_t term = fix_t(1);
             // Compute terms until they become negligible
             for (int i = 1; i <= 12; ++i) {
-                term = term * x / i;
+                term = term.mul(x).div(i);
                 result += term;
                 // Stop if term becomes too small
                 if (term.raw == 0) break;
@@ -111,6 +111,8 @@ namespace toybox {
         template<integral Int, int Bits>
         __forceinline static constexpr base_fix_t<Int, Bits> log(base_fix_t<Int, Bits> x) {
             using fix_t = base_fix_t<Int, Bits>;
+            // log(2) ≈ 0.693147180559945309417
+            static constexpr const fix_t log2(0.693147180559945309417f);
             // Undefined for x <= 0, return minimum value
             if (x.raw <= 0) {
                 constexpr Int min_val = static_cast<Int>(Int(1) << (sizeof(Int) * 8 - 1));
@@ -135,15 +137,13 @@ namespace toybox {
             // log(m) = log(1 + u) where u = m - 1, u in [0, 1)
             const fix_t u = m - one;
             // log(1 + u) ≈ u - u²/2 + u³/3 - u⁴/4 + u⁵/5 - u⁶/6
-            const fix_t u2 = u * u;
-            const fix_t u3 = u2 * u;
-            const fix_t u4 = u3 * u;
-            const fix_t u5 = u4 * u;
-            const fix_t u6 = u5 * u;
-            const fix_t log_m = u - u2 / 2 + u3 / 3 - u4 / 4 + u5 / 5 - u6 / 6;
-            // log(2) ≈ 0.693147180559945309417
-            static constexpr const fix_t log2(0.693147180559945309417f);
-            return log_m + fix_t(exponent) * log2;
+            const fix_t u2 = u.mul(u);
+            const fix_t u3 = u2.mul(u);
+            const fix_t u4 = u3.mul(u);
+            const fix_t u5 = u4.mul(u);
+            const fix_t u6 = u5.mul(u);
+            const fix_t log_m = u - u2.div(2) + u3.div(3) - u4.div(4) + u5.div(5) - u6.div(6);
+            return log_m + fix_t(exponent).mul(log2);
         }
     }
     
@@ -155,9 +155,8 @@ namespace toybox {
         using namespace numbers;
         // Generate lookup table at compile time
         static constexpr auto s_table = detail::build_sintable();
-        static constexpr uint32_t upimod_max = 324 * pi2x.raw;
-        static_assert((upimod_max < (uint32_t)~0) && (upimod_max < (uint32_t)(~0 - pi2x.raw)));
-        const uint32_t uraw = x < 0 ? (upimod_max + x.raw) : x.raw;
+        static constexpr int32_t upimod_max = (INT16_MAX / pi2x.raw) * pi2x.raw;
+        const int32_t uraw = x < 0 ? (upimod_max + x.raw) : x.raw;
         const auto idx = div_fast(uraw, pi2x.raw).rem;
         return s_table[idx];
     }
@@ -175,7 +174,7 @@ namespace toybox {
         if (c.raw == 0) {
             return fix16_t(s.raw < 0 ? INT16_MIN : INT16_MAX, true);
         } else {
-            return s / c;
+            return s.div(c);
         }
     }
 
@@ -188,11 +187,10 @@ namespace toybox {
     }
 
     fix16_t pow(fix16_t base, fix16_t exp) {
-        // Special cases
+        using namespace numbers;
         if (base.raw <= 0) return fix16_t(0);
         if (exp.raw == 0) return numbers::one;
-        if (exp.raw == (1 << 4)) return base;  // exp == 1
-        // For integer exponents, use repeated multiplication
+        if (exp.raw == one.raw) return base;  // exp == 1
         const int16_t exp_int = exp.raw >> 4;
         if ((exp_int << 4) == exp.raw) {
             // Integer exponent - use exponentiation by squaring
@@ -202,21 +200,18 @@ namespace toybox {
             const bool negative_exp = e < 0;
             if (negative_exp) e = -e;
             while (e > 0) {
-                if (e & 1) result *= b;
-                b *= b;
+                if (e & 1) result = result.mul(b);
+                b = b.mul(b);
                 e >>= 1;
             }
-            return negative_exp ? (numbers::one / result) : result;
+            return negative_exp ? (numbers::one.div(result)) : result;
         } else {
-            using fix32_t = base_fix_t<int32_t, 20>;
             // General case: pow(a, b) = exp(b * log(a))
             // Use fix32_t for intermediate calculation to preserve precision
-            // Convert fix16_t (4 fractional bits) to fix32_t (20 fractional bits)
+            using fix32_t = base_fix_t<int32_t, 20>;
             const fix32_t base_32 = fix32_t(static_cast<int32_t>(base.raw) << 16, true);
             const fix32_t exp_32 = fix32_t(static_cast<int32_t>(exp.raw) << 16, true);
-            // Compute exp(b * log(a)) in high precision
             const fix32_t result = detail::exp(exp_32 * detail::log(base_32));
-            // Convert back to fix16_t (20 fractional bits down to 4) with rounding
             // Add 1 << 15 to round to nearest instead of truncating
             return fix16_t(static_cast<int16_t>((result.raw + (1 << 15)) >> 16), true);
         }

@@ -88,6 +88,7 @@ namespace toybox {
     
     template<integral Int, int Bits>
     struct base_fix_t {
+        using LargerInt = next_larger<Int>::type;
         Int raw;
 
         constexpr base_fix_t() : raw(0) {};
@@ -161,14 +162,19 @@ namespace toybox {
             raw *= static_cast<Int>(o);
             return *this;
         }
+        constexpr base_fix_t mul(base_fix_t o) const {
+            static constexpr auto half = (LargerInt)1 << (Bits - 1);
+            const auto r = mul_fast(raw, o.raw);
+            return base_fix_t(static_cast<Int>((r + (r >= 0 ? half : -half)) >> Bits), true);
+        }
         
         constexpr base_fix_t operator/(const base_fix_t o) const {
-            const auto eraw = static_cast<typename next_larger<Int>::type>(raw) << Bits;
+            const auto eraw = (LargerInt)raw << Bits;
             const auto r = div_fast(eraw, o.raw);
             return base_fix_t(r.quot, true);
         }
         constexpr base_fix_t operator/=(const base_fix_t o) {
-            const auto eraw = static_cast<typename next_larger<Int>::type>(raw) << Bits;
+            const auto eraw = (LargerInt)raw << Bits;
             raw = div_fast(eraw, o.raw).quot;
             return *this;
         }
@@ -180,6 +186,14 @@ namespace toybox {
         constexpr base_fix_t& operator/=(OInt o) {
             raw /= static_cast<Int>(o);
             return *this;
+        }
+        constexpr base_fix_t div(base_fix_t o) const {
+            const bool sign_match = ((raw >= 0) == (o.raw >= 0));
+            const auto eraw = (LargerInt)raw << Bits;
+            const auto half_div = o.raw >> 1;
+            // Round to nearest by adding half divisor in the direction of the result
+            const auto adjusted = eraw + (sign_match ? half_div : -half_div);
+            return base_fix_t(div_fast(adjusted, o.raw), true);
         }
         
         constexpr base_fix_t operator%(const base_fix_t o) const {
@@ -269,12 +283,11 @@ namespace toybox {
 
     namespace numbers {
         static inline constexpr fix16_t one = fix16_t(1);
-        static inline constexpr fix16_t pi = fix16_t(3.1415);
-        static inline constexpr fix16_t pi2x = fix16_t(3.1415*2);
-        static inline constexpr fix16_t pi_2 = fix16_t(3.1415/2);
-        static inline constexpr fix16_t pi_4 = fix16_t(3.1415/4);
-        static inline constexpr fix16_t e = fix16_t(2.7182);
-        static inline constexpr fix16_t log2 = fix16_t(0.6875);
+        static inline constexpr fix16_t pi = fix16_t(3.1415f);
+        static inline constexpr fix16_t pi2x = pi * 2;  // This gets rounded wrong to 6.25, instead of 6.3125, we take the error for consistency.
+        static inline constexpr fix16_t pi_2 = pi / 2;
+        static inline constexpr fix16_t e = fix16_t(2.7182f);
+        static inline constexpr fix16_t log2 = fix16_t(0.6875f);
     }
 
     fix16_t pow(fix16_t base, fix16_t exp); // Perf: integer exp; O(log n), good to horrible (1-many muls), otherwise O(1), horrible (~19 muls + 17 divs).
