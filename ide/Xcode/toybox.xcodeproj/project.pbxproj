@@ -70,6 +70,7 @@
 				screen.cpp,
 				stream.cpp,
 				system_helpers_atari.S,
+				tilemap.cpp,
 				tileset.cpp,
 				timer_atari.cpp,
 				timer.cpp,

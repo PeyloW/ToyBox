@@ -28,19 +28,3 @@ tileset_c::tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size) :
         }
     }
 }
-
-int16_t tileset_c::max_index() const {
-    return _max_tile.x * _max_tile.y;
-};
-point_s tileset_c::max_tile() const {
-    return _max_tile;
-}
-
-const rect_s &tileset_c::tile_rect(int16_t i) const {
-    assert(i >= 0 && i < max_index() && "Tile index out of bounds");
-    return _rects[i];
-}
-const rect_s &tileset_c::tile_rect(const point_s tile) const {
-    assert(tile.x >= 0 && tile.x < _max_tile.x && tile.y >= 0 && tile.y < _max_tile.y && "Tile coordinates out of bounds");
-    return _rects[tile.x + _max_tile.x * tile.y];
-}

@@ -12,69 +12,73 @@
 
 namespace toybox {
 
-    using iff_id_t = uint32_t;
+    struct cc4_t {
+        union {
+            uint32_t ulong;
+            uint8_t  ubytes[4];
+        };
 
-#ifdef __M68000__
-    static __forceinline constexpr iff_id_t iff_id_make(const char *const str) {
-        return (uint32_t)str[0]<<24 | (uint32_t)str[1]<<16 | (uint32_t)str[2]<<8 | str[3];
-    }
-#else
-    static __forceinline constexpr iff_id_t iff_id_make(const char *const str) {
-        assert(str[0] != 0 && str[1] != 0 && str[2] != 0 && str[3] != 0 && str[4] == 0 && "IFF ID must be exactly 4 characters");
-        return static_cast<uint32_t>(str[0])<<24 | static_cast<uint32_t>(str[1])<<16 | static_cast<uint32_t>(str[2])<<8 | str[3];
-    }
-#endif
-    static void iff_id_str(iff_id_t id, char buf[5]) {
-        buf[0] = id >> 24; buf[1] = id >> 16; buf[2] = id >> 8; buf[3] = id; buf[4] = 0;
-    }
-    static bool iff_id_match(const iff_id_t id, const char *const str) {
-        if (strcmp(str, "*") != 0) {
-            return iff_id_make(str) == id;
+        constexpr cc4_t() : ulong(0x20202020) {}
+
+        // Must be max 4 characters in range 32 to 127 (except '?'), ubytes is padded with ' '.
+        constexpr cc4_t(const char *cc4) {
+            assert(cc4 != nullptr && "CC4 must not be null.");
+            for (int i = 0; i < 4; i++) {
+                ubytes[i] = *cc4 ? *cc4++ : ' ';
+                assert(ubytes[i] >= 32 && ubytes[i] != '?' && "Invalid CC4 character.");
+            }
         }
-        return true;
+        // Must be initialized with big endian uint32_t.
+        constexpr cc4_t(uint32_t ul) : ulong(ul) {
+            for (int i = 0; i < 4; i++) {
+                assert(ubytes[i] >= 32 && ubytes[i] != '?' && "Invalid CC4 character.");
+            }
+        }
+        constexpr cc4_t(const uint8_t ub[4]) {
+            for (int i = 0; i < 4; i++) {
+                ubytes[i] = ub[i];
+                assert(ubytes[i] >= 32 && ubytes[i] != '?' && "Invalid CC4 character.");
+            }
+        };
+
+        constexpr bool operator==(cc4_t o) const { return ulong == o.ulong; }
+        constexpr bool operator==(uint32_t ul) const { return ulong == ul; }
+        constexpr bool operator==(uint8_t ub[4]) const { return ubytes == ub; }
+
+        // Allow ? to match any charcter, and * to match any until end.
+        // Exmaple: "?LVL" matches "1LVL" and "2LVL". "LVL*" matches any cc4 starting with LVL.
+        bool matches(const char *str) const;
+
+        // Return an inner pointer to a cstring representatio valid until next call tocstring().
+        const char* cstring() const;
+    };
+    static_assert(sizeof(cc4_t) == 4);
+
+    template<>
+    struct struct_layout<cc4_t> {
+        static constexpr const char * value = "4b";
+    };
+
+    namespace cc4 {
+        static constexpr cc4_t FORM("FORM");
+        static constexpr cc4_t LIST("LIST");
+        static constexpr cc4_t CAT("CAT");
+        static constexpr cc4_t NULL_("");
+        static constexpr cc4_t TEXT("TEXT");
+        static constexpr cc4_t NAME("NAME");
     }
-    
-    
-#ifdef __M68000__
-#   define DEFINE_IFF_ID(ID) \
-static constexpr const char *const IFF_ ## ID = #ID; \
-static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
-#   define DEFINE_IFF_ID_EX(ID, STR) \
-static constexpr const char *const IFF_ ## ID = STR; \
-static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
-#else
-#   define DEFINE_IFF_ID(ID) \
-static constexpr const char *const IFF_ ## ID = #ID; \
-static iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
-#   define DEFINE_IFF_ID_EX(ID, STR) \
-static constexpr const char *const IFF_ ## ID = STR; \
-static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
-#endif
-    
-    DEFINE_IFF_ID (FORM);
-    //static constexpr const char * IFF_FORM = "FORM";
-    //static constexpr iff_id_t IFF_FORM_ID = iff_id_make(IFF_FORM);
-    
-    DEFINE_IFF_ID (LIST);
-    DEFINE_IFF_ID_EX (CAT, "CAT ");
-    DEFINE_IFF_ID_EX (NULL, "    ");
-    DEFINE_IFF_ID (TEXT);
-    DEFINE_IFF_ID (NAME);
     
     struct iff_chunk_s {
         long offset;
-        iff_id_t id;
+        cc4_t id;
         uint32_t size;
     };
-    
+
     struct iff_group_s : public iff_chunk_s {
-        iff_id_t subtype;
+        cc4_t subtype;
     };
-    
-    /**
-     An `iffstream_c` handles reading and writing to an EA IFF file.
-     TODO: Macros for IFF cc4 identifiers was a bad idea. We should use a nice constexp class.
-     */
+
+    /// An `iffstream_c` handles reading and writing to an EA IFF file.
     class iffstream_c final : public stream_c {
     public:
         iffstream_c(stream_c *stream);
@@ -89,7 +93,9 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 
         bool first(const char *const id, iff_chunk_s &chunk);
         bool first(const char *const id, const char *const subtype, iff_group_s &group);
+        bool first(cc4_t id, cc4_t subtype, iff_group_s &group);
         bool next(const iff_group_s &in_group, const char *const id, iff_chunk_s &chunk);
+        bool next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk);
         bool expand(const iff_chunk_s &chunk, iff_group_s &group);
         
         bool reset(const iff_chunk_s &chunk);
@@ -133,7 +139,7 @@ static constexpr iff_id_t IFF_ ## ID ## _ID = iff_id_make(IFF_ ## ID)
 
 #define IFF_MAX_NESTING_DEPTH 8
         struct chunk_start_s {
-            iff_id_t id;
+            cc4_t id;
             long offset;
             bool is_group;
         };

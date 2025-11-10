@@ -80,11 +80,13 @@ void image_c::put_pixel(int ci, point_s at) const {
     }
 }
 
-DEFINE_IFF_ID(ILBM);
-DEFINE_IFF_ID(BMHD);
-DEFINE_IFF_ID(CMAP);
-DEFINE_IFF_ID(GRAB);
-DEFINE_IFF_ID(BODY);
+namespace cc4 {
+    static constexpr cc4_t ILBM("ILBM");
+    static constexpr cc4_t BMHD("BMHD");
+    static constexpr cc4_t CMAP("CMAP");
+    static constexpr cc4_t GRAB("GRAB");
+    static constexpr cc4_t BODY("BODY");
+}
 
 enum class mask_type_e : uint8_t {
     mask_type_none,
@@ -197,14 +199,14 @@ image_c::image_c(const char *path, int masked_cidx) :
     bool masked = false;
     iffstream_c file(path);
     iff_group_s form;
-    if (!file.good() || !file.first(IFF_FORM, IFF_ILBM, form)) {
+    if (!file.good() || !file.first(cc4::FORM, ::cc4::ILBM, form)) {
         hard_assert(0);
         return; // Not a ILBM
     }
     iff_chunk_s chunk;
     ilbm_header_s bmhd;
     while (file.next(form, "*", chunk)) {
-        if (iff_id_match(chunk.id, IFF_BMHD)) {
+        if (chunk.id == ::cc4::BMHD) {
             if (!file.read(&bmhd)) {
                 return;
             }
@@ -224,13 +226,13 @@ image_c::image_c(const char *path, int masked_cidx) :
             }
             // DeluxePain ST format and custom deflate not supported
             assert(bmhd.compression_type < compression_type_e::vertical && "DeluxePaint ST vertical compression not supported");
-        } else if (iff_id_match(chunk.id, IFF_CMAP)) {
+        } else if (chunk.id == ::cc4::CMAP) {
             uint8_t cmpa[48];
             if (file.read(cmpa, 48) != 48) {
                 return; // Could not read palette
             }
             _palette.reset(new palette_c(&cmpa[0]));
-        } else if (iff_id_match(chunk.id, IFF_BODY)) {
+        } else if (chunk.id == ::cc4::BODY) {
             _line_words = ((_size.width + 15) / 16);
             const uint16_t bitmap_words = (_line_words * _size.height) << 2;
             const bool needs_mask_words = masked || (bmhd.mask_type == mask_type_e::mask_type_plane);
@@ -265,7 +267,7 @@ image_c::image_c(const char *path, int masked_cidx) :
             }
         } else {
 #ifndef __M68000__
-            printf("Skipping '%c%c%c%c'\n", (chunk.id >> 24) & 0xff, (chunk.id >> 16) & 0xff, (chunk.id >> 8) & 0xff, chunk.id & 0xff);
+            printf("Skipping '%s'\n", chunk.id.cstring());
 #endif
             file.skip(chunk);
         }
@@ -417,8 +419,8 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
             iff_group_s form;
             iff_chunk_s chunk;
             ilbm_header_s header;
-            ilbm.begin(form, IFF_FORM);
-            ilbm.write(&IFF_ILBM_ID);
+            ilbm.begin(form, cc4::FORM);
+            ilbm.write(&::cc4::ILBM);
             {
                 memset(&header, 0, sizeof(ilbm_header_s));
                 header.size = _size;
@@ -431,12 +433,12 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
                 header.aspect[0] = 10;
                 header.aspect[0] = 11;
                 header.page_size = {320, 200};
-                ilbm.begin(chunk, IFF_BMHD);
+                ilbm.begin(chunk, ::cc4::BMHD);
                 ilbm.write(&header);
                 ilbm.end(chunk);
             }
             /* if (_offset.x != 0 || _offset.y != 0) {
-                ilbm.begin(chunk, IFF_GRAB);
+                ilbm.begin(chunk, ::cc4::GRAB);
                 ilbm.write(_offset);
                 ilbm.end(chunk);
             } */
@@ -445,12 +447,12 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
                 for (int i = 0; i < 16; i++) {
                     _palette->colors[i].get(&cmap[i * 3 + 0], &cmap[i * 3 + 1], &cmap[i * 3 + 2]);
                 }
-                ilbm.begin(chunk, IFF_CMAP);
+                ilbm.begin(chunk, ::cc4::CMAP);
                 ilbm.write(cmap, 48);
                 ilbm.end(chunk);
             }
             {
-                ilbm.begin(chunk, IFF_BODY);
+                ilbm.begin(chunk, ::cc4::BODY);
                 switch (compression) {
                     case compression_type_none:
                         image_write(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(),  header.mask_type == mask_type_plane ? _maskmap : nullptr);

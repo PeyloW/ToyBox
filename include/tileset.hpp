@@ -32,12 +32,20 @@ namespace toybox {
 
         __forceinline size_s tile_size() const __pure { return _rects[0].size; }
         
-        int16_t max_index() const __pure;
-        point_s max_tile() const __pure;
+        int16_t max_index() const __pure { return _max_tile.x * _max_tile.y; };
+        point_s max_tile() const __pure { return _max_tile; };
 
-        const rect_s &tile_rect(int16_t i) const __pure;
-        const rect_s &tile_rect(const point_s tile) const __pure;
-
+        __forceinline const rect_s& operator[](int i) const __pure {
+            assert(i >= 0 && i < max_index() && "Tile index out of bounds");
+            return _rects[i];
+        }
+        __forceinline const rect_s& operator[](point_s p) const __pure {
+            return (*this)[p.x, p.y];
+        }
+        __forceinline const rect_s& operator[](int x, int y) const __pure {
+            assert(x >= 0 && x < _max_tile.x && y >= 0 && y < _max_tile.y && "Tile coordinates out of bounds");
+            return _rects[x + _max_tile.x * y];
+        }
     private:
         const shared_ptr_c<image_c> _image;
         const point_s _max_tile;

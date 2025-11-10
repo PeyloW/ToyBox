@@ -90,11 +90,11 @@ void canvas_c::draw_aligned(const image_c &src, const rect_s &rect, point_s at) 
 }
 
 void canvas_c::draw_aligned(const tileset_c &src, int idx, point_s at) const {
-    draw_aligned(*src.image(), src.tile_rect(idx), at);
+    draw_aligned(*src.image(), src[idx], at);
 }
 
 void canvas_c::draw_aligned(const tileset_c &src, point_s tile, point_s at) const {
-    draw_aligned(*src.image(), src.tile_rect(tile), at);
+    draw_aligned(*src.image(), src[tile], at);
 }
 
 void canvas_c::draw(const image_c &src, point_s at, const int color) const {
@@ -130,11 +130,11 @@ void canvas_c::draw(const image_c &src, const rect_s &rect, point_s at, const in
 }
 
 void canvas_c::draw(const tileset_c &src, int idx, point_s at, const int color) const {
-    draw(*src.image(), src.tile_rect(idx), at, color);
+    draw(*src.image(), src[idx], at, color);
 }
 
 void canvas_c::draw(const tileset_c &src, point_s tile, point_s at, int color) const {
-    draw(*src.image(), src.tile_rect(tile), at, color);
+    draw(*src.image(), src[tile], at, color);
 }
 
 void canvas_c::draw_3_patch(const image_c &src, int16_t cap, const rect_s &in) const {

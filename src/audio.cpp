@@ -10,9 +10,11 @@
 
 using namespace toybox;
 
-DEFINE_IFF_ID (AIFF);
-DEFINE_IFF_ID (COMM);
-DEFINE_IFF_ID (SSND);
+namespace cc4 {
+    static constexpr cc4_t AIFF("AIFF");
+    static constexpr cc4_t COMM("COMM");
+    static constexpr cc4_t SSND("SSND");
+}
 
 struct __packed_struct extended80_s {
     uint16_t exp;
@@ -64,14 +66,14 @@ sound_c::sound_c(const char *path) :
 {
     iffstream_c file(path);
     iff_group_s form;
-    if (!file.good() || !file.first(IFF_FORM, IFF_AIFF, form)) {
+    if (!file.good() || !file.first(cc4::FORM, ::cc4::AIFF, form)) {
         hard_assert(0);
         return; // Not a AIFF
     }
     iff_chunk_s chunk;
     aiff_common_s common;
     while (file.next(form, "*", chunk)) {
-        if (iff_id_match(chunk.id, IFF_COMM)) {
+        if (chunk.id == ::cc4::COMM) {
             if (!file.read(&common)) {
                 return;
             }
@@ -80,7 +82,7 @@ sound_c::sound_c(const char *path) :
             _length = common.num_sample_frames;
             _rate = common.sample_rate.to_uint16();
             assert(_rate >= 11000 && _rate <= 14000 && "Sample rate must be between 11kHz and 14kHz");
-        } else if (iff_id_match(chunk.id, IFF_SSND)) {
+        } else if (chunk.id == ::cc4::SSND) {
             aiff_ssnd_data_s data;
             if (!file.read(&data)) {
                 return;
@@ -91,7 +93,7 @@ sound_c::sound_c(const char *path) :
             file.read(_sample.get(), _length);
         } else {
 #ifndef __M68000__
-            printf("Skipping '%c%c%c%c'\n", (chunk.id >> 24) & 0xff, (chunk.id >> 16) & 0xff, (chunk.id >> 8) & 0xff, chunk.id & 0xff);
+            printf("Skipping '%s'\n", chunk.id.cstring());
 #endif
             file.skip(chunk);
         }

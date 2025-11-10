@@ -20,7 +20,7 @@ namespace toybox {
     class asset_c : nocopy_c {
     public:
         enum class type_e : uint8_t {
-            custom, image, tileset, font, sound, music
+            custom, image, tileset, tilemap, font, sound, music
         };
         using enum type_e;
         __forceinline virtual type_e asset_type() const __pure { return type_e::custom; }
