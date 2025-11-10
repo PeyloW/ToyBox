@@ -58,10 +58,10 @@ extern "C" {
 
 extern "C" {
 
-    FILE *log_file();
+    FILE* log_file();
 #if TOYBOX_LOG_MALLOC
-    extern FILE *g_malloc_log;
-    static void *_malloc(size_t n) {
+    extern FILE* g_malloc_log;
+    static void* _malloc(size_t n) {
         auto b = (Malloc(-1));
         auto p = malloc(n);
         auto a = (Malloc(-1));
@@ -69,8 +69,8 @@ extern "C" {
         hard_assert(p != nullptr);
         return p;
     }
-    
-    static void *_calloc(size_t c, size_t n) {
+
+    static void* _calloc(size_t c, size_t n) {
         auto b = (Malloc(-1));
         auto p = calloc(c, n);
         auto a = (Malloc(-1));
@@ -78,7 +78,7 @@ extern "C" {
         hard_assert(p != nullptr);
         return p;
     }
-    static void *_free(void *p) {
+    static void* _free(void* p) {
         auto b = (Malloc(-1));
         free(p);
         auto a = (Malloc(-1));

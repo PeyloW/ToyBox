@@ -9,16 +9,16 @@
 #include "memory.hpp"
 
 extern "C" {
-    FILE *log_file() {
-        static FILE *log = nullptr;
+    FILE* log_file() {
+        static FILE* log = nullptr;
         if (log == nullptr) {
             log = fopen("log.txt", "w+");
         }
         return log;
     }
 }
- 
-void *operator new (size_t n) {
+
+void* operator new (size_t n) {
     return _malloc(n);
 }
 void* operator new[] (size_t n) {
@@ -72,10 +72,10 @@ extern "C" void __cxa_guard_abort(__guard* g) {
 #endif
 
 #ifndef TOYBOX_HOST
-void* operator new (size_t count, void *p) {
+void* operator new (size_t count, void* p) {
     return p;
 }
-void* operator new[] (size_t count, void *p) {
+void* operator new[] (size_t count, void* p) {
     return p;
 }
 #endif

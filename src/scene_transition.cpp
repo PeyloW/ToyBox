@@ -22,7 +22,7 @@ namespace toybox {
             _transition_state.shade = 0;
         }
 
-        virtual void will_begin(const scene_c *from, const scene_c *to) override {
+        virtual void will_begin(const scene_c* from, const scene_c* to) override {
             /*
             if (to) {
                 _palette = &to->configuration().palette;
@@ -58,7 +58,7 @@ namespace toybox {
             return _transition_state.full_restores_left <= 0;
         }
     protected:
-        const palette_c *_palette;
+        const palette_c* _palette;
         struct {
             int full_restores_left;
             canvas_c::stencil_e type;
@@ -100,7 +100,7 @@ public:
         }
     }
 protected:
-    const palette_c *_palette;
+    const palette_c* _palette;
     const uint8_t _through;
 };
 
@@ -114,7 +114,7 @@ public:
             //machine_c::shared().set_active_palette(_to_palette);
         }
     }
-    virtual void will_begin(const scene_c *from, const scene_c *to) override {
+    virtual void will_begin(const scene_c* from, const scene_c* to) override {
         assert(to && "Target scene must not be null");
         uint8_t r, g, b;
         _through.get(&r, &g, &b);
@@ -156,20 +156,20 @@ public:
         return false;
     }
 private:
-    const palette_c *_to_palette;
+    const palette_c* _to_palette;
     const color_c _through;
     int _count;
     vector_c<palette_c, 33> _palettes;
 };
 
-transition_c *transition_c::create(canvas_c::stencil_e dither) {
+transition_c* transition_c::create(canvas_c::stencil_e dither) {
     return new dither_transition_c(dither);
 }
 
-transition_c *transition_c::create(canvas_c::stencil_e dither, uint8_t through) {
+transition_c* transition_c::create(canvas_c::stencil_e dither, uint8_t through) {
     return new dither_through_transition_c(dither, through);
 }
 
-transition_c *transition_c::create(color_c through) {
+transition_c* transition_c::create(color_c through) {
     return new fade_through_transition_c(through);
 }

@@ -38,7 +38,8 @@
 	- `g_` - Global variables.
 	- No prefix - Local variables, public members, or function arguments.
 - **Out Arguments** Out arguments should be last, and suffixed with `_out`.
-	- Use out by reference if required, and out by pointer if optional. 
+	- Use out by reference if required, and out by pointer if optional.
+	- In-our arguments should not have any special suffix, just non const regular arguments.
 - **Constants and Macros:** `UPPER_SNAKE_CASE` (e.g., `MAX_SIZE`, `PI_VALUE`).
 - **Template Parameters:** Use longer template names for templates over about 5 lines of code, examples:
 	- Use `Type` for type parameters (e.g., `template<class Type>`).

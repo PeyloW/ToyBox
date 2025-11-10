@@ -59,9 +59,9 @@ namespace toybox {
         __forceinline image_c &image() const { return _image; }
         __forceinline size_s size() const { return _image.size(); }
         
-        static const stencil_t *const stencil(stencil_e type, int shade);
-        
-        dirtymap_c *create_dirtymap() const __pure;
+        static const stencil_t* const stencil(stencil_e type, int shade);
+
+        dirtymap_c* create_dirtymap() const __pure;
         
         void remap_colors(const remap_table_c &table,  const rect_s &rect) const;
         
@@ -76,7 +76,7 @@ namespace toybox {
         }
 
         template<invocable<> Commands>
-        void with_stencil(const stencil_t *const stencil, Commands commands) const {
+        void with_stencil(const stencil_t* const stencil, Commands commands) const {
             const auto old_stencil = _stencil;
             _stencil = stencil;
             commands();
@@ -84,8 +84,8 @@ namespace toybox {
         }
 
         template<invocable<> Commands>
-        void with_dirtymap(dirtymap_c *dirtymap, Commands commands) const {
-            dirtymap_c *old_dirtymap = _dirtymap;
+        void with_dirtymap(dirtymap_c* dirtymap, Commands commands) const {
+            dirtymap_c* old_dirtymap = _dirtymap;
             _dirtymap = dirtymap;
             commands();
             _dirtymap = old_dirtymap;
@@ -105,13 +105,13 @@ namespace toybox {
         void draw_3_patch(const image_c &src, int16_t cap, const rect_s &in) const;
         void draw_3_patch(const image_c &src, const rect_s &rect, int16_t cap, const rect_s &in) const;
         
-        size_s draw(const font_c &font, const char *text, point_s at, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
-        size_s draw(const font_c &font, const char *text, const rect_s &in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
-        
+        size_s draw(const font_c &font, const char* text, point_s at, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
+        size_s draw(const font_c &font, const char* text, const rect_s &in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
+
     protected:
         image_c &_image;
-        mutable dirtymap_c *_dirtymap = nullptr;
-        mutable const stencil_t *_stencil = nullptr;
+        mutable dirtymap_c* _dirtymap = nullptr;
+        mutable const stencil_t* _stencil = nullptr;
         mutable bool _clipping = true;
         
         void imp_fill(uint8_t ci, const rect_s &rect) const;

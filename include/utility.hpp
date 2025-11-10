@@ -32,14 +32,14 @@ namespace toybox {
     requires (sizeof(Type) == 4)
     __forceinline void hton(Type &value) { value = htonl(value); }
     
-    void hton_struct(void *ptr, const char *layout);
+    void hton_struct(void* ptr, const char* layout);
     template<class_type T>
     __forceinline void hton(T &value) {
         hton_struct(&value, struct_layout<T>::value);
     }
 
     template<class Type>
-    void hton(Type *buf, size_t count) {
+    void hton(Type* buf, size_t count) {
         while (count--) {
             hton(*buf);
             buf++;
@@ -139,7 +139,7 @@ namespace toybox {
     
 #pragma mark - Hashing
     
-    static inline uint16_t fletcher16(uint8_t *data, size_t count, uint16_t start = 0) {
+    static inline uint16_t fletcher16(uint8_t* data, size_t count, uint16_t start = 0) {
         uint16_t sum1 = start & 0xff;
         uint16_t sum2 = (start >> 8) & 0xff;
         while (count--) {

@@ -63,12 +63,12 @@ namespace toybox {
         virtual ~transition_c() {}
         
         // TODO: Must configure using from and to display lists.
-        virtual void will_begin(const scene_c *from, const scene_c *to) = 0;
+        virtual void will_begin(const scene_c* from, const scene_c* to) = 0;
         virtual bool tick(int ticks) = 0;
-        
-        static transition_c *create(canvas_c::stencil_e dither);
-        static transition_c *create(canvas_c::stencil_e dither, uint8_t through);
-        static transition_c *create(color_c through);
+
+        static transition_c* create(canvas_c::stencil_e dither);
+        static transition_c* create(canvas_c::stencil_e dither, uint8_t through);
+        static transition_c* create(color_c through);
     
     protected:
         scene_manager_c &manager;
@@ -92,17 +92,17 @@ namespace toybox {
         };
         static scene_manager_c& shared();
         
-        void run(scene_c *rootscene, scene_c *overlay_scene = nullptr, transition_c *transition = nullptr);
-        
-        void set_overlay_scene(scene_c *overlay_cene);
-        __forceinline scene_c *overlay_scene() const { return _overlay_scene; };
+        void run(scene_c* rootscene, scene_c* overlay_scene = nullptr, transition_c* transition = nullptr);
+
+        void set_overlay_scene(scene_c* overlay_cene);
+        __forceinline scene_c* overlay_scene() const { return _overlay_scene; };
 
         __forceinline scene_c &top_scene() const {
             return *_scene_stack.back();
         };
-        void push(scene_c *scene, transition_c *transition = transition_c::create(color_c()));
-        void pop(transition_c *transition  = transition_c::create(color_c()), int count = 1);
-        void replace(scene_c *scene, transition_c *transition = transition_c::create(canvas_c::stencil_e::random));
+        void push(scene_c* scene, transition_c* transition = transition_c::create(color_c()));
+        void pop(transition_c* transition  = transition_c::create(color_c()), int count = 1);
+        void replace(scene_c* scene, transition_c* transition = transition_c::create(canvas_c::stencil_e::random));
         
         timer_c &vbl;
         timer_c &clock;
@@ -113,20 +113,20 @@ namespace toybox {
         scene_manager_c();
         ~scene_manager_c() = default;
 
-        transition_c *_transition;
-        scene_c *_overlay_scene;
-        vector_c<scene_c *, 8> _scene_stack;
+        transition_c* _transition;
+        scene_c* _overlay_scene;
+        vector_c<scene_c*, 8> _scene_stack;
         vector_c<unique_ptr_c<scene_c>, 8> _deletion_stack;
-        
+
         void swap_display_lists();
-        
+
         inline screen_c& update_clear();
         inline void update_scene(scene_c &scene, int32_t ticks);
 
-        __forceinline void enqueue_delete(scene_c *scene) {
+        __forceinline void enqueue_delete(scene_c* scene) {
             _deletion_stack.emplace_back(scene);
         }
-        inline void begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obsured);
+        inline void begin_transition(transition_c* transition, const scene_c* from, scene_c* to, bool obsured);
         inline void update_transition(int32_t ticks);
         inline void end_transition();
 

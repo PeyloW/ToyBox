@@ -117,7 +117,7 @@ namespace toybox {
         }
         
     private:
-        detail::shared_count_t *_count;
+        detail::shared_count_t* _count;
         void cleanup() {
             if (_count) {
                 _count->count--;
@@ -129,7 +129,7 @@ namespace toybox {
                 }
             }
         }
-        void take_count(detail::shared_count_t *count) {
+        void take_count(detail::shared_count_t* count) {
             this->_count = count;
             if (this->_count) {
                 this->_count->count++;

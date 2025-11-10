@@ -11,9 +11,9 @@ using namespace toybox;
 
 #ifndef __M68000__
 
-void toybox::hton_struct(void *ptr, const char *layout) {
+void toybox::hton_struct(void* ptr, const char* layout) {
     while (*layout) {
-        char *end = nullptr;
+        char* end = nullptr;
         size_t cnt = static_cast<size_t>(strtol(layout, &end, 0));
         if (end == layout) cnt = 1;
         layout = end;
@@ -22,13 +22,13 @@ void toybox::hton_struct(void *ptr, const char *layout) {
                 ptr = static_cast<uint8_t*>(ptr) + cnt;
                 break;
             case 'w': {
-                auto *buf = static_cast<uint16_t *>(ptr);
+                auto* buf = static_cast<uint16_t*>(ptr);
                 hton(buf, cnt);
                 ptr = buf + cnt;
                 break;
             }
             case 'l': {
-                auto *buf = static_cast<uint32_t *>(ptr);
+                auto* buf = static_cast<uint32_t*>(ptr);
                 hton(buf, cnt);
                 ptr = buf + cnt;
                 break;

@@ -36,13 +36,13 @@ namespace toybox {
         virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) = 0;
         virtual bool flush();
 
-        virtual size_t read(uint8_t *buf, size_t count = 1) = 0;
-        virtual size_t write(const uint8_t *buf, size_t count = 1) = 0;
+        virtual size_t read(uint8_t* buf, size_t count = 1) = 0;
+        virtual size_t write(const uint8_t* buf, size_t count = 1) = 0;
 
         template<typename T> requires (!same_as<T, uint8_t>)
-        __forceinline size_t read(T *buf, size_t count = 1) { return read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T)); }
+        __forceinline size_t read(T* buf, size_t count = 1) { return read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T)); }
         template<typename T> requires (!same_as<T, uint8_t>)
-        __forceinline size_t write(const T *buf, size_t count = 1) { return write(reinterpret_cast<const uint8_t*>(buf), count * sizeof(T)); }
+        __forceinline size_t write(const T* buf, size_t count = 1) { return write(reinterpret_cast<const uint8_t*>(buf), count * sizeof(T)); }
 
         __forceinline int width() const { return _width; }
         int width(int w) { int t = _width; _width = w; return t; }
@@ -50,7 +50,7 @@ namespace toybox {
         char fill(char d) { int t = _fill; _fill = d; return t; }
 
         stream_c &operator<<(manipulator_f m);
-        stream_c &operator<<(const char *str);
+        stream_c &operator<<(const char* str);
         stream_c &operator<<(char c);
         stream_c &operator<<(unsigned char c);
         stream_c &operator<<(int16_t i);
@@ -93,8 +93,8 @@ namespace toybox {
             append = 1 << 2
         };
 
-        fstream_c(FILE *file);
-        fstream_c(const char *path, openmode_e mode = openmode_e::input);
+        fstream_c(FILE* file);
+        fstream_c(const char* path, openmode_e mode = openmode_e::input);
         virtual ~fstream_c();
 
         __forceinline openmode_e mode() const __pure { return _mode; }
@@ -108,14 +108,14 @@ namespace toybox {
         virtual bool flush() override;
 
         using stream_c::read;
-        virtual size_t read(uint8_t *buf, size_t count = 1) override;
+        virtual size_t read(uint8_t* buf, size_t count = 1) override;
         using stream_c::write;
-        virtual size_t write(const uint8_t *buf, size_t count = 1) override;
-        
+        virtual size_t write(const uint8_t* buf, size_t count = 1) override;
+
     private:
-        const char *_path;
+        const char* _path;
         openmode_e _mode;
-        FILE *_file;
+        FILE* _file;
     };
     template<>
     struct is_optionset<fstream_c::openmode_e> : public true_type {};
@@ -124,23 +124,23 @@ namespace toybox {
     class strstream_c final : public stream_c {
     public:
         strstream_c(size_t len);
-        strstream_c(char *buf, size_t len);
+        strstream_c(char* buf, size_t len);
         virtual ~strstream_c() {};
 
         __forceinline void reset() { _pos = 0; }
         __forceinline char* str() { return _buf; };
-        
+
         virtual ptrdiff_t tell() const override __pure;
         virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;
 
         using stream_c::read;
-        virtual size_t read(uint8_t *buf, size_t count = 1) override;
+        virtual size_t read(uint8_t* buf, size_t count = 1) override;
         using stream_c::write;
-        virtual size_t write(const uint8_t *buf, size_t count = 1) override;
-        
+        virtual size_t write(const uint8_t* buf, size_t count = 1) override;
+
     private:
         unique_ptr_c<char> _owned_buf;
-        char *const _buf;
+        char* const _buf;
         const size_t _len;
         size_t _pos;
         size_t _max;

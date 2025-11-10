@@ -59,25 +59,25 @@ namespace toybox {
         __forceinline sound_c &sound(int id) const { return (sound_c&)(asset(id)); }
         __forceinline music_c &music(int id) const { return (music_c&)(asset(id)); }
 
-        unique_ptr_c<char> data_path(const char *file) const;
-        unique_ptr_c<char> user_path(const char *file) const;
+        unique_ptr_c<char> data_path(const char* file) const;
+        unique_ptr_c<char> user_path(const char* file) const;
 
         struct asset_def_s {
-            using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char *path);
-            constexpr asset_def_s(asset_c::type_e type, uint32_t sets, const char *file = nullptr, asset_create_f create = nullptr) :
+            using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char* path);
+            constexpr asset_def_s(asset_c::type_e type, uint32_t sets, const char* file = nullptr, asset_create_f create = nullptr) :
                 type(type), sets(sets), file(file), create(create) {}
             asset_c::type_e type;
             uint32_t sets;
-            const char *file;
+            const char* file;
             asset_create_f create;
         };
 
         void add_asset_def(int id, const asset_def_s &def);
         int add_asset_def(const asset_def_s &def);
-        
+
     private:
         asset_manager_c();
-        asset_c *create_asset(int id, const asset_def_s &def) const;
+        asset_c* create_asset(int id, const asset_def_s &def) const;
 
         vector_c<asset_def_s, TOYBOX_ASSET_COUNT> _asset_defs;
         mutable vector_c<unique_ptr_c<asset_c>, TOYBOX_ASSET_COUNT> _assets;

@@ -75,8 +75,8 @@ int asset_manager_c::add_asset_def(const asset_def_s &def) {
     return id;
 }
 
-unique_ptr_c<char> asset_manager_c::data_path(const char *file) const {
-    unique_ptr_c<char> path((char *)_malloc(128));
+unique_ptr_c<char> asset_manager_c::data_path(const char* file) const {
+    unique_ptr_c<char> path((char*)_malloc(128));
     strstream_c str(path.get(), 128);
 #ifdef TOYBOX_HOST
     str << "data/";
@@ -87,8 +87,8 @@ unique_ptr_c<char> asset_manager_c::data_path(const char *file) const {
     return path;
 }
 
-unique_ptr_c<char> asset_manager_c::user_path(const char *file) const {
-    unique_ptr_c<char> path((char *)_malloc(128));
+unique_ptr_c<char> asset_manager_c::user_path(const char* file) const {
+    unique_ptr_c<char> path((char*)_malloc(128));
     strstream_c str(path.get(), 128);
 #ifndef __M68000__
     str << "/tmp/";
@@ -97,7 +97,7 @@ unique_ptr_c<char> asset_manager_c::user_path(const char *file) const {
     return path;
 }
 
-asset_c *asset_manager_c::create_asset(int id, const asset_def_s &def) const {
+asset_c* asset_manager_c::create_asset(int id, const asset_def_s &def) const {
     auto path = def.file ? data_path(def.file) : nullptr;
     if (def.create) {
         return def.create(*this, path.get());

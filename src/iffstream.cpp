@@ -173,6 +173,6 @@ bool iffstream_c::read(iff_chunk_s &chunk_out) {
     return result;
 }
 
-size_t iffstream_c::read(uint8_t *buf, size_t count) { return _stream->read(buf, count); }
+size_t iffstream_c::read(uint8_t* buf, size_t count) { return _stream->read(buf, count); }
 
-size_t iffstream_c::write(const uint8_t *buf, size_t count) { return _stream->write(buf, count); };
+size_t iffstream_c::write(const uint8_t* buf, size_t count) { return _stream->write(buf, count); };

@@ -84,8 +84,8 @@ namespace toybox {
     /// An `iffstream_c` handles reading and writing to an EA IFF file.
     class iffstream_c final : public stream_c {
     public:
-        iffstream_c(stream_c *stream);
-        iffstream_c(const char *path, fstream_c::openmode_e mode = fstream_c::openmode_e::input);
+        iffstream_c(stream_c* stream);
+        iffstream_c(const char* path, fstream_c::openmode_e mode = fstream_c::openmode_e::input);
         ~iffstream_c() = default;
                 
         virtual void set_assert_on_error(bool assert) override;
@@ -107,10 +107,10 @@ namespace toybox {
         bool end(iff_chunk_s &chunk);
         
         using stream_c::read;
-        virtual size_t read(uint8_t *buf, size_t count = 1) override;
-        
+        virtual size_t read(uint8_t* buf, size_t count = 1) override;
+
         using stream_c::write;
-        virtual size_t write(const uint8_t *buf, size_t count = 1) override;
+        virtual size_t write(const uint8_t* buf, size_t count = 1) override;
 
         
 #ifndef __M68000__

@@ -23,9 +23,9 @@ stream_c &stream_c::operator<<(manipulator_f m) {
     return m(*this);
 }
 
-stream_c &stream_c::operator<<(const char *str) {
+stream_c &stream_c::operator<<(const char* str) {
     auto len = strlen(str);
-    write(reinterpret_cast<const uint8_t *>(str), len);
+    write(reinterpret_cast<const uint8_t*>(str), len);
     return *this;
 }
 
@@ -100,7 +100,7 @@ static stream_c &s_endl(stream_c &s) {
 #endif
 }
 static stream_c &s_ends(stream_c &s) {
-    s.write(reinterpret_cast<const uint8_t *>(""), 1);
+    s.write(reinterpret_cast<const uint8_t*>(""), 1);
     return s;
 }
 static stream_c &s_flush(stream_c &s) {
@@ -112,11 +112,11 @@ stream_c::manipulator_f toybox::endl = &s_endl;
 stream_c::manipulator_f toybox::ends = &s_ends;
 stream_c::manipulator_f toybox::flush = &s_flush;
 
-fstream_c::fstream_c(FILE *file) :
+fstream_c::fstream_c(FILE* file) :
     stream_c(), _path(nullptr), _mode(openmode_e::input), _file(file)
 {}
 
-fstream_c::fstream_c(const char *path, openmode_e mode) :
+fstream_c::fstream_c(const char* path, openmode_e mode) :
     stream_c(), _path(path), _mode(mode), _file(nullptr)
 {
     open();
@@ -129,8 +129,8 @@ fstream_c::~fstream_c() {
     }
 }
 
-static constexpr const char *mode_for_mode(fstream_c::openmode_e mode) {
-    constexpr const char *const s_table[8] = {
+static constexpr const char* mode_for_mode(fstream_c::openmode_e mode) {
+    constexpr const char* const s_table[8] = {
         nullptr, "r", "w", "r+",
         "a", "a+", "a+", nullptr
     };
@@ -182,18 +182,18 @@ ptrdiff_t fstream_c::seek(ptrdiff_t pos, stream_c::seekdir_e way) {
 }
 bool fstream_c::flush() { return true; }
 
-size_t fstream_c::read(uint8_t *buf, size_t count) {
+size_t fstream_c::read(uint8_t* buf, size_t count) {
     return fread(buf, 1, count, _file);
 }
-size_t fstream_c::write(const uint8_t *buf, size_t count) {
+size_t fstream_c::write(const uint8_t* buf, size_t count) {
     return fwrite(buf, 1, count, _file);
 }
 
 strstream_c::strstream_c(size_t len) :
-    _owned_buf(static_cast<char *>(_malloc(len))), _buf(_owned_buf.get()), _len(len), _pos(0), _max(0)
+    _owned_buf(static_cast<char*>(_malloc(len))), _buf(_owned_buf.get()), _len(len), _pos(0), _max(0)
 {}
 
-strstream_c::strstream_c(char *buf, size_t len) :
+strstream_c::strstream_c(char* buf, size_t len) :
     _owned_buf(), _buf(buf), _len(len), _pos(0), _max(0)
 {}
 
@@ -219,14 +219,14 @@ ptrdiff_t strstream_c::seek(ptrdiff_t pos, seekdir_e way) {
     return _pos;
 }
 
-size_t strstream_c::read(uint8_t *buf, size_t count) {
+size_t strstream_c::read(uint8_t* buf, size_t count) {
     count = MIN(count, _max - _pos);
     memcpy(buf, _buf + _pos, count);
     _pos += count;
     return count;
 }
 
-size_t strstream_c::write(const uint8_t *buf, size_t count) {
+size_t strstream_c::write(const uint8_t* buf, size_t count) {
     count = MIN(count, _len - _pos);
     memcpy(_buf + _pos, buf, count);
     _pos += count;

@@ -28,7 +28,7 @@ namespace toybox {
         
         __forceinline type_e asset_type() const override { return sound; }
 
-        __forceinline const int8_t *sample() const { return _sample.get(); }
+        __forceinline const int8_t* sample() const { return _sample.get(); }
         __forceinline uint32_t length() const { return _length; }
         __forceinline uint16_t rate() const { return _rate; }
         
@@ -50,8 +50,8 @@ namespace toybox {
 
         __forceinline type_e asset_type() const override { return music; }
         
-        virtual const char *title() const = 0;
-        virtual const char *composer() const = 0;
+        virtual const char* title() const = 0;
+        virtual const char* composer() const = 0;
         virtual int track_count() const = 0;
         virtual uint8_t replay_freq() const = 0;
     };
@@ -64,19 +64,19 @@ namespace toybox {
     class ymmusic_c final : public music_c {
         friend class audio_mixer_c;
     public:
-        ymmusic_c(const char *path);
+        ymmusic_c(const char* path);
         virtual ~ymmusic_c() {};
-        
-        __forceinline const char *title() const override { return _title; }
-        __forceinline const char *composer() const override  { return _composer; }
+
+        __forceinline const char* title() const override { return _title; }
+        __forceinline const char* composer() const override  { return _composer; }
         __forceinline int track_count() const override { return _track_count; }
         __forceinline uint8_t replay_freq() const override { return _freq; }
-        
+
     private:
         unique_ptr_c<uint8_t> _sndh;
         size_t _length;
-        char *_title;
-        char *_composer;
+        char* _title;
+        char* _composer;
         int _track_count;
         uint8_t _freq;
 #ifdef __M68000__

@@ -35,10 +35,10 @@ namespace toybox {
 #   endif
 #endif
         }
-        void get(uint8_t *r, uint8_t *g, uint8_t *b) const {
-            *r = from_ste(color, 8);
-            *g = from_ste(color, 4);
-            *b = from_ste(color, 0);
+        void get(uint8_t* r_out, uint8_t* g_out, uint8_t* b_out) const {
+            *r_out = from_ste(color, 8);
+            *g_out = from_ste(color, 4);
+            *b_out = from_ste(color, 0);
         }
         color_c mix(color_c other, int shade) const;
         static constexpr int MIX_FULLY_THIS = 0;
