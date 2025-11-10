@@ -21,23 +21,25 @@ namespace toybox {
         constexpr cc4_t() : ulong(0x20202020) {}
 
         // Must be max 4 characters in range 32 to 127 (except '?'), ubytes is padded with ' '.
-        constexpr cc4_t(const char *cc4) {
+        consteval cc4_t(const char *cc4) {
             assert(cc4 != nullptr && "CC4 must not be null.");
             for (int i = 0; i < 4; i++) {
-                ubytes[i] = *cc4 ? *cc4++ : ' ';
-                assert(ubytes[i] >= 32 && ubytes[i] != '?' && "Invalid CC4 character.");
+                ubytes[i] = *cc4 == '*' ? '?' : (*cc4 ? *cc4++ : ' ');
+                assert(ubytes[i] >= 32 && "Invalid CC4 character.");
             }
         }
         // Must be initialized with big endian uint32_t.
         constexpr cc4_t(uint32_t ul) : ulong(ul) {
+#ifndef __M68000__
             for (int i = 0; i < 4; i++) {
-                assert(ubytes[i] >= 32 && ubytes[i] != '?' && "Invalid CC4 character.");
+                assert(ubytes[i] >= 32 && "Invalid CC4 character.");
             }
+#endif
         }
         constexpr cc4_t(const uint8_t ub[4]) {
             for (int i = 0; i < 4; i++) {
                 ubytes[i] = ub[i];
-                assert(ubytes[i] >= 32 && ubytes[i] != '?' && "Invalid CC4 character.");
+                assert(ubytes[i] >= 32 && "Invalid CC4 character.");
             }
         };
 
@@ -47,7 +49,7 @@ namespace toybox {
 
         // Allow ? to match any charcter, and * to match any until end.
         // Exmaple: "?LVL" matches "1LVL" and "2LVL". "LVL*" matches any cc4 starting with LVL.
-        bool matches(const char *str) const;
+        bool matches(cc4_t m) const;
 
         // Return an inner pointer to a cstring representatio valid until next call tocstring().
         const char* cstring() const;
@@ -63,9 +65,10 @@ namespace toybox {
         static constexpr cc4_t FORM("FORM");
         static constexpr cc4_t LIST("LIST");
         static constexpr cc4_t CAT("CAT");
-        static constexpr cc4_t NULL_("");
         static constexpr cc4_t TEXT("TEXT");
         static constexpr cc4_t NAME("NAME");
+        static constexpr cc4_t NULL_("");
+        static constexpr cc4_t ANY("*");
     }
     
     struct iff_chunk_s {
@@ -91,18 +94,16 @@ namespace toybox {
         virtual ptrdiff_t tell() const override __pure;
         virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;
 
-        bool first(const char *const id, iff_chunk_s &chunk);
-        bool first(const char *const id, const char *const subtype, iff_group_s &group);
-        bool first(cc4_t id, cc4_t subtype, iff_group_s &group);
-        bool next(const iff_group_s &in_group, const char *const id, iff_chunk_s &chunk);
-        bool next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk);
-        bool expand(const iff_chunk_s &chunk, iff_group_s &group);
+        bool first(cc4_t id, iff_chunk_s &chunk_out);
+        bool first(cc4_t id, cc4_t subtype, iff_group_s &group_out);
+        bool next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk_out);
+        bool expand(const iff_chunk_s &chunk, iff_group_s &group_out);
         
         bool reset(const iff_chunk_s &chunk);
         bool skip(const iff_chunk_s &chunk);
         bool align(bool for_write);
         
-        bool begin(iff_chunk_s &chunk, const char *const id);
+        bool begin(cc4_t id, iff_chunk_s &chunk_out);
         bool end(iff_chunk_s &chunk);
         
         using stream_c::read;
@@ -132,17 +133,10 @@ namespace toybox {
 #endif
 
     private:
-        bool read(iff_group_s &group);
-        bool read(iff_chunk_s &chunk);
+        bool read(iff_group_s &group_out);
+        bool read(iff_chunk_s &chunk_out);
 
         unique_ptr_c<stream_c> _stream;
-
-#define IFF_MAX_NESTING_DEPTH 8
-        struct chunk_start_s {
-            cc4_t id;
-            long offset;
-            bool is_group;
-        };
     };
     
 }

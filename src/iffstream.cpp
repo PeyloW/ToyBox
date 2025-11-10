@@ -10,17 +10,10 @@
 
 using namespace toybox;
 
-bool cc4_t::matches(const char *cc4) const {
-    assert(cc4 != nullptr);
-    uint8_t match[4];
+bool cc4_t::matches(cc4_t match) const {
     for (int i = 0; i < 4; i++) {
-        match[i] = *cc4 ? *cc4++ : ' ';
-        assert(ubytes[i] >= 32 && "Invalid CC4 character.");
-    }
-    for (int i = 0; i < 4; i++) {
-        if (match[i] == '?') continue;
-        if (match[i] == '*') break;
-        if (match[i] != ubytes[i]) return false;
+        if (match.ubytes[i] == '?') continue;
+        if (match.ubytes[i] != ubytes[i]) return false;
     }
     return true;
 }
@@ -51,11 +44,11 @@ bool iffstream_c::good() const { return _stream->good(); }
 ptrdiff_t iffstream_c::tell() const { return _stream->tell(); }
 ptrdiff_t iffstream_c::seek(ptrdiff_t pos, seekdir_e way) { return _stream->seek(pos, way); }
 
-bool iffstream_c::first(const char *const id, iff_chunk_s &chunk) {
+bool iffstream_c::first(cc4_t id, iff_chunk_s &chunk_out) {
     bool result = false;
     if (seek(0, seekdir_e::beg) == 0) {
-        if (read(chunk)) {
-            result = chunk.id.matches(id);
+        if (read(chunk_out)) {
+            result = chunk_out.id.matches(id);
         }
     }
     if (_assert_on_error) {
@@ -64,11 +57,11 @@ bool iffstream_c::first(const char *const id, iff_chunk_s &chunk) {
     return result;
 }
 
-bool iffstream_c::first(const char *const id, const char *const subtype, iff_group_s &group) {
+bool iffstream_c::first(cc4_t id, cc4_t subtype, iff_group_s &group_out) {
     bool result = false;
     if (seek(0, seekdir_e::beg) == 0) {
-        if (read(group)) {
-            result = group.id.matches(id) && group.subtype.matches(subtype);
+        if (read(group_out)) {
+            result = group_out.id.matches(id) && group_out.subtype.matches(subtype);
         }
     }
     if (_assert_on_error) {
@@ -77,44 +70,15 @@ bool iffstream_c::first(const char *const id, const char *const subtype, iff_gro
     return result;
 }
 
-bool iffstream_c::first(cc4_t id, cc4_t subtype, iff_group_s &group) {
-    bool result = false;
-    if (seek(0, seekdir_e::beg) == 0) {
-        if (read(group)) {
-            result = group.id == id && group.subtype == subtype;
-        }
-    }
-    if (_assert_on_error) {
-        hard_assert(result);
-    }
-    return result;
-}
-
-bool iffstream_c::next(const iff_group_s &in_group, const char *const id, iff_chunk_s &chunk) {
+bool iffstream_c::next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk_out) {
     // Hard assert handled by called functions.
     const long end = in_group.offset + sizeof(uint32_t) * 2 + in_group.size;
     long pos = tell();
-    while (tell() < end  && read(chunk)) {
-        if (chunk.id.matches(id)) {
+    while (tell() < end  && read(chunk_out)) {
+        if (chunk_out.id.matches(id)) {
             return true;
         }
-        if (!skip(chunk)) {
-            break;
-        }
-    }
-    seek(pos, seekdir_e::beg);
-    return false;
-}
-
-bool iffstream_c::next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk) {
-    // Hard assert handled by called functions.
-    const long end = in_group.offset + sizeof(uint32_t) * 2 + in_group.size;
-    long pos = tell();
-    while (tell() < end  && read(chunk)) {
-        if (chunk.id == id) {
-            return true;
-        }
-        if (!skip(chunk)) {
+        if (!skip(chunk_out)) {
             break;
         }
     }
@@ -123,13 +87,13 @@ bool iffstream_c::next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk
 }
 
 
-bool iffstream_c::expand(const iff_chunk_s &chunk, iff_group_s &group) {
+bool iffstream_c::expand(const iff_chunk_s &chunk, iff_group_s &group_out) {
     // Hard assert handled by called functions.
-    group.offset = chunk.offset;
-    group.id = chunk.id;
-    group.size = chunk.size;
-    if (reset(group)) {
-        return read(&group.subtype);
+    group_out.offset = chunk.offset;
+    group_out.id = chunk.id;
+    group_out.size = chunk.size;
+    if (reset(group_out)) {
+        return read(&group_out.subtype);
     }
     return false;
 }
@@ -162,14 +126,14 @@ done:
     return result;
 }
 
-bool iffstream_c::begin(iff_chunk_s &chunk, const char *const id) {
+bool iffstream_c::begin(cc4_t id, iff_chunk_s &chunk_out) {
     bool result = false;
     if (align(true)) {
-        chunk.offset = tell();
-        if (chunk.offset >= 0) {
-            chunk.id = cc4_t(id);
-            chunk.size = -1;
-            result = write(&chunk.id) && write(&chunk.size);
+        chunk_out.offset = tell();
+        if (chunk_out.offset >= 0) {
+            chunk_out.id = id;
+            chunk_out.size = -1;
+            result = write(&chunk_out.id) && write(&chunk_out.size);
         }
     }
     return result;
@@ -190,20 +154,20 @@ bool iffstream_c::end(iff_chunk_s &chunk) {
     return result;
 }
 
-bool iffstream_c::read(iff_group_s &group) {
+bool iffstream_c::read(iff_group_s &group_out) {
     bool result = false;
-    if (read(static_cast<iff_chunk_s&>(group))) {
-        result = read(&group.subtype);
+    if (read(static_cast<iff_chunk_s&>(group_out))) {
+        result = read(&group_out.subtype);
     }
     return result;
 }
 
-bool iffstream_c::read(iff_chunk_s &chunk) {
+bool iffstream_c::read(iff_chunk_s &chunk_out) {
     bool result = align(false);
     if (result) {
-        chunk.offset = tell();
-        if (chunk.offset >= 0) {
-            result = read(&chunk.id) && read(&chunk.size);
+        chunk_out.offset = tell();
+        if (chunk_out.offset >= 0) {
+            result = read(&chunk_out.id) && read(&chunk_out.size);
         }
     }
     return result;

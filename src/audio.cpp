@@ -72,7 +72,7 @@ sound_c::sound_c(const char *path) :
     }
     iff_chunk_s chunk;
     aiff_common_s common;
-    while (file.next(form, "*", chunk)) {
+    while (file.next(form, cc4::ANY, chunk)) {
         if (chunk.id == ::cc4::COMM) {
             if (!file.read(&common)) {
                 return;

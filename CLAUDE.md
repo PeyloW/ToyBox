@@ -37,6 +37,8 @@
 	- `s_` - Static variables.
 	- `g_` - Global variables.
 	- No prefix - Local variables, public members, or function arguments.
+- **Out Arguments** Out arguments should be last, and suffixed with `_out`.
+	- Use out by reference if required, and out by pointer if optional. 
 - **Constants and Macros:** `UPPER_SNAKE_CASE` (e.g., `MAX_SIZE`, `PI_VALUE`).
 - **Template Parameters:** Use longer template names for templates over about 5 lines of code, examples:
 	- Use `Type` for type parameters (e.g., `template<class Type>`).
@@ -60,6 +62,8 @@
 - **Brace Style:** Opening brace on same line.
 	- Use braces for all statements except single `return`/`continue`/`break` after `if` statements.
 	- Keep braces and statement on single line if not exceeding 80 characters.
+- **Type Declarations** Type declaration operator should be next to the type.
+	- Use `int&` and `my_type_t&`, never `bool *` or `char *func()`.
 - **Qualifier Order:**
 	1. Storage class (`static`, `extern`, `mutable`)
 	2. Compile-time semantics (`inline`, `__forceinline`,`constexpr`)

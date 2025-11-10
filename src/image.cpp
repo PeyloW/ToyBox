@@ -205,7 +205,7 @@ image_c::image_c(const char *path, int masked_cidx) :
     }
     iff_chunk_s chunk;
     ilbm_header_s bmhd;
-    while (file.next(form, "*", chunk)) {
+    while (file.next(form, cc4::ANY, chunk)) {
         if (chunk.id == ::cc4::BMHD) {
             if (!file.read(&bmhd)) {
                 return;
@@ -419,7 +419,7 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
             iff_group_s form;
             iff_chunk_s chunk;
             ilbm_header_s header;
-            ilbm.begin(form, cc4::FORM);
+            ilbm.begin(cc4::FORM, form);
             ilbm.write(&::cc4::ILBM);
             {
                 memset(&header, 0, sizeof(ilbm_header_s));
@@ -433,12 +433,12 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
                 header.aspect[0] = 10;
                 header.aspect[0] = 11;
                 header.page_size = {320, 200};
-                ilbm.begin(chunk, ::cc4::BMHD);
+                ilbm.begin(::cc4::BMHD, chunk);
                 ilbm.write(&header);
                 ilbm.end(chunk);
             }
             /* if (_offset.x != 0 || _offset.y != 0) {
-                ilbm.begin(chunk, ::cc4::GRAB);
+                ilbm.begin(::cc4::GRAB, chunk);
                 ilbm.write(_offset);
                 ilbm.end(chunk);
             } */
@@ -447,12 +447,12 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
                 for (int i = 0; i < 16; i++) {
                     _palette->colors[i].get(&cmap[i * 3 + 0], &cmap[i * 3 + 1], &cmap[i * 3 + 2]);
                 }
-                ilbm.begin(chunk, ::cc4::CMAP);
+                ilbm.begin(::cc4::CMAP, chunk);
                 ilbm.write(cmap, 48);
                 ilbm.end(chunk);
             }
             {
-                ilbm.begin(chunk, ::cc4::BODY);
+                ilbm.begin(::cc4::BODY, chunk);
                 switch (compression) {
                     case compression_type_none:
                         image_write(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(),  header.mask_type == mask_type_plane ? _maskmap : nullptr);
