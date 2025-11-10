@@ -11,7 +11,11 @@
 #include "vector.hpp"
 #include "list.hpp"
 
-__neverinline void test_lifetime() {
+struct lifetime_test_state_s {
+    // Empty for now, allows future state sharing if needed
+};
+
+__neverinline void test_lifetime_direct_semantics() {
     // Test direct copy semantics
     non_trivial_s obj1(42);
     hard_assert(obj1.value == 42 && "Initial value should be 42");
@@ -44,6 +48,10 @@ __neverinline void test_lifetime() {
     hard_assert(!obj5.moved && "Destination object should not be marked as moved");
     hard_assert(obj4.moved && "Source object should be marked as moved");
 
+    printf("  test_lifetime_direct_semantics pass.\n\r");
+}
+
+__neverinline void test_lifetime_static_vector_insert(lifetime_test_state_s& state) {
     // Test with static vector_c
     vector_c<non_trivial_s, 10> static_vec;
 
@@ -98,6 +106,21 @@ __neverinline void test_lifetime() {
     hard_assert(static_vec[3].generation == 0 && "Emplaced element generation should be 0 (direct construction)");
     hard_assert(!static_vec[3].moved && "Emplaced element should not be moved");
 
+    printf("  test_lifetime_static_vector_insert pass.\n\r");
+}
+
+__neverinline void test_lifetime_static_vector_remove(lifetime_test_state_s& state) {
+    // Recreate the vector state from previous test
+    vector_c<non_trivial_s, 10> static_vec;
+    static_vec.push_back(non_trivial_s(10));
+    non_trivial_s lvalue_vec1(15);
+    static_vec.push_back(lvalue_vec1);
+    static_vec.emplace_back(17);
+    static_vec.insert(static_vec.begin(), non_trivial_s(5));
+    non_trivial_s lvalue_vec2(12);
+    static_vec.insert(static_vec.begin() + 2, lvalue_vec2);
+    static_vec.emplace(3, 13);
+
     // 7. Push back again
     static_vec.push_back(non_trivial_s(20));
     hard_assert(static_vec.size() == 7 && "Static vector size should be 7");
@@ -133,6 +156,10 @@ __neverinline void test_lifetime() {
     hard_assert(!static_vec[2].moved && "Element should not be moved");
     hard_assert(static_vec[3].value == 17 && "Element should be 17");
 
+    printf("  test_lifetime_static_vector_remove pass.\n\r");
+}
+
+__neverinline void test_lifetime_dynamic_vector_insert(lifetime_test_state_s& state) {
     // Test with dynamic vector_c
     vector_c<non_trivial_s, 0> dynamic_vec;
     hard_assert(dynamic_vec.size() == 0 && "Dynamic vector initial size should be 0");
@@ -188,6 +215,21 @@ __neverinline void test_lifetime() {
     hard_assert(dynamic_vec[3].generation == 0 && "Emplaced element generation should be 0 (direct construction)");
     hard_assert(!dynamic_vec[3].moved && "Emplaced element should not be moved");
 
+    printf("  test_lifetime_dynamic_vector_insert pass.\n\r");
+}
+
+__neverinline void test_lifetime_dynamic_vector_remove(lifetime_test_state_s& state) {
+    // Recreate the vector state from previous test
+    vector_c<non_trivial_s, 0> dynamic_vec;
+    dynamic_vec.push_back(non_trivial_s(100));
+    non_trivial_s lvalue_dyn1(150);
+    dynamic_vec.push_back(lvalue_dyn1);
+    dynamic_vec.emplace_back(175);
+    dynamic_vec.insert(dynamic_vec.begin(), non_trivial_s(50));
+    non_trivial_s lvalue_dyn2(125);
+    dynamic_vec.insert(dynamic_vec.begin() + 2, lvalue_dyn2);
+    dynamic_vec.emplace(3, 137);
+
     // 7. Push back again
     dynamic_vec.push_back(non_trivial_s(200));
     hard_assert(dynamic_vec.size() == 7 && "Dynamic vector size should be 7");
@@ -223,6 +265,10 @@ __neverinline void test_lifetime() {
     hard_assert(!dynamic_vec[2].moved && "Element should not be moved");
     hard_assert(dynamic_vec[3].value == 175 && "Element should be 175");
 
+    printf("  test_lifetime_dynamic_vector_remove pass.\n\r");
+}
+
+__neverinline void test_lifetime_list_insert(lifetime_test_state_s& state) {
     // Test with list_c
     list_c<non_trivial_s, 10> list;
 
@@ -307,6 +353,27 @@ __neverinline void test_lifetime() {
     hard_assert(it->generation == 1 && "6th element generation should be 1");
     hard_assert(!it->moved && "6th element should not be moved");
 
+    printf("  test_lifetime_list_insert pass.\n\r");
+}
+
+__neverinline void test_lifetime_list_remove(lifetime_test_state_s& state) {
+    // Recreate the list state from previous test
+    list_c<non_trivial_s, 10> list;
+    list.push_front(non_trivial_s(1000));
+    non_trivial_s lvalue1(2000);
+    list.push_front(lvalue1);
+    list.emplace_front(3000);
+    non_trivial_s lvalue2(4000);
+    auto it = list.begin();
+    list.insert_after(it, lvalue2);
+    it = list.begin();
+    ++it;
+    list.insert_after(it, non_trivial_s(5000));
+    it = list.begin();
+    ++it;
+    ++it;
+    list.emplace_after(it, 6000);
+
     // 7. Test pop_front
     list.pop_front();
     hard_assert(list.size() == 5 && "List size should be 5 after pop_front");
@@ -337,6 +404,19 @@ __neverinline void test_lifetime() {
     hard_assert(it->generation == 1 && "4th element generation should be 1");
     hard_assert(!it->moved && "4th element should not be moved");
 
+    printf("  test_lifetime_list_remove pass.\n\r");
+}
+
+__neverinline void test_lifetime_list_splice(lifetime_test_state_s& state) {
+    // Recreate a simple list state: 4000 -> 2000 -> 1000
+    list_c<non_trivial_s, 10> list;
+    list.push_front(non_trivial_s(1000));
+    non_trivial_s lvalue1(2000);
+    list.push_front(lvalue1);
+    non_trivial_s lvalue2(4000);
+    list.push_front(lvalue2);
+    // list: 4000 -> 2000 -> 1000 (size = 3)
+
     // 9. Test splice_after
     list_c<non_trivial_s, 10> list2;
     list2.push_front(non_trivial_s(7000));
@@ -347,12 +427,12 @@ __neverinline void test_lifetime() {
     hard_assert(!list2.front().moved && "List2 front should not be moved");
 
     // Splice first element of list2 (8000) into list after first element (4000)
-    it = list.begin();
+    auto it = list.begin();
     list.splice_after(it, list2, list2.before_begin());
-    hard_assert(list.size() == 5 && "List size should be 5 after splice");
+    hard_assert(list.size() == 4 && "List size should be 4 after splice");
     hard_assert(list2.size() == 1 && "List2 size should be 1 after splice");
 
-    // Verify list: 4000 -> 8000 -> 5000 -> 2000 -> 1000
+    // Verify list: 4000 -> 8000 -> 2000 -> 1000
     it = list.begin();
     hard_assert(it->value == 4000 && "1st element should be 4000");
     ++it;
@@ -360,16 +440,28 @@ __neverinline void test_lifetime() {
     hard_assert(it->generation == 1 && "Spliced element generation should be 1");
     hard_assert(!it->moved && "Spliced element should not be moved");
     ++it;
-    hard_assert(it->value == 5000 && "3rd element should be 5000");
+    hard_assert(it->value == 2000 && "3rd element should be 2000");
     ++it;
-    hard_assert(it->value == 2000 && "4th element should be 2000");
-    ++it;
-    hard_assert(it->value == 1000 && "5th element should be 1000");
+    hard_assert(it->value == 1000 && "4th element should be 1000");
 
     // Verify list2: 7000
     hard_assert(list2.front().value == 7000 && "List2 front should be 7000");
     hard_assert(list2.front().generation == 1 && "List2 front generation should be 1");
     hard_assert(!list2.front().moved && "List2 front should not be moved");
 
+    printf("  test_lifetime_list_splice pass.\n\r");
+}
+
+void test_lifetime() {
+    printf("== Start: test_lifetime\n\r");
+    lifetime_test_state_s state;
+    test_lifetime_direct_semantics();
+    test_lifetime_static_vector_insert(state);
+    test_lifetime_static_vector_remove(state);
+    test_lifetime_dynamic_vector_insert(state);
+    test_lifetime_dynamic_vector_remove(state);
+    test_lifetime_list_insert(state);
+    test_lifetime_list_remove(state);
+    test_lifetime_list_splice(state);
     printf("test_lifetime pass.\n\r");
 }

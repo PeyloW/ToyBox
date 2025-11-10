@@ -11,6 +11,7 @@
 #include "list.hpp"
 
 __neverinline void test_algorithms() {
+    printf("== Start: test_algorithms\n\r");
     constexpr int numbers[4] = { 1, 7, 2, 0 };
     int buffer[4];
 

@@ -10,6 +10,7 @@
 #include "math.hpp"
 
 __neverinline void test_math() {
+    printf("== Start: test_math\n\r");
     auto r1 = mul_fast((uint16_t)50000, (uint16_t)2);
     auto r2 = mul_fast((int16_t)30000, (int16_t)-3);
     hard_assert(sizeof(r1) == 4 && sizeof(r2) == 4 && "Result is 32 bit");
@@ -70,6 +71,7 @@ __neverinline void test_math() {
 }
 
 __neverinline void test_math_functions() {
+    printf("== Start: test_math_functions\n\r");
     using namespace rel_ops;
     using namespace numbers;
 

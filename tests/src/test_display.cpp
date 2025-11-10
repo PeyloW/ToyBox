@@ -11,6 +11,7 @@
 #include "screen.hpp"
 
 __neverinline void test_display_list() {
+    printf("== Start: test_display_list\n\r");
     display_list_c list;
     screen_c screen(size_s(320, 16));
     palette_c p1, p2, p3;
