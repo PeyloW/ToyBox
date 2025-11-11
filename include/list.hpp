@@ -85,13 +85,13 @@ namespace toybox {
         iterator before_begin() __pure {
             using node_s = detail::node_s;
             auto before_head = const_cast<node_s**>(&_head);
-            return iterator(reinterpret_cast<node_s*>(before_head));
+            return iterator(launder(reinterpret_cast<node_s*>(before_head)));
         }
         /// Returns const iterator to position before the first element. Required for insert/erase operations.
         const_iterator before_begin() const __pure {
             using node_s = detail::node_s;
             auto before_head = const_cast<node_s**>(&_head);
-            return const_iterator(reinterpret_cast<node_s*>(before_head));
+            return const_iterator(launder(reinterpret_cast<node_s*>(before_head)));
         }
         __forceinline iterator begin() __pure { return iterator(_head); }
         __forceinline const_iterator begin() const __pure { return const_iterator(_head); }

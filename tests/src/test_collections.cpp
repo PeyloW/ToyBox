@@ -44,6 +44,31 @@ __neverinline void test_array_and_vector() {
         hard_assert(arr[3 - i] == vec[i]);
     }
 
+    // Test resize() on static vector - grow
+    vec.clear();
+    vec.push_back(10);
+    vec.push_back(20);
+    vec.resize(4);
+    hard_assert(vec.size() == 4 && "Size should be 4 after resize grow");
+    hard_assert(vec[0] == 10 && "First element should be preserved");
+    hard_assert(vec[1] == 20 && "Second element should be preserved");
+    hard_assert(vec[2] == 0 && "Third element should be default-constructed");
+    hard_assert(vec[3] == 0 && "Fourth element should be default-constructed");
+
+    // Test resize() on static vector - shrink
+    vec.resize(1);
+    hard_assert(vec.size() == 1 && "Size should be 1 after resize shrink");
+    hard_assert(vec[0] == 10 && "Element should be preserved after resize shrink");
+
+    // Test resize() on static vector - same size (no-op)
+    vec.resize(1);
+    hard_assert(vec.size() == 1 && "Size should remain 1 after resize to same size");
+    hard_assert(vec[0] == 10 && "Element should be unchanged after resize to same size");
+
+    // Test resize() on static vector - to zero
+    vec.resize(0);
+    hard_assert(vec.size() == 0 && "Size should be 0 after resize to zero");
+
     printf("test_array_and_vector pass.\n\r");
 }
 
@@ -120,6 +145,42 @@ __neverinline void test_dynamic_vector() {
     for (int i = 0; i < 5; ++i) {
         hard_assert(vec[i] == i * 2 && "Elements should be correct after refill");
     }
+
+    // Test resize() - grow
+    vec.resize(10);
+    hard_assert(vec.size() == 10 && "Size should be 10 after resize grow");
+    for (int i = 0; i < 5; ++i) {
+        hard_assert(vec[i] == i * 2 && "Existing elements should be preserved after resize grow");
+    }
+    for (int i = 5; i < 10; ++i) {
+        hard_assert(vec[i] == 0 && "New elements should be default-constructed (zero) after resize grow");
+    }
+
+    // Test resize() - shrink
+    vec.resize(3);
+    hard_assert(vec.size() == 3 && "Size should be 3 after resize shrink");
+    for (int i = 0; i < 3; ++i) {
+        hard_assert(vec[i] == i * 2 && "Elements should be preserved after resize shrink");
+    }
+
+    // Test resize() - same size (no-op)
+    vec.resize(3);
+    hard_assert(vec.size() == 3 && "Size should remain 3 after resize to same size");
+    for (int i = 0; i < 3; ++i) {
+        hard_assert(vec[i] == i * 2 && "Elements should be unchanged after resize to same size");
+    }
+
+    // Test resize() - grow from zero
+    vec.clear();
+    vec.resize(7);
+    hard_assert(vec.size() == 7 && "Size should be 7 after resize from zero");
+    for (int i = 0; i < 7; ++i) {
+        hard_assert(vec[i] == 0 && "All elements should be default-constructed after resize from zero");
+    }
+
+    // Test resize() - shrink to zero
+    vec.resize(0);
+    hard_assert(vec.size() == 0 && "Size should be 0 after resize to zero");
 
     printf("test_dynamic_vector pass.\n\r");
 }

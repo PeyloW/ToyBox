@@ -93,6 +93,7 @@ namespace toybox {
         return last;
     }
            
+    // Selection sort for forward only iterators
     template<forward_iterator I>
     void sort(I first, I last) {
         for (auto i = first; i != last; ++i) {
@@ -105,6 +106,22 @@ namespace toybox {
             if (min != i) {
                 swap(*min, *i);
             }
+        }
+    }
+    // Insertion sort for O(n) for almost sorted small lists
+    template<bidirectional_iterator I>
+    void sort(I first, I last) {
+        for (auto i = first; i != last; ++i) {
+            const auto key = *i;
+            auto j = i;
+            while (j != first) {
+                auto prev = j;
+                --prev;
+                if (!(*prev > key)) break;
+                *j = move(*prev);
+                j = prev;
+            }
+            *j = move(key);
         }
     }
     

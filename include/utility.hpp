@@ -250,6 +250,11 @@ namespace toybox {
         }
     }
     
+    template <class T>
+    constexpr T* launder(T* p) noexcept {
+        return __builtin_launder(p);
+    }
+    
 #pragma mark - Helper classes
     
     // Base class enforcing no copy constructor or assignment.

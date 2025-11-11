@@ -133,12 +133,29 @@ namespace toybox {
         __forceinline const_iterator end() const __pure {
             return this->__buffer()[_size].template ptr<0>();
         }
-        __forceinline int size() const __pure { return _size; }
         __forceinline pointer data() {
             return this->__buffer()[0].template ptr<0>();
         }
         __forceinline const_pointer data() const {
             return this->__buffer()[0].template ptr<0>();
+        }
+        __forceinline int size() const __pure { return _size; }
+        
+        void resize(int size) {
+            if (_size == size) return;
+            if (_size < size) {
+                this->__ensure_capacity(size, _size);
+                for (int i = _size; i < size; ++i) {
+                    construct_at(this->__buffer()[i].template ptr<0>());
+                }
+            } else {
+                if constexpr (!is_trivially_destructible<Type>::value) {
+                    for (int i = size; i < _size; ++i) {
+                        destroy_at(this->__buffer()[i].template ptr<0>());
+                    }
+                }
+            }
+            _size = size;
         }
 
         __forceinline reference operator[](int i) __pure {
@@ -231,14 +248,8 @@ namespace toybox {
         iterator erase(int at) {
             return erase(begin() + at);
         }
-        void clear() {
-            if constexpr (is_trivially_destructible<Type>::value) {
-                _size = 0;
-            } else {
-                while (_size) {
-                    destroy_at(this->__buffer()[--_size].template ptr<0>());
-                }
-            }
+        __forceinline void clear() {
+            resize(0);
         }
         __forceinline void pop_back() {
             assert(_size > 0 && "Vector is empty");
