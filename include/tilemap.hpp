@@ -8,6 +8,7 @@
 #pragma once
 
 #include "tileset.hpp"
+#include "entity.hpp"
 
 namespace toybox {
 
@@ -15,7 +16,6 @@ namespace toybox {
         uint8_t index;
         uint8_t attr;
         uint16_t userdata;
-        uint8_t extra[];   // For use in custom file format loading only.
 
         enum base_e : uint8_t {
             none     = 0,
@@ -40,10 +40,9 @@ namespace toybox {
     
     class tilemap_c : public asset_c {
     public:
-        using tile_loader_f = tile_s(*)(tile_s* tile);
         
-        tilemap_c(rect_s bounds);
-        tilemap_c(const char *path, tile_loader_f loader = nullptr);
+        tilemap_c(const rect_s& bounds);
+        tilemap_c(const char* path);
         virtual ~tilemap_c() = default;
 
         __forceinline type_e asset_type() const override final { return tilemap; }
@@ -56,6 +55,7 @@ namespace toybox {
     private:
         rect_s _bounds;
         vector_c<tile_s, 0> _tiles;
+        list_c<entity_c, 256> _entities; // TODO: When we get to AI
         vector_c<tilemap_c, 0> _sub_tilemaps;
     };
     

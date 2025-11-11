@@ -55,6 +55,7 @@
 				cpp_runtime.cpp,
 				dirtymap.cpp,
 				display_list.cpp,
+				entity.cpp,
 				font.cpp,
 				host_bridge.cpp,
 				iffstream.cpp,
@@ -82,7 +83,7 @@
 		A68D50662EA340E600174946 /* Exceptions for "sample" folder in "toybox_index" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				src/demo_main.cpp,
+				src/fullscreen_scene.cpp,
 				src/main.cpp,
 			);
 			target = A68D49DD2EA1343F00174946 /* toybox_index */;

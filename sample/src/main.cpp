@@ -9,7 +9,7 @@
 #include "audio_mixer.hpp"
 #include "assets.hpp"
 #include "demo_assets.hpp"
-#include "demo_main.hpp"
+#include "fullscreen_scene.hpp"
 
 static asset_manager_c& setup_assets() {
     constexpr pair_c<int,asset_manager_c::asset_def_s> asset_defs[] = {
@@ -45,7 +45,7 @@ int main(int argc, const char * argv[]) {
         audio_mixer_c::shared().play(assets.music(MUSIC));
         
         // Setup and start the scene
-        auto main_scene = new demo_main_scene_c();
+        auto main_scene = new fullscreen_scene_c();
         scene_manager_c::shared().run(main_scene);
 
         return 0;

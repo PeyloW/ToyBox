@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "static_allocator.hpp"
+#include "pool_allocator.hpp"
 #include "utility.hpp"
 
 namespace toybox {
