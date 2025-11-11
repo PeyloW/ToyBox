@@ -63,7 +63,7 @@ namespace toybox {
             };
         };
 
-        using allocator = static_allocator_c<typename detail::node_s, Count>;
+        using allocator = pool_allocator_c<typename detail::node_s, Count>;
         using iterator = typename detail::template iterator_s<Type>;
         using const_iterator = typename detail::template iterator_s<const Type>;
         

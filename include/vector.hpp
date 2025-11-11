@@ -248,8 +248,14 @@ namespace toybox {
         iterator erase(int at) {
             return erase(begin() + at);
         }
-        __forceinline void clear() {
-            resize(0);
+        void clear() {
+            if constexpr (is_trivially_destructible<Type>::value) {
+                _size = 0;
+            } else {
+                while (_size) {
+                    destroy_at(this->__buffer()[--_size].template ptr<0>());
+                }
+            }
         }
         __forceinline void pop_back() {
             assert(_size > 0 && "Vector is empty");

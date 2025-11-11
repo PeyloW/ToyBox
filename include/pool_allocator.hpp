@@ -1,5 +1,5 @@
 //
-//  static_allocator.hpp
+//  pool_allocator.hpp
 //  toybox
 //
 //  Created by Fredrik Olsson on 2024-03-24.
@@ -12,12 +12,12 @@
 namespace toybox {
 
 /**
- A `static_allocator_c` is vaguely related to `std::allocator`, but always
- allocates single blocks of a static size.
- This exists for performance, as `malloc` can be expensive.
+ A `pool_allocator_c` is a fixed-size memory pool allocator.
+ Pre-allocates a pool of fixed-size blocks and manages them via a free list.
+ This exists for performance, as `malloc`can be expensive.
  */
 template <class T, size_t Count>
-class static_allocator_c {
+class pool_allocator_c {
     struct block_t;
 public:
     static constexpr size_t alloc_size = sizeof(T);

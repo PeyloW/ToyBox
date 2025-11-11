@@ -79,7 +79,7 @@ namespace toybox {
             void operator delete(void *ptr) {
                 allocator::deallocate(ptr);
             }
-            using allocator = static_allocator_c<shared_count_t, 64>;
+            using allocator = pool_allocator_c<shared_count_t, 64>;
         };
     }
     
