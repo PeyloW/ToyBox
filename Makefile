@@ -1,6 +1,4 @@
 # Default to HOST=sdl2 unless explicitly set
-HOST?=sdl2
-
 include common.mk
 
 # Find all sources recursively

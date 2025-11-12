@@ -11,7 +11,7 @@
 using namespace toybox;
 
 static constexpr int16_t LOOKUP_SIZE = 256;
-struct __packed_struct bitrun_list_s {
+struct  bitrun_list_s {
     int16_t num_runs;
     struct bitrun_s {
         int16_t start;

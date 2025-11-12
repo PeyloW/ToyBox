@@ -16,7 +16,7 @@ using namespace toybox;
 #include "machine/host_bridge.hpp"
 #endif
 
-struct __packed_struct timer_func_s {
+struct  timer_func_s {
 uint8_t freq;
 uint8_t cnt;
 timer_c::func_a_t func;

@@ -15,4 +15,4 @@ enum demo_assets_e {
     BACKGROUND, // image
     SPRITES,    // tileset
     MUSIC       // music
-} __packed;
+};

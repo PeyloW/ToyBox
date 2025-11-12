@@ -12,11 +12,11 @@
 #include "core/math.hpp"
 
 namespace toybox {
-    
+
 #pragma mark - Base geometric types
     
     template<typename Type>
-    struct __packed_struct base_point_s {
+    struct base_point_s {
         constexpr base_point_s() : x(0), y(0) {}
         constexpr base_point_s(int16_t x, int16_t y) : x(x), y(y) {}
         Type x, y;
@@ -26,7 +26,7 @@ namespace toybox {
     };
     
     template<typename Type>
-    struct __packed_struct base_size_s {
+    struct base_size_s {
         using point_s = base_point_s<Type>;
         constexpr base_size_s() : width(0), height(0) {}
         constexpr base_size_s(int16_t w, int16_t h) : width(w), height(h) {}
@@ -41,10 +41,9 @@ namespace toybox {
             return width <= 0 || height <= 0;
         }
     };
-    //static_assert(sizeof(size_s) == 4);
 
     template<typename Type>
-    struct __packed_struct base_rect_s {
+    struct base_rect_s {
         using point_s = base_point_s<Type>;
         using size_s = base_size_s<Type>;
         constexpr base_rect_s() : origin(), size() {}
@@ -125,3 +124,4 @@ namespace toybox {
     static_assert(sizeof(frect_s) == 8);
 
 }
+

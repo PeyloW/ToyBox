@@ -23,10 +23,11 @@ namespace cc4 {
     static constexpr cc4_t ENTS("ENTS"); // The entities
 }
 
-struct __packed_struct tlmp_header_s {
+struct tlmp_header_s {
     cc4_t id;      // Map identifier
     rect_s bounds; // Bounds of tilemap.
 };
+static_assert(sizeof(tlmp_header_s) == 12);
 
 /*
  File format is:

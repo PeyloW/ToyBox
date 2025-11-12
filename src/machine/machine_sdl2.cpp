@@ -97,7 +97,7 @@ public:
         }
 
         // Clear buffer to black
-        struct  __packed color_s { uint8_t rgb[3]; uint8_t _; };
+        struct color_s { uint8_t rgb[3]; uint8_t _; };
         color_s buffer[320 * 200];
         memset(buffer, 0, sizeof(color_s) * 320 * 200);
         

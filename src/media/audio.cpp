@@ -16,7 +16,7 @@ namespace cc4 {
     static constexpr cc4_t SSND("SSND");
 }
 
-struct __packed_struct extended80_s {
+struct  extended80_s {
     uint16_t exp;
     uint16_t fracs[4];
     uint16_t to_uint16() const {
@@ -32,7 +32,7 @@ struct __packed_struct extended80_s {
 };
 static_assert(sizeof(extended80_s) == 10, "extended80_t size mismatch");
 
-struct __packed_struct aiff_common_s {
+struct __attribute__((packed)) aiff_common_s {
     int16_t num_channels;
     uint32_t num_sample_frames;
     int16_t sample_size;
@@ -46,7 +46,7 @@ namespace toybox {
     };
 }
 
-struct __packed_struct aiff_ssnd_data_s {
+struct  aiff_ssnd_data_s {
     uint32_t offset;
     uint32_t block_size;
     uint8_t data[];

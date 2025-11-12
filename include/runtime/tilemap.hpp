@@ -12,12 +12,12 @@
 
 namespace toybox {
 
-    struct __packed_struct tile_s {
+    struct tile_s {
         uint8_t index;
         uint8_t attr;
         uint16_t userdata;
 
-        enum base_e : uint8_t {
+        enum class base_e : uint8_t {
             none     = 0,
             solid    = 1,
             platform = 2,
@@ -26,14 +26,14 @@ namespace toybox {
         };
         using enum base_e;
 
-        enum flag_e : uint8_t {
+        enum class flag_e : uint8_t {
             climbable = 1 << 2,
             FLAG_MASK  = 0b11111100, // upper 6 bits reserved for flags
         };
         using enum flag_e;
 
-        base_e base_type() const { return static_cast<base_e>(attr & BASE_MASK); }
-        bool is_climbable() const { return attr &climbable; }
+        base_e base_type() const { return static_cast<base_e>(attr & static_cast<uint8_t>(BASE_MASK)); }
+        bool is_climbable() const { return attr & static_cast<uint8_t>(climbable); }
     };
     static_assert(sizeof(tile_s) == 4);
     

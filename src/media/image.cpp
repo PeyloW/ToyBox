@@ -95,7 +95,7 @@ enum class mask_type_e : uint8_t {
     mask_type_lasso,
 };
 
-struct __packed_struct ilbm_header_s {
+struct ilbm_header_s {
     size_s size;
     point_s offset;
     uint8_t plane_count;

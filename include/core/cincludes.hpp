@@ -16,9 +16,6 @@ extern "C" {
 #define __forceinline __attribute__((__always_inline__)) inline
 #define __forceinline_lambda __attribute__((__always_inline__))
 #define __neverinline __attribute__((noinline))
-#define __packed __attribute__((packed))
-#define __packed_struct __attribute__((packed, aligned(2)))
-
     
 #ifdef __M68000__
 #define __target_volatile volatile

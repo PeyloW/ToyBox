@@ -18,7 +18,7 @@ namespace toybox {
     namespace detail {
         
         template<typename T>
-        class __packed_struct basic_ptr_c {
+        class  basic_ptr_c {
         public:
             basic_ptr_c(T* ptr = nullptr) : _ptr(ptr) {}
             
@@ -42,7 +42,7 @@ namespace toybox {
     }
         
     template<typename T>
-    class __packed_struct unique_ptr_c : public detail::basic_ptr_c<T>, public nocopy_c {
+    class  unique_ptr_c : public detail::basic_ptr_c<T>, public nocopy_c {
     public:
         unique_ptr_c(T* ptr = nullptr) : detail::basic_ptr_c<T>(ptr) {}
         ~unique_ptr_c() { cleanup(); }
@@ -69,7 +69,7 @@ namespace toybox {
     static_assert(sizeof(unique_ptr_c<void*>) == sizeof(void*), "unique_ptr_c size mismatch.");
 
     namespace detail {
-        struct __packed_struct shared_count_t {
+        struct  shared_count_t {
             shared_count_t() : count(1) {}
             uint16_t count;
             void *operator new(size_t count) {
@@ -84,7 +84,7 @@ namespace toybox {
     }
     
     template<typename T>
-    class __packed_struct shared_ptr_c : public detail::basic_ptr_c<T> {
+    class  shared_ptr_c : public detail::basic_ptr_c<T> {
     public:
         shared_ptr_c(T* ptr = nullptr) : detail::basic_ptr_c<T>(ptr), _count(ptr ? new detail::shared_count_t() : nullptr) {}
         ~shared_ptr_c() { cleanup(); }
