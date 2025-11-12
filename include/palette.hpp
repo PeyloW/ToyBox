@@ -8,7 +8,7 @@
 #pragma once
 
 #include "array.hpp"
-#include "types.hpp"
+#include "geometry.hpp"
 #include "algorithm.hpp"
 #include "display_list.hpp"
 

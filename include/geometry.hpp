@@ -1,5 +1,5 @@
 //
-//  types.hpp
+//  geometry.hpp
 //  toybox
 //
 //  Created by Fredrik on 2024-02-11.

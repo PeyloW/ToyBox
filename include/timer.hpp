@@ -8,7 +8,7 @@
 #pragma once
 
 #include "cincludes.hpp"
-#include "types.hpp"
+#include "geometry.hpp"
 #include "concepts.hpp"
 #ifndef __M68000__
 #include "host_bridge.hpp"

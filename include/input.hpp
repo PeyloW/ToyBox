@@ -8,7 +8,7 @@
 #pragma once
 
 #include "cincludes.hpp"
-#include "types.hpp"
+#include "geometry.hpp"
 #include "optionset.hpp"
 
 namespace toybox {
