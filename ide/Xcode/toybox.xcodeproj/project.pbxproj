@@ -41,45 +41,6 @@
 			);
 			target = A68D49DD2EA1343F00174946 /* toybox_index */;
 		};
-		A68D505F2EA33EF200174946 /* Exceptions for "src" folder in "toybox_index" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				assets.cpp,
-				audio_atari.cpp,
-				audio_mixer_atari.cpp,
-				audio.cpp,
-				blitter_atari.cpp,
-				canvas_atari.cpp,
-				canvas_stencil.cpp,
-				canvas.cpp,
-				cpp_runtime.cpp,
-				dirtymap.cpp,
-				display_list.cpp,
-				entity.cpp,
-				font.cpp,
-				host_bridge.cpp,
-				iffstream.cpp,
-				image.cpp,
-				input_atari.cpp,
-				input.cpp,
-				machine_atari.cpp,
-				machine_sdl2.cpp,
-				math.cpp,
-				palette.cpp,
-				scene_transition.cpp,
-				scene.cpp,
-				screen.cpp,
-				stream.cpp,
-				system_helpers_atari.S,
-				tilemap.cpp,
-				tileset.cpp,
-				timer_atari.cpp,
-				timer.cpp,
-				util_stream.cpp,
-				utility.cpp,
-			);
-			target = A68D49DD2EA1343F00174946 /* toybox_index */;
-		};
 		A68D50662EA340E600174946 /* Exceptions for "sample" folder in "toybox_index" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -108,9 +69,6 @@
 		};
 		A68D49CE2EA132E700174946 /* src */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A68D505F2EA33EF200174946 /* Exceptions for "src" folder in "toybox_index" target */,
-			);
 			name = src;
 			path = ../../src;
 			sourceTree = SOURCE_ROOT;

@@ -7,8 +7,8 @@
 
 #include "shared.hpp"
 
-#include "display_list.hpp"
-#include "screen.hpp"
+#include "media/display_list.hpp"
+#include "media/screen.hpp"
 
 __neverinline void test_display_list() {
     printf("== Start: test_display_list\n\r");

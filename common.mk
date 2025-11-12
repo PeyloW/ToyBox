@@ -8,7 +8,7 @@ TOYBOX?=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
 FLAGS=-DTOYBOX_TARGET_ATARI=2
-CFLAGS=-std=c++23 -c -I $(TOYBOXINC)
+CFLAGS=-std=c++23 -c -MMD -MP -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
 ifeq ($(HOST),sdl2)

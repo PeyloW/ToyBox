@@ -7,9 +7,9 @@
 
 #include "shared.hpp"
 
-#include "array.hpp"
-#include "vector.hpp"
-#include "list.hpp"
+#include "core/array.hpp"
+#include "core/vector.hpp"
+#include "core/list.hpp"
 
 struct lifetime_test_state_s {
     // Empty for now, allows future state sharing if needed

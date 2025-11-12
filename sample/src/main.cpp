@@ -5,9 +5,9 @@
 //  Created by Fredrik on 2025-10-12.
 //
 
-#include "machine.hpp"
-#include "audio_mixer.hpp"
-#include "assets.hpp"
+#include "machine/machine.hpp"
+#include "media/audio_mixer.hpp"
+#include "runtime/assets.hpp"
 #include "demo_assets.hpp"
 #include "fullscreen_scene.hpp"
 

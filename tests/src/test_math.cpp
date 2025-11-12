@@ -7,7 +7,7 @@
 
 #include "shared.hpp"
 
-#include "math.hpp"
+#include "core/math.hpp"
 
 __neverinline void test_math() {
     printf("== Start: test_math\n\r");

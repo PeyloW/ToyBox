@@ -7,9 +7,9 @@
 
 #include "shared.hpp"
 
-#include "array.hpp"
-#include "vector.hpp"
-#include "list.hpp"
+#include "core/array.hpp"
+#include "core/vector.hpp"
+#include "core/list.hpp"
 
 __neverinline void test_array_and_vector() {
     printf("== Start: test_array_and_vector\n\r");

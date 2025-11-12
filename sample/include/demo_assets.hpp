@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "assets.hpp"
+#include "runtime/assets.hpp"
 
 using namespace toybox;
 

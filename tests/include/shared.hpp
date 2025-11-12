@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "cincludes.hpp"
-#include "utility.hpp"
+#include "core/cincludes.hpp"
+#include "core/utility.hpp"
 
 using namespace toybox;
 

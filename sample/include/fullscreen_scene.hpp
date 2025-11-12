@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "scene.hpp"
+#include "runtime/scene.hpp"
 
 using namespace toybox;
 

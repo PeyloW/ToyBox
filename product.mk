@@ -9,13 +9,17 @@
 
 CFLAGS+=-I ./include
 
-SOURCES=$(wildcard src/*.cpp)
+SOURCES=$(shell find src -name "*.cpp")
 OBJECTS=$(patsubst src/%.cpp,build/%.o,$(SOURCES))
+DEPS=$(OBJECTS:.o=.d)
+
 ifneq ($(HOST),sdl2)
-	ASM_SOURCES=$(wildcard src/*.S)
+	ASM_SOURCES=$(shell find src -name "*.S")
 	SOURCES+=$(ASM_SOURCES)
 	OBJECTS+=$(patsubst src/%.S,build/%.o,$(ASM_SOURCES))
 endif
+
+-include $(DEPS)
 
 all: product
 
@@ -30,9 +34,11 @@ else
 endif
 
 build/%.o: src/%.cpp
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $< -o $@
-	
+
 build/%.o: src/%.S
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $< -o $@
 
 install: product

@@ -7,8 +7,8 @@
 
 #include "shared.hpp"
 
-#include "algorithm.hpp"
-#include "list.hpp"
+#include "core/algorithm.hpp"
+#include "core/list.hpp"
 
 __neverinline void test_algorithms() {
     printf("== Start: test_algorithms\n\r");
