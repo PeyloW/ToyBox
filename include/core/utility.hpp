@@ -255,6 +255,44 @@ namespace toybox {
         return __builtin_launder(p);
     }
     
+#if TOYBOX_HOST
+    namespace detail {
+        static constexpr int32_t MAX_PTRS = 4096;
+        int32_t idx;
+        static int32_t register_pointer(void* p) {
+            if (p == nullptr) return 0;
+            for (int32_t i = 1; i < s_next_idx; ++i) {
+                if (s_pointers[i] == p) return i;
+            }
+            hard_assert(s_next_idx < MAX_PTRS && "short_ptr_c pool exhausted");
+            s_pointers[s_next_idx] = p;
+            return s_next_idx++;
+        }
+        static inline void* s_pointers[MAX_PTRS] = {};
+        static inline int32_t s_next_idx = 1;  // 0 reserved for nullptr
+    }
+#endif
+    
+    template<pointer_type P, typename T>
+    requires (sizeof(T) == 4)
+    P to_pointer_cast(T o) {
+#if TOYBOX_HOST
+        return detail::s_pointers[reinterpret_cast<int>(o)];
+#else
+        return reinterpret_cast<P>(o);
+#endif
+    }
+
+    template<typename T, pointer_type P>
+    requires (sizeof(T) == 4)
+    T from_pointer_cast(P p) {
+#if TOYBOX_HOST
+        return detail::register_pointer(reinterpret_cast<void*>(p));
+#else
+        return reinterpret_cast<T>(p);
+#endif
+    }
+    
 #pragma mark - Helper classes
     
     // Base class enforcing no copy constructor or assignment.

@@ -85,6 +85,22 @@ namespace toybox {
                 _buffer = new_buffer;
                 _capacity = new_cap;
             }
+
+            /// Transfer ownership from another base_vector_dynamic_c (for move operations)
+            __forceinline void __take_ownership(base_vector_dynamic_c& o) {
+                _buffer = o._buffer;
+                _capacity = o._capacity;
+                o._buffer = nullptr;
+                o._capacity = 0;
+            }
+
+            /// Release ownership without destroying (for move operations)
+            __forceinline void __release_ownership() {
+                if (_buffer) delete[] _buffer;
+                _buffer = nullptr;
+                _capacity = 0;
+            }
+
         private:
             aligned_membuf_s<Type>* _buffer = nullptr;
             int _capacity = 0;
@@ -117,10 +133,40 @@ namespace toybox {
             copy(init.begin(), init.end(), begin());
             _size = init.size();
         }
+        constexpr vector_c(const vector_c& o) requires (Count == 0) : _size(0) {
+            this->__ensure_capacity(o._size, _size);
+            uninitialized_copy(o.begin(), o.end(), begin());
+            _size = o._size;
+        }
+        constexpr vector_c(vector_c&& o) requires (Count == 0) : _size(o._size) {
+            this->__take_ownership(o);
+            o._size = 0;
+        }
+                                            
         ~vector_c() {
             clear();
         }
             
+        vector_c& operator=(const vector_c& o) requires (Count == 0) {
+            if (this == &o) return *this;
+            clear();
+            this->__ensure_capacity(o._size, _size);
+            uninitialized_copy(o.begin(), o.end(), begin());
+            _size = o._size;
+            return *this;
+        }
+        
+        vector_c& operator=(vector_c&& o) requires (Count == 0) {
+            if (this == &o) return *this;
+            clear();
+            this->__release_ownership();
+            this->__take_ownership(o);
+            _size = o._size;
+            o._size = 0;
+            return *this;
+        }
+    
+    
         __forceinline iterator begin() __pure {
             return this->__buffer()[0].template ptr<0>();
         }

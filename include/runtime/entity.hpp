@@ -8,15 +8,34 @@
 #pragma once
 
 #include "core/geometry.hpp"
+#include "core/memory.hpp"
+#include "media/tileset.hpp"
 
 namespace toybox {
-    
 
-    class entity_c : public nocopy_c {
-    public:
-        entity_c() : _frame() {}
-    private:
-        frect_s _frame;
+    struct entity_s {
+        uint8_t type = 0;
+        uint8_t attr = 0;
+        uint8_t group = 0;
+        uint8_t action = 0;
+        fcrect_s frame;
+        uint8_t edata[4];
+        uint8_t adata[16];
+        template<class T> requires (sizeof(T) <= 4)
+        T& edata_as() { return (T&)(&edata[0]); }
+        template<class T> requires (sizeof(T) <= 16)
+        T& adata_as() { return (T&)(&adata[0]); }
     };
+    static_assert(sizeof(entity_s) == 32);
+
+    struct entity_type_def_s {
+        struct frame_def_s {
+            int index;
+            point_s offset;
+        };
+        shared_ptr_c<tileset_c> tileset;
+        vector_c<frame_def_s, 0> frame_defs; //
+    };
+        
     
 }

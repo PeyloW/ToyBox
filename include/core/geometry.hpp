@@ -123,5 +123,10 @@ namespace toybox {
     using frect_s = base_rect_s<fix16_t>;
     static_assert(sizeof(frect_s) == 8);
 
+    struct fcrect_s {
+        fpoint_s center;
+        fsize_s size;
+    };
+    
 }
 

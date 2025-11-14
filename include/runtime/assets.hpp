@@ -20,7 +20,7 @@ namespace toybox {
     class asset_c : nocopy_c {
     public:
         enum class type_e : uint8_t {
-            custom, image, tileset, tilemap, font, sound, music
+            custom, image, tileset, font, sound, music, tilemap_level
         };
         using enum type_e;
         __forceinline virtual type_e asset_type() const __pure { return type_e::custom; }
@@ -31,6 +31,7 @@ namespace toybox {
     class font_c;
     class sound_c;
     class music_c;
+    class tilemap_level_c;
 
     /**
      `asset_manager_c` handles loading and unloading of assets from disk.
@@ -58,6 +59,7 @@ namespace toybox {
         __forceinline font_c &font(int id) const { return (font_c&)(asset(id)); }
         __forceinline sound_c &sound(int id) const { return (sound_c&)(asset(id)); }
         __forceinline music_c &music(int id) const { return (music_c&)(asset(id)); }
+        __forceinline tilemap_level_c &tilemap_level(int id) const { return (tilemap_level_c&)(asset(id)); }
 
         unique_ptr_c<char> data_path(const char* file) const;
         unique_ptr_c<char> user_path(const char* file) const;

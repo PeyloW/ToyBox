@@ -46,6 +46,15 @@
 			membershipExceptions = (
 				src/fullscreen_scene.cpp,
 				src/main.cpp,
+				src/tilemap_scene.cpp,
+			);
+			target = A68D49DD2EA1343F00174946 /* toybox_index */;
+		};
+		A6F64B332EC5873800033104 /* Exceptions for "src" folder in "toybox_index" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				runtime/actions.cpp,
+				runtime/tilemap_level.cpp,
 			);
 			target = A68D49DD2EA1343F00174946 /* toybox_index */;
 		};
@@ -69,6 +78,9 @@
 		};
 		A68D49CE2EA132E700174946 /* src */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A6F64B332EC5873800033104 /* Exceptions for "src" folder in "toybox_index" target */,
+			);
 			name = src;
 			path = ../../src;
 			sourceTree = SOURCE_ROOT;
@@ -237,6 +249,7 @@
 		A68D49712EA1314600174946 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../include/**";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				OTHER_CFLAGS = (
 					"-O0",
@@ -253,6 +266,7 @@
 		A68D49722EA1314600174946 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../include/**";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				OTHER_CFLAGS = (
 					"-O0",
@@ -283,12 +297,10 @@
 		A68D49E42EA1343F00174946 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
-				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -346,12 +358,10 @@
 		A68D49E52EA1343F00174946 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
-				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;

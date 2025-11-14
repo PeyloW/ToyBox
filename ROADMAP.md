@@ -63,7 +63,7 @@ Support static one screen or eight way scrolling games with rasters and split-sc
     - [ ] AI able to walk on ground
     - [ ] AI able to fly
     - [ ] AI controllable by decisions tree
-- [ ] `world_c` and `level_c` as a concept of a persistent game world
+- [ ] `level_c` and `level_c` as a concept of a persistent game level
     - [ ] Dynamically load a `level_c` from a new `scene_c`
     - [ ] Persist state for a `level_c` when unloaded (picked items, dead enemies, etc.)
     - [ ] Support loading and saving game state

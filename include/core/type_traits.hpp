@@ -24,6 +24,13 @@ namespace toybox {
     using false_type = bool_constant<false>;
     using true_type = bool_constant<true>;
     
+    
+    template<bool B, class T = void>
+    struct enable_if {};
+     
+    template<class T>
+    struct enable_if<true, T> { typedef T type; };
+    
 #pragma mark - Type categories
     
     template<typename T> struct is_integral : public false_type {};
@@ -41,6 +48,8 @@ namespace toybox {
     
     template<typename T> struct is_arithmetic : public bool_constant<is_integral<T>::value || is_floating_point<T>::value> {};
     
+    template<class T> struct is_pointer : false_type {};
+    template<class T> struct is_pointer<T*> : true_type {};
     
     template<class T> struct is_reference : false_type {};
     template<class T> struct is_reference<T&> : true_type {};

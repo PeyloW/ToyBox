@@ -31,6 +31,9 @@ namespace toybox {
     template<typename T>
     concept enum_type = __is_enum(T);
     
+    template<typename T>
+    concept pointer_type = is_pointer<T>::value;
+    
     template<typename From, typename To>
     concept convertible_to =
     requires(From (&f)()) {

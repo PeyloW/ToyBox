@@ -12,7 +12,13 @@
 using namespace toybox;
 
 enum demo_assets_e {
+// Shared
+    
+// Used by fullscreen_scene
     BACKGROUND, // image
     SPRITES,    // tileset
-    MUSIC       // music
+    MUSIC,      // music
+// Used by tilemap_scene
+    TILESET_SPR,// Tileset for sprites
+    LEVEL       // tilemap level
 };

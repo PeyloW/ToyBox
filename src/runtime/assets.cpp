@@ -107,9 +107,6 @@ asset_c* asset_manager_c::create_asset(int id, const asset_def_s &def) const {
                 return new image_c(path.get());
             case asset_c::tileset:
                 return new tileset_c(new image_c(path.get()), size_s(16, 16));
-            case asset_c::tilemap:
-                // TODO: Implement file format and loading.
-                return nullptr;
             case asset_c::font:
                 return new font_c(new image_c(path.get()), size_s(8, 8));
             case asset_c::sound:
@@ -118,6 +115,9 @@ asset_c* asset_manager_c::create_asset(int id, const asset_def_s &def) const {
 #if TOYBOX_TARGET_ATARI
                 return new ymmusic_c(path.get());
 #endif
+            case asset_c::tilemap_level:
+                // TODO: Implement file format and loading.
+                return nullptr;
             default:
                 hard_assert(0);
                 break;

@@ -8,12 +8,17 @@
 #include "machine/machine.hpp"
 #include "media/audio_mixer.hpp"
 #include "runtime/assets.hpp"
+#include "runtime/tilemap_level.hpp"
 #include "demo_assets.hpp"
 #include "fullscreen_scene.hpp"
+#include "tilemap_scene.hpp"
 
 static asset_manager_c& setup_assets() {
     constexpr pair_c<int,asset_manager_c::asset_def_s> asset_defs[] = {
+        // Background is simply loaded from iff image file.
         { BACKGROUND, asset_manager_c::asset_def_s(asset_c::image, 1, "backgrnd.iff") },
+
+        // Sprites are loaded from image, but uses lambda to rempa colors
         { SPRITES, asset_manager_c::asset_def_s(asset_c::tileset, 1, "sprites.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
             shared_ptr_c<image_c> image = new image_c(path, 0);
             constexpr auto table = canvas_c::remap_table_c({
@@ -23,7 +28,14 @@ static asset_manager_c& setup_assets() {
             canvas.remap_colors(table, rect_s(0, 0, 128, 32));
             return new tileset_c(image, size_s(32, 32));
         })},
-        { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") }
+        
+        // Music is just an SNDH file
+        { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") },
+        
+        // Level is not loaded at all, dynamically created on demand
+        { LEVEL, asset_manager_c::asset_def_s(asset_c::tilemap_level, 2, nullptr, [](const asset_manager_c &manager, const char *path) -> asset_c* {
+            return make_tilemaplevel();
+        })},
     };
 
     auto &assets = asset_manager_c::shared();
