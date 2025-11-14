@@ -68,8 +68,28 @@ namespace toybox {
         using const_iterator = typename detail::template iterator_s<const Type>;
         
         list_c() { _head = nullptr; }
+        list_c(const list_c& o) requires (Count == 0) : _head(nullptr) {
+            if (o._head) _copy_from(o);
+        }
+        list_c(list_c&& o) requires (Count == 0) : _head(o._head) {
+            o._head = nullptr;
+        }
         ~list_c() { clear(); }
-        
+
+        list_c& operator=(const list_c& o) requires (Count == 0) {
+            if (this == &o) return *this;
+            clear();
+            if (o._head) _copy_from(o);
+            return *this;
+        }
+        list_c& operator=(list_c&& o) requires (Count == 0) {
+            if (this == &o) return *this;
+            clear();
+            _head = o._head;
+            o._head = nullptr;
+            return *this;
+        }
+
         __forceinline bool empty() const __pure { return _head == nullptr; }
         void clear() {
             auto it = before_begin();
@@ -179,6 +199,18 @@ namespace toybox {
             splice_after(before_begin(), other, first, last);
         }
     private:
+        void _copy_from(const list_c& o) {
+            using node_s = detail::node_s;
+            node_s* src = o._head;
+            node_s** dst_ptr = &_head;
+
+            while (src) {
+                *dst_ptr = new node_s{nullptr, src->value};
+                dst_ptr = &(*dst_ptr)->next;
+                src = src->next;
+            }
+        }
+
         bool owns_node(detail::node_s * node) const __pure {
             using node_s = detail::node_s;
             auto before_head = const_cast<node_s**>(&_head);

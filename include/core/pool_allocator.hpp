@@ -63,4 +63,47 @@ private:
     }();
 };
 
+/**
+ Dynamic specialization of `pool_allocator_c` for Count == 0.
+ Grows the pool automatically by allocating chunks as needed.
+ Chunk sizes start at 8 and double each time (capped at 256).
+ */
+template <class T>
+class pool_allocator_c<T, 0> {
+    struct block_t;
+public:
+    static constexpr size_t alloc_size = sizeof(T);
+    using type = block_t*;
+    static void* allocate() {
+        if (!first_block) _grow_pool();
+        auto ptr = reinterpret_cast<T*>(&first_block->data[0]);
+        first_block = first_block->next;
+        return ptr;
+    }
+    static void deallocate(void* ptr) {
+        block_t* block = reinterpret_cast<block_t*>(static_cast<void**>(ptr) - 1);
+        block->next = first_block;
+        first_block = block;
+    }
+private:
+    struct block_t {
+        block_t* next;
+        uint8_t data[alloc_size];
+    };
+    static void _grow_pool() {
+        int chunk_size = s_next_chunk_size;
+        block_t* chunk = new block_t[chunk_size];
+        for (int i = 0; i < chunk_size - 1; ++i) {
+            chunk[i].next = &chunk[i + 1];
+        }
+        chunk[chunk_size - 1].next = first_block;
+        first_block = chunk;
+        if (s_next_chunk_size < 256) {
+            s_next_chunk_size *= 2;
+        }
+    }
+    static inline block_t* first_block = nullptr;
+    static inline int s_next_chunk_size = 8;
+};
+
 }

@@ -186,7 +186,7 @@ __neverinline void test_dynamic_vector() {
 }
 
 struct test_list_state_s {
-    list_c<non_trivial_s, 20> list;
+    list_c<non_trivial_s, 0> list;
     int first_gen;
     bool first_moved;
 };
@@ -313,7 +313,7 @@ __neverinline void test_list_removal(test_list_state_s& state) {
 
 __neverinline void test_list_splice_single(test_list_state_s& state) {
     // Test 8: splice_after - verify elements not copied/moved, just linked
-    list_c<non_trivial_s, 20> list2;
+    list_c<non_trivial_s, 0> list2;
     list2.push_front(non_trivial_s(400));
     list2.push_front(non_trivial_s(500));
 
@@ -388,7 +388,7 @@ __neverinline void test_list_verify_no_moves(test_list_state_s& state) {
 
 __neverinline void test_list_splice_range(test_list_state_s& state) {
     // Test 11: splice_after with range (first, last)
-    list_c<non_trivial_s, 20> list3;
+    list_c<non_trivial_s, 0> list3;
     list3.push_front(non_trivial_s(1000));
     list3.push_front(non_trivial_s(2000));
     list3.push_front(non_trivial_s(3000));
@@ -445,7 +445,7 @@ __neverinline void test_list_splice_range(test_list_state_s& state) {
 
 __neverinline void test_list_splice_front_range(test_list_state_s& state) {
     // Test 12: splice_front with range
-    list_c<non_trivial_s, 20> list4;
+    list_c<non_trivial_s, 0> list4;
     list4.push_front(non_trivial_s(7000));
     list4.push_front(non_trivial_s(8000));
     list4.push_front(non_trivial_s(9000));
