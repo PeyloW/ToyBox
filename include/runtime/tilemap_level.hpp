@@ -12,21 +12,23 @@
 
 namespace toybox {
     
+    class dirtymap_c;
+    
     class tilemap_level_c : public tilemap_c, public asset_c {
     public:
-        tilemap_level_c(rect_s tilespace_bounds);
-        tilemap_level_c(const char* path);
+        tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset);
+        tilemap_level_c(const char* path, tileset_c* tileset);
         
         __forceinline type_e asset_type() const override final { return tilemap_level; }
 
-        virtual void update(screen_c& screen, int ticks);
+        virtual void update(screen_c& screen, int display_id, int ticks);
         virtual void update_level();
         virtual void update_actions();
         virtual void draw_tiles();
         virtual void draw_entities();
 
-        void dirty_screens(point_s tilespace_point);
-        void dirty_screens(rect_s tilespace_rect);
+        void mark_tiles_dirtymap(point_s point);
+        void mark_tiles_dirtymap(rect_s rect);
 
         screen_c& active_screen() {
             assert(_screen && "No active canvas");
@@ -43,7 +45,9 @@ namespace toybox {
         void splice_subtilemap(int index);
     protected:
         screen_c* _screen;
+        dirtymap_c* _tiles_dirtymap;
         rect_s _visible_bounds;
+        tileset_c* _tileset;
         vector_c<entity_s, 0> _all_entities;
         vector_c<tilemap_c, 0> _subtilemaps;
         vector_c<action_f, 0> _actions;

@@ -90,6 +90,7 @@ namespace toybox {
         enum class display_list_e : int8_t {
             clear = -1, front, back
         };
+        using enum display_list_e;
         static scene_manager_c& shared();
         
         void run(scene_c* rootscene, scene_c* overlay_scene = nullptr, transition_c* transition = nullptr);

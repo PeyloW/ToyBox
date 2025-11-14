@@ -8,6 +8,7 @@
 #pragma once
 
 #include "core/geometry.hpp"
+#include "core/utility.hpp"
 
 namespace toybox {
     
@@ -25,11 +26,15 @@ namespace toybox {
      NOTO: Is support for dirty grids other than 16x16 pixels needed.
      */
     class dirtymap_c : public nocopy_c {
-        friend class canvas_c;
     public:
+        using restore_f = function_c<void(const rect_s&)>;
+        
+        static dirtymap_c* create(size_s size);
+        
         void mark(const rect_s &rect);
         void merge(const dirtymap_c &dirtymap);
         void restore(canvas_c &canvas, const image_c &clean_image);
+        void restore(restore_f& func);
         void clear();
 #if TOYBOX_DEBUG_DIRTYMAP
         void debug(const char *name) const;

@@ -38,7 +38,7 @@ tilemap_level_c* make_tilemaplevel() {
         "    #-----#########",
         "    #######        ",
     };
-    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(19,11)));
+    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(19,11)), nullptr);
     auto& level = *level_ptr;
     
     // Setup available actions
@@ -80,14 +80,14 @@ tilemap_level_c* make_tilemaplevel() {
                     level.all_entities().emplace(level.all_entities().begin(), (entity_s){
                         .type=PLAYER, .group=PLAYER,
                         .action = 1,
-                        .frame=fcrect_s{ center(), {16,16} }
+                        .position=fcrect_s{ center(), {16,16} }
                     });
                     break;
                 case '$':
                     tile.flags = 1;
                     level.all_entities().emplace_back((entity_s){
                         .type=ROCK, .group=ROCK,
-                        .frame=fcrect_s{ center(), {16,16} }
+                        .position=fcrect_s{ center(), {16,16} }
                     });
                     break;
                 default:
@@ -115,5 +115,5 @@ void tilemap_scene::will_appear(bool obsured) {
 
 void tilemap_scene::update(display_list_c& display, int ticks) {
     auto& screen = display.get(PRIMARY_SCREEN).screen();
-    _level.update(screen, ticks);
+    _level.update(screen, PRIMARY_SCREEN, ticks);
 }

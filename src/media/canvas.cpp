@@ -10,12 +10,6 @@
 
 using namespace toybox;
 
-dirtymap_c *canvas_c::create_dirtymap() const {
-    auto size = _image.size();
-    int bytes = dirtymap_c::instance_size(&size);
-    return new (_calloc(1, bytes)) dirtymap_c(size);
-}
-
 void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
     assert(rect.contained_by(_image.size()) && "Rect must be contained within image bounds");
     for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {

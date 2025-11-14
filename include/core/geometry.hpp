@@ -23,6 +23,10 @@ namespace toybox {
         constexpr bool operator==(const base_point_s &p) const {
             return x == p.x && y == p.y;
         }
+        template<typename OType>
+        constexpr explicit operator base_point_s<OType>() const {
+            return base_point_s<OType>(static_cast<OType>(x), static_cast<OType>(y));
+        }
         constexpr base_point_s operator+(base_point_s o) const {
             return base_point_s(x + o.x, y + o.y);
         }
@@ -39,6 +43,10 @@ namespace toybox {
         Type width, height;
         constexpr bool operator==(const base_size_s s) const {
             return width == s.width && height == s.height;
+        }
+        template<typename OType>
+        constexpr explicit operator base_size_s<OType>() const {
+            return base_size_s<OType>(static_cast<OType>(width), static_cast<OType>(height));
         }
         constexpr bool contains(const point_s point) const {
             return point.x >= 0 && point.y >= 0 && point.x < width && point.y < height;
@@ -63,6 +71,10 @@ namespace toybox {
         __forceinline constexpr int16_t max_y() const { return origin.y + size.height - 1; }
         constexpr bool operator==(const Type& r) const {
             return origin == r.origin && size == r.size;
+        }
+        template<typename OType>
+        constexpr explicit operator base_rect_s<OType>() const {
+            return base_rect_s<OType>(static_cast<base_point_s<OType>>(origin), static_cast<base_size_s<OType>>(size));
         }
         constexpr base_rect_s operator+(base_point_s<Type> o) const {
             return base_rect_s(origin + o, size);

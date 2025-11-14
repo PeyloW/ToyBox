@@ -14,16 +14,18 @@
 namespace toybox {
 
     struct entity_s {
+        static constexpr const uint16_t flag_hidden = 1 << 0;
         uint8_t type = 0;
-        uint8_t attr = 0;
         uint8_t group = 0;
         uint8_t action = 0;
-        fcrect_s frame;
+        uint8_t frame_index = 0;
+        uint16_t flags = 0;
+        fcrect_s position;
         uint8_t edata[4];
-        uint8_t adata[16];
+        uint8_t adata[14];
         template<class T> requires (sizeof(T) <= 4)
         T& edata_as() { return (T&)(&edata[0]); }
-        template<class T> requires (sizeof(T) <= 16)
+        template<class T> requires (sizeof(T) <= 14)
         T& adata_as() { return (T&)(&adata[0]); }
     };
     static_assert(sizeof(entity_s) == 32);

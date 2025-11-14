@@ -251,7 +251,7 @@ namespace toybox {
     }
     
     template <class T>
-    constexpr T* launder(T* p) noexcept {
+    constexpr T* launder(T* p) {
         return __builtin_launder(p);
     }
     
@@ -292,8 +292,43 @@ namespace toybox {
         return reinterpret_cast<T>(p);
 #endif
     }
-    
+
 #pragma mark - Helper classes
+
+    // Lightweight non-owning function reference, similar to std::function_ref.
+    // Client must ensure referenced callable outlives function_c
+    template<typename>
+    class function_c;
+
+    template<typename R, typename... Args>
+    class function_c<R(Args...)> {
+    public:
+        constexpr function_c(R(*func)(Args...))
+            : _invoker(invoke_func_ptr), _target(reinterpret_cast<void*>(func))
+        {}
+        template<typename F>
+        constexpr function_c(F& func)
+            : _invoker(invoke_functor<F>), _target(static_cast<void*>(&func))
+        {}
+        
+        __forceinline R operator()(Args... args) const {
+            return _invoker(_target, static_cast<Args&&>(args)...);
+        }
+    private:
+        // Type-erased invoke function
+        using invoke_ptr_t = R(*)(void*, Args...);
+        static R invoke_func_ptr(void* obj, Args... args) {
+            auto func = reinterpret_cast<R(*)(Args...)>(obj);
+            return func(static_cast<Args&&>(args)...);
+        }
+        template<typename F>
+        static R invoke_functor(void* obj, Args... args) {
+            const auto& func = *static_cast<F*>(obj);
+            return func(static_cast<Args&&>(args)...);
+        }
+        invoke_ptr_t _invoker;
+        void* _target;
+    };
     
     // Base class enforcing no copy constructor or assignment.
     class nocopy_c {

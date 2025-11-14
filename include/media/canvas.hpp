@@ -60,8 +60,6 @@ namespace toybox {
         __forceinline size_s size() const { return _image.size(); }
         
         static const stencil_t* const stencil(stencil_e type, int shade);
-
-        dirtymap_c* create_dirtymap() const __pure;
         
         void remap_colors(const remap_table_c &table,  const rect_s &rect) const;
         
