@@ -23,6 +23,12 @@ namespace toybox {
         constexpr bool operator==(const base_point_s &p) const {
             return x == p.x && y == p.y;
         }
+        constexpr base_point_s operator+(base_point_s o) const {
+            return base_point_s(x + o.x, y + o.y);
+        }
+        constexpr base_point_s operator-(base_point_s o) const {
+            return base_point_s(x - o.x, y - o.y);
+        }
     };
     
     template<typename Type>
@@ -57,6 +63,12 @@ namespace toybox {
         __forceinline constexpr int16_t max_y() const { return origin.y + size.height - 1; }
         constexpr bool operator==(const Type& r) const {
             return origin == r.origin && size == r.size;
+        }
+        constexpr base_rect_s operator+(base_point_s<Type> o) const {
+            return base_rect_s(origin + o, size);
+        }
+        constexpr base_rect_s operator-(base_point_s<Type> o) const {
+            return base_rect_s(origin - o, size);
         }
         constexpr bool contains(const point_s point) const {
             const point_s at = point_s(point.x - origin.x, point.y - origin.y);

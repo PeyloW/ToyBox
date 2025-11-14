@@ -7,6 +7,7 @@
 
 #include "runtime/tilemap_level.hpp"
 #include "core/iffstream.hpp"
+#include "media/screen.hpp"
 
 using namespace toybox;
 
@@ -72,6 +73,7 @@ void tilemap_level_c::update_actions() {
 
 void tilemap_level_c::draw_tiles() {
     // TODO: Use the dirtymap of the screen to update tiles
+    auto& screen = active_screen();
     // This erases sprites, and any updates caused by `update_level` and `update_actions`
 }
 

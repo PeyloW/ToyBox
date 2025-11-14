@@ -24,6 +24,9 @@ namespace toybox {
         screen_c(size_s screen_size = TOYBOX_SCREEN_SIZE_DEFAULT);
         ~screen_c();
 
+        point_s offset() const { return _offset; }
+        void set_offset(point_s offset) { _offset = offset; }
+        
         __forceinline dirtymap_c* dirtymap() const { return _dirtymap; }
 
     private:

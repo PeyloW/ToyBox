@@ -22,9 +22,9 @@ namespace toybox {
         };
         using enum type_e;
 
-        uint8_t index = 0;  // tileset index to drae with
+        int16_t index = 0;  // tileset index to draw with, 0 to -15 
         type_e type = none;    // Tile type
-        uint16_t flags = 0;
+        uint8_t flags = 0;
         uint8_t data[4];
         template<class T>
         requires (sizeof(T) <= 4)

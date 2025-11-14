@@ -53,7 +53,7 @@ namespace toybox {
             right
         };
         
-        canvas_c(image_c &image) : _image(image) {};
+        canvas_c(image_c &image) : _image(image), _offset() {};
         ~canvas_c() {};
 
         __forceinline image_c &image() const { return _image; }
@@ -109,6 +109,7 @@ namespace toybox {
         size_s draw(const font_c &font, const char* text, const rect_s &in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX) const;
 
     protected:
+        point_s _offset;
         image_c &_image;
         mutable dirtymap_c* _dirtymap = nullptr;
         mutable const stencil_t* _stencil = nullptr;
