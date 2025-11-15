@@ -9,7 +9,7 @@ A minimal C++ framework for writing Atari ST<sup>E</sup> entertainment software.
 
 ## Project Philosophy
 
-Toybox should be small, fast and convenient. In order to be small, toybox shall use a bare minimum of libcmini, and not include or implement anything not directly needed by a client program. In order to be fast, toybox shall rely on C++ compiler optimizations, and rely on error checking on host machine not M68k target. In order to be convenient, API shall be designed similar to C++ standard library and/or boost.
+ToyBox should be small, fast and convenient. In order to be small, toybox shall use a bare minimum of libcmini, and not include or implement anything not directly needed by a client program. In order to be fast, toybox shall rely on C++ compiler optimizations, and rely on error checking on host machine not M68k target. In order to be convenient, API shall be designed similar to C++ standard library and/or boost.
 
 All code must compile with gcc and clang with C++23 enabled, no standard libraries linked!
 
@@ -33,7 +33,7 @@ A game is intended to be implemented as a stack of scenes. Navigating to a new s
     * `front`, `back`, `clear` three display lists with viewports: front is being presented, back is being drawn, and clear is used for restoring other viewports from their dirtymaps.
     * `display_list(id)` access a specific display list by ID.
 * `scene_c` - The abstract scene baseclass.
-    * `configuration` the scene configuration with viewport_size, buffer_count, and use_clear flag.
+    * `configuration()` the scene configuration with viewport_size, buffer_count, and use_clear flag.
     * `will_appear(bool obscured)` called when scene becomes the top scene and will appear.
         * Implement to draw initial content to the clear viewport.
     * `update(display_list_c &display_list, int ticks)` update the scene, drawing to the provided display list's viewport.
@@ -51,11 +51,10 @@ A game is intended to be implemented as a stack of scenes. Navigating to a new s
 Assets are images, sound effects, music, levels, or any other data the game needs. All assets may not fit in memory at once, and thus need to be loaded and unloaded on demand.
 
 * `asset_manager_c` - The manager singleton, intended to be subclassed for adding typed custom assets.
-    * `set_shared` set a custom shared singleton.
-    * `shared` get the shared singleton, create one if not set.
-    * `image`, `tileset`, `font`, etc. get an asset, load if needed.
-    * `preload` preload assets in batches.
-    * `add_asset_def` add an asset definition, with an ID, batch sets to be included in, and optionally a lambda for how to load and construct the asset.
+    * `shared()` get the shared singleton.
+    * `image(id)`, `tileset(id)`, `font(id)`, etc. get an asset, load if needed.
+    * `preload(sets)` preload assets in batches.
+    * `add_asset_def(id, def)` add an asset definition, with an ID, batch sets to be included in, and optionally a lambda for how to load and construct the asset.
 * `image_c` an image asset, loaded from EA IFF 85 ILBM files (.iff).
 * `sound_c` a sound asset, loaded from Audio Interchange File Format (.aif).
 * `ymmusic_c` a music asset, loaded from uncompressed Sound Header files (.snd).
@@ -64,7 +63,7 @@ Assets are images, sound effects, music, levels, or any other data the game need
 
 ### Tilemaps and Levels
 
-Toybox provides a tilemap system for creating tile-based game worlds with entities and AI.
+ToyBox provides a tilemap system for creating tile-based game worlds with entities and AI.
 
 * `tilemap_c` - A 2D grid of tiles for defining game levels.
     * `tile_s` structure with index, type (none, solid, platform, water), flags, and custom data.
