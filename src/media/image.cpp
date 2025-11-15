@@ -89,10 +89,10 @@ namespace cc4 {
 }
 
 enum class mask_type_e : uint8_t {
-    mask_type_none,
-    mask_type_plane,
-    mask_type_color,
-    mask_type_lasso,
+    none,
+    plane,
+    color,
+    lasso,
 };
 
 struct ilbm_header_s {
@@ -213,16 +213,16 @@ image_c::image_c(const char *path, int masked_cidx) :
             _size = bmhd.size;
             assert(bmhd.plane_count == 4 && "Only 4-plane images are supported");
             if (masked_cidx != MASKED_CIDX) {
-                assert(bmhd.mask_type != mask_type_e::mask_type_plane && "Plane mask type conflicts with custom mask color");
+                assert(bmhd.mask_type != mask_type_e::plane && "Plane mask type conflicts with custom mask color");
                 bmhd.mask_color = masked_cidx;
                 masked = true;
-            } else if (bmhd.mask_type == mask_type_e::mask_type_color) {
+            } else if (bmhd.mask_type == mask_type_e::color) {
                 masked_cidx = bmhd.mask_color;
                 masked = true;
-            } else if (bmhd.mask_type == mask_type_e::mask_type_plane) {
+            } else if (bmhd.mask_type == mask_type_e::plane) {
                 masked = true;
             } else {
-                assert(bmhd.mask_type == mask_type_e::mask_type_none && "Mask type must be none when not using color or plane masks");
+                assert(bmhd.mask_type == mask_type_e::none && "Mask type must be none when not using color or plane masks");
             }
             // DeluxePain ST format and custom deflate not supported
             assert(bmhd.compression_type < compression_type_e::vertical && "DeluxePaint ST vertical compression not supported");
@@ -235,7 +235,7 @@ image_c::image_c(const char *path, int masked_cidx) :
         } else if (chunk.id == ::cc4::BODY) {
             _line_words = ((_size.width + 15) / 16);
             const uint16_t bitmap_words = (_line_words * _size.height) << 2;
-            const bool needs_mask_words = masked || (bmhd.mask_type == mask_type_e::mask_type_plane);
+            const bool needs_mask_words = masked || (bmhd.mask_type == mask_type_e::plane);
             const uint16_t mask_words = needs_mask_words ? (bitmap_words >> 2) : 0;
             _bitmap.reset((uint16_t*)(_malloc((bitmap_words + mask_words) << 1)));
             assert(_bitmap && "Failed to allocate bitmap memory");
@@ -246,10 +246,10 @@ image_c::image_c(const char *path, int masked_cidx) :
             }
             switch (bmhd.compression_type) {
                 case compression_type_e::none:
-                    image_read(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::mask_type_plane ? _maskmap : nullptr);
+                    image_read(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::plane ? _maskmap : nullptr);
                     break;
                 case compression_type_e::packbits:
-                    image_read_packbits(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::mask_type_plane ? _maskmap : nullptr);
+                    image_read_packbits(file, _line_words, _size.height, _bitmap.get(), bmhd.mask_type == mask_type_e::plane ? _maskmap : nullptr);
                     break;
                 default:
                     break;
@@ -257,7 +257,7 @@ image_c::image_c(const char *path, int masked_cidx) :
             if (needs_mask_words) {
                 if (!masked) {
                     _maskmap = nullptr;
-                } else if (bmhd.mask_type != mask_type_e::mask_type_plane) {
+                } else if (bmhd.mask_type != mask_type_e::plane) {
                     memset(_maskmap, -1, mask_words << 1);
                     canvas_c::remap_table_c table;
                     table[bmhd.mask_color] = MASKED_CIDX;
@@ -274,8 +274,6 @@ image_c::image_c(const char *path, int masked_cidx) :
     }
 }
 
-
-#if TOYBOX_IMAGE_SUPPORTS_SAVE
 
 static void image_write(iffstream_c &file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
@@ -305,9 +303,9 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
     assert(row_byte_count >= 2 && "Row byte count must be at least 2");
 #define PACKBITS_MIN_RUN 3
 #define PACKBITS_MAX_BYTES 128
-    enum class state_e : uint8_t {
-        mode_dump,
-        mode_run
+    enum class mode_e : uint8_t {
+        dump,
+        run
     };
     
     const auto packRunIntoBody = [&body] (uint8_t byte, int count) {
@@ -325,7 +323,7 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
     static uint8_t buffer[256];
     short buffer_byte_count;
     short run_start_buffer_index = 0;
-    state_e mode = mode_dump;
+    mode_e mode = mode_e::dump;
     
     buffer[0] = previous_byte = current_byte = *row_buffer++;
     buffer_byte_count = 1;
@@ -334,7 +332,7 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
     for (; row_byte_count > 0;  --row_byte_count) {
         buffer[buffer_byte_count++] = current_byte = *row_buffer++;
         switch (mode) {
-            case mode_dump:
+            case mode_e::dump:
                 if (buffer_byte_count > PACKBITS_MAX_BYTES) {
                     packDumpIntoBody(buffer, buffer_byte_count - 1);
                     buffer[0] = current_byte;
@@ -347,22 +345,22 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
                         if (run_start_buffer_index > 0) {
                             packDumpIntoBody(buffer, run_start_buffer_index);
                         }
-                        mode = mode_run;
+                        mode = mode_e::run;
                     }  else if (run_start_buffer_index == 0) {
-                        mode = mode_run;
+                        mode = mode_e::run;
                     }
                 } else {
                     run_start_buffer_index = buffer_byte_count - 1;
                 }
                 break;
                 
-            case mode_run:
+            case mode_e::run:
                 if ((current_byte != previous_byte) || (buffer_byte_count - run_start_buffer_index > PACKBITS_MAX_BYTES)) {
                     packRunIntoBody(previous_byte, buffer_byte_count - 1 - run_start_buffer_index);
                     buffer[0] = current_byte;
                     buffer_byte_count = 1;
                     run_start_buffer_index = 0;
-                    mode = mode_dump;
+                    mode = mode_e::dump;
                 }
                 break;
         }
@@ -370,10 +368,10 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
     }
     
     switch (mode) {
-        case mode_dump:
+        case mode_e::dump:
             packDumpIntoBody(buffer, buffer_byte_count);
             break;
-        case mode_run:
+        case mode_e::run:
             packRunIntoBody(previous_byte, buffer_byte_count-run_start_buffer_index);
             break;
     }
@@ -409,9 +407,9 @@ static void image_write_packbits(iffstream_c &file, uint16_t line_words, uint16_
 }
 
 
-bool image_c::save(const char *path, compression_type_e compression, bool masked, int masked_cidx) {
+bool image_c::save(const char *path, image_c::compression_type_e compression, bool masked, int masked_cidx) {
     // DeluxePain ST format and custom deflate not supported
-    assert(compression < compression_type_vertical && "DeluxePaint ST vertical compression not supported");
+    assert(compression < compression_type_e::vertical && "DeluxePaint ST vertical compression not supported");
 
     iffstream_c ilbm(path, fstream_c::openmode_e::input | fstream_c::openmode_e::output);
     if (ilbm.tell() >= 0) {
@@ -425,9 +423,9 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
                 memset(&header, 0, sizeof(ilbm_header_s));
                 header.size = _size;
                 header.plane_count = 4;
-                header.mask_type = masked_cidx != MASKED_CIDX ? mask_type_color : (masked && _maskmap) ? mask_type_plane : mask_type_none;
+                header.mask_type = masked_cidx != MASKED_CIDX ? mask_type_e::color : (masked && _maskmap) ? mask_type_e::plane : mask_type_e::none;
                 header.compression_type = compression;
-                if (header.mask_type == mask_type_color) {
+                if (header.mask_type == mask_type_e::color) {
                     header.mask_color = masked_cidx;
                 }
                 header.aspect[0] = 10;
@@ -445,7 +443,7 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
             if (_palette) {
                 uint8_t cmap[48];
                 for (int i = 0; i < 16; i++) {
-                    _palette->colors[i].get(&cmap[i * 3 + 0], &cmap[i * 3 + 1], &cmap[i * 3 + 2]);
+                    (*_palette)[i].get(&cmap[i * 3 + 0], &cmap[i * 3 + 1], &cmap[i * 3 + 2]);
                 }
                 ilbm.begin(::cc4::CMAP, chunk);
                 ilbm.write(cmap, 48);
@@ -454,14 +452,14 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
             {
                 ilbm.begin(::cc4::BODY, chunk);
                 switch (compression) {
-                    case compression_type_none:
-                        image_write(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(),  header.mask_type == mask_type_plane ? _maskmap : nullptr);
+                    case compression_type_e::none:
+                        image_write(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(),  header.mask_type == mask_type_e::plane ? _maskmap : nullptr);
                         break;
-                    case compression_type_packbits:
-                        image_write_packbits(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_plane ? _maskmap : nullptr);
+                    case compression_type_e::packbits:
+                        image_write_packbits(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_e::plane ? _maskmap : nullptr);
                         break;
 #if TOYBOX_ILBM_SUPPORTS_DEFLATE
-                    case compression_type_deflate:
+                    case compression_type_e::deflate:
                         image_write_deflate(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_plane ? _maskmap : nullptr);
                         break;
 #endif
@@ -475,4 +473,3 @@ bool image_c::save(const char *path, compression_type_e compression, bool masked
     }
     return false;
 }
-#endif

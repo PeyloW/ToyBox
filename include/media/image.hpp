@@ -44,9 +44,7 @@ namespace toybox {
 
         __forceinline type_e asset_type() const override { return image; }
 
-#if TOYBOX_IMAGE_SUPPORTS_SAVE
         bool save(const char *path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);
-#endif
                 
         __forceinline void set_palette(const shared_ptr_c<palette_c> &palette) {
             _palette = palette;

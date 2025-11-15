@@ -53,6 +53,7 @@
 		A6F64B332EC5873800033104 /* Exceptions for "src" folder in "toybox_index" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				media/image.cpp,
 				runtime/actions.cpp,
 				runtime/tilemap_level.cpp,
 			);

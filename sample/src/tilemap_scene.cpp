@@ -11,7 +11,7 @@
 static constexpr uint16_t is_target = 1 << 0;
 enum entity_type {
     PLAYER = 0,
-    ROCK = 1
+    BOX = 1
 };
 
 enum tile_type {
@@ -49,9 +49,9 @@ tilemap_level_c* make_tilemaplevel() {
     auto& player = level.entity_type_defs().emplace_back();
     player.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
     player.frame_defs.push_back({ 0, {-8, -8} });
-    auto& rock = level.entity_type_defs().emplace_back();
-    rock.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    rock.frame_defs.push_back({ 1, {-8, -8} });
+    auto& box = level.entity_type_defs().emplace_back();
+    box.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
+    box.frame_defs.push_back({ 1, {-8, -8} });
 
     for (int y = 0; y < 11; ++y) {
         const char* line = recipe[y];
@@ -86,7 +86,7 @@ tilemap_level_c* make_tilemaplevel() {
                 case '$':
                     tile.flags = 1;
                     level.all_entities().emplace_back((entity_s){
-                        .type=ROCK, .group=ROCK,
+                        .type=BOX, .group=BOX,
                         .position=fcrect_s{ center(), {16,16} }
                     });
                     break;

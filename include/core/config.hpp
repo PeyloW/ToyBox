@@ -28,10 +28,6 @@
 #   define TOYBOX_LOG_MALLOC 0
 #endif
 
-#ifndef TOYBOX_IMAGE_SUPPORTS_SAVE
-#   define TOYBOX_IMAGE_SUPPORTS_SAVE 0
-#endif
-
 #ifndef TOYBOX_SCREEN_SIZE_MAX
 #   define TOYBOX_SCREEN_SIZE_MAX size_s(320, 200)
 #endif
