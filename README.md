@@ -30,7 +30,6 @@ A game is intended to be implemented as a stack of scenes. Navigating to a new s
 
 * `scene_manager_c` - The manager singleton.
     * `push(...)`, `pop(...)`, `replace(...)` to manage the scene stack.
-    * `overlay_scene` a scene to draw on top of all other content, such as a status bar or mouse cursor.
     * `front`, `back`, `clear` three display lists with viewports: front is being presented, back is being drawn, and clear is used for restoring other viewports from their dirtymaps.
     * `display_list(id)` access a specific display list by ID.
 * `scene_c` - The abstract scene baseclass.

@@ -40,7 +40,6 @@ scene_manager_c::scene_manager_c() :
     clock(timer_c::shared(timer_c::timer_e::clock))
 {
     machine_c::shared();
-    _overlay_scene = nullptr;
     _active_display_list = 0;
     _transition = nullptr;
     for (int i = 0; i < 3; i++) {
@@ -61,8 +60,7 @@ scene_manager_c& scene_manager_c::shared()
 
 #define DEBUG_NO_SET_SCREEN 0
 
-void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_c *transition) {
-    set_overlay_scene(overlayscene);
+void scene_manager_c::run(scene_c *rootscene, transition_c *transition) {
     push(rootscene, transition);
 
     vbl.reset_tick();
@@ -104,16 +102,6 @@ void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_
             machine_c::shared().set_active_display_list(&back);
             swap_display_lists();
         });
-    }
-}
-
-void scene_manager_c::set_overlay_scene(scene_c *overlay_scene) {
-    if (_overlay_scene != overlay_scene) {
-        if (_overlay_scene) {
-            _overlay_scene->will_disappear(false);
-        }
-        _overlay_scene = overlay_scene;
-        _overlay_scene->will_appear(false);
     }
 }
 
@@ -185,10 +173,6 @@ void scene_manager_c::update_scene(scene_c &scene, int32_t ticks) {
     debug_cpu_color(DEBUG_CPU_TOP_SCENE_TICK);
     display_list_c &back = display_list(display_list_e::back);
     scene.update(back, ticks);
-    if (_overlay_scene) {
-        debug_cpu_color(DEBUG_CPU_OVERLAY_SCENE_TICK);
-        _overlay_scene->update(back, ticks);
-    }
 }
 
 void scene_manager_c::begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obsured) {

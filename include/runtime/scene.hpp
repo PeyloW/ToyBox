@@ -18,7 +18,6 @@ namespace toybox {
 #define DEBUG_CPU_RUN_TRANSITION 0x100
 #define DEBUG_CPU_TOP_SCENE_TICK 0x030
 #define DEBUG_CPU_PHYS_RESTORE 0x004
-#define DEBUG_CPU_OVERLAY_SCENE_TICK 0x010
 #define DEBUG_CPU_DONE 0x000
     
     using namespace toybox;
@@ -75,13 +74,10 @@ namespace toybox {
     };
         
     /**
-     The `scene_manager_c` handles a stack of scenes, and a set of screens.
+     The `scene_manager_c` handles a stack of scenes and display lists.
      The top-most scene is the active scene currently displayed.
-     The optional overlay scene is always handled ontop of the top-most scene,
-     and can be used for handling a persistent mouse cursor, or status bar.
-     The screens are the front screen being displayed, the back screen being
-     drawn, and optionally the clear screen used for fast restoration of the
-     other screens.
+     Display lists include front (being presented), back (being drawn), and
+     optionally clear (used for fast restoration).
      As the top-most scene changes the manager creates a transition to handle
      the visual transition.
      */
@@ -92,11 +88,8 @@ namespace toybox {
         };
         using enum display_list_e;
         static scene_manager_c& shared();
-        
-        void run(scene_c* rootscene, scene_c* overlay_scene = nullptr, transition_c* transition = nullptr);
 
-        void set_overlay_scene(scene_c* overlay_cene);
-        __forceinline scene_c* overlay_scene() const { return _overlay_scene; };
+        void run(scene_c* rootscene, transition_c* transition = nullptr);
 
         __forceinline scene_c &top_scene() const {
             return *_scene_stack.back();
@@ -115,7 +108,6 @@ namespace toybox {
         ~scene_manager_c() = default;
 
         transition_c* _transition;
-        scene_c* _overlay_scene;
         vector_c<scene_c*, 8> _scene_stack;
         vector_c<unique_ptr_c<scene_c>, 8> _deletion_stack;
 
