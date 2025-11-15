@@ -12,7 +12,7 @@ Split out ToyBox from ChromaGrid, allowing it to be used as a standalone piece o
 
 - [x] Move toybox code into its own git repository
 - [x] Separate Makefiles for toybox and ChromaGrid
-- [x] Unified Makefile target for Atari target and macOS host
+- [x] Unified Makefile for Atari target and macOS host
     - [x] Move game loop to `machine_c::with_machine(...)`
     - [x] Add new Xcode project with external build system
 - [x] Update to gcc 15.2 mintelf toolchain
@@ -33,51 +33,65 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
 - [x] `fixed16_t` math library, 12:4 bits
 - [x] `viewport_c` as a subclass of `canvas_c`
     - [-] Wrapper for an `image_c` with its own size and offset
-    - [ ] Translate, clip, and dirty drawing primitives to superclass
-- [x] Rudimentary `display_list_c` only supporting a single `viewport_c` and `palette_c`
+    - [ ] Separate viewport size from image size
+    - [ ] Move drawing primitives with translate, clip, and dirty to superclass
+- [x] Basic `display_list_c` supporting single `viewport_c` and `palette_c`
     - [x] Use active `display_list_c` not `image_c`
-    - [ ] Update Atari target to HW scroll viewport if needed
-    - [ ] Update host to generate _HW scrolled_ display
+    - [ ] Hardware scroll viewport on Atari target
+    - [ ] Hardware scrolled display on host
+- [ ] Rewrite `transition_c` system for display lists
+    - [ ] Cross-fade through color
+    - [ ] Update existing transitions
 - [-] `tilemap_c` for defining a tiled display from 16x16 blocks
-    - [-] Source from `tileset_c`
-    - [ ] Support at least two layers of graphics in input
+    - [x] Source from `tileset_c` and solid color
+        - [ ] Optimized batch drawing primitives for repeated 16x16 blocks
     - [-] General tile types; empty, solid, climbable, hurts, etc.
+    - [ ] Subtilemap splicing with dirty tracking
+    - [ ] Tilemap file format loading (Blocked on Editor)
 - [-] `entity_c` for defining basic game AI
     - [ ] User controllable entity
-    - [ ] Collision with `tilemap_c`
-    - [ ] Collision with other entities of set types
+    - [ ] Collision detection with tiles
+    - [ ] Collision detection with other entities
+    - [ ] Optimize AI and rendering for visible entities only
 - [ ] Implement `audio_mixer_c`
-    - [ ] Up to four channels of mixed mono audio
-- [ ] Implement `controller_c` to read ST joystick 1 or 0.
-    - [ ] Implement basic `state_recognizer_c`
-    - [ ] Concrete implementations for taps and holds
-- [ ] A tilemap editor
-    - [ ] Generate tileset from multiple image inputs
+    - [ ] Four channels of mixed audio
+- [ ] Implement `controller_c` to read ST joystick 0 or 1
+    - [ ] Basic `state_recognizer_c`
+    - [ ] Implementations for taps and holds
+- [ ] Implement `keyboard_c`
+    - [ ] TAB key background color performance debugging
+- [ ] Tilemap editor
+    - [ ] Generate tileset from multiple images
     - [ ] Edit subtilemaps
-    - [ ] Edit entities
-        - [ ] Create entity defs
-    - [ ] Define and implement file format 
+    - [ ] Edit entities and entity defs
+    - [ ] Implement file format
+- [ ] Refine core APIs
+    - [ ] Improve geometry API clarity
+    - [ ] Fix stencil mask bug on Atari target 
+- [x] Update sample project
+    - [-] Tilemap based scene
+    - [ ] Basic entities
+        - [ ] Player controlled with joystick
 
 ### v3.0 - A complete general purpose game engine
 
 Support static one screen or eight way scrolling games with rasters and split-screen. Controlled by mouse, joystick, jagpad and/or keyboard. ETA Summer 2028.
 
-- [ ] `display_list_c` can have several items
+- [ ] `display_list_c` with multiple items
     - [ ] Multiple `viewport_c` for viewport splits
     - [ ] Multiple `palette_c` for palette splits
-    - [ ] Multiple `raster_c` for rasters
-        - [ ] Define line offset and color index
-- [ ] `viewport_c` support infinite horizontal and vertical offset
-- [ ] More dynamic game entities
-    - [ ] Basic _bullet_ AI entity
-    - [ ] Basic path following AI entity
-    - [ ] AI able to walk on ground
-    - [ ] AI able to fly
-    - [ ] AI controllable by decisions tree
-- [ ] `level_c` and `level_c` as a concept of a persistent game level
-    - [ ] Dynamically load a `level_c` from a new `scene_c`
-    - [ ] Persist state for a `level_c` when unloaded (picked items, dead enemies, etc.)
-    - [ ] Support loading and saving game state
+    - [ ] Multiple `raster_c` for rasters and color cycling
+- [ ] `viewport_c` with arbitrary horizontal and vertical offset
+- [ ] Advanced game entities
+    - [ ] Bullet AI
+    - [ ] Path following AI
+    - [ ] Ground walking AI
+    - [ ] Flying AI
+    - [ ] Decision tree AI
+- [ ] `level_c` for persistent game levels
+    - [ ] Dynamic level loading from `scene_c`
+    - [ ] Persist level state when unloaded
+    - [ ] Save and load game state
 - [ ] Add jagpad support to `controller_c`
 - [ ] Add `modmusic_c` as a concrete `music_c` subclass
     
@@ -85,6 +99,7 @@ Support static one screen or eight way scrolling games with rasters and split-sc
 ### v4.0 - Support all the things!
 
 - [ ] Amiga target
+    - [ ] 32 color palette support
 - [ ] Atari STfm target
 - [ ] Jaguar64 target
 - [ ] Sega Genesis target

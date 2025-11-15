@@ -5,7 +5,7 @@ A minimal C++ framework for writing Atari ST<sup>E</sup> entertainment software.
 ### Project Requirements
 
 * GCC-15.2 with fastcall support (https://tho-otto.de/crossmint.php)
-* libcmini tot (https://github.com/freemint/libcmini)
+* libcmini (tip of tree) (https://github.com/freemint/libcmini)
 
 ## Project Philosophy
 
@@ -31,14 +31,20 @@ A game is intended to be implemented as a stack of scenes. Navigating to a new s
 * `scene_manager_c` - The manager singleton.
     * `push(...)`, `pop(...)`, `replace(...)` to manage the scene stack.
     * `overlay_scene` a scene to draw on top of all other content, such as a status bar or mouse cursor.
-    * `front`, `back`, `clear` three screens: front is being presented, back is being drawn, and clear is used for restoring other screens from their dirtymaps.
+    * `front`, `back`, `clear` three display lists with viewports: front is being presented, back is being drawn, and clear is used for restoring other viewports from their dirtymaps.
+    * `display_list(id)` access a specific display list by ID.
 * `scene_c` - The abstract scene baseclass.
-    * `configuration` the scene configuration, only the palette to use for now.
-    * `will_appear` called when scene becomes the top scene and will appear.
-        * Implement to draw initial content.
-    * `update_clear` update the clear screen.
-    * `update_back` update the back screen that will be presented next screen swap.
-* `transition_c` - A transitions between two scenes, run for push, pop and replace operations.
+    * `configuration` the scene configuration with viewport_size, buffer_count, and use_clear flag.
+    * `will_appear(bool obscured)` called when scene becomes the top scene and will appear.
+        * Implement to draw initial content to the clear viewport.
+    * `update(display_list_c &display_list, int ticks)` update the scene, drawing to the provided display list's viewport.
+* `transition_c` - A transition between two scenes, run for push, pop and replace operations.
+* `viewport_c` - A viewport for displaying content, analogous to an Amiga viewport.
+    * Subclass of `canvas_c` for drawing operations.
+    * Contains an `image_c` for the bitmap buffer and a `dirtymap_c` for dirty region tracking.
+* `display_list_c` - A sorted list of display items (viewports and palettes) to be presented.
+    * `PRIMARY_VIEWPORT` constant (-1) for the main viewport.
+    * `PRIMARY_PALETTE` constant (-2) for the main palette.
 
 
 ### Asset Management
@@ -56,3 +62,25 @@ Assets are images, sound effects, music, levels, or any other data the game need
 * `ymmusic_c` a music asset, loaded from uncompressed Sound Header files (.snd).
 * `font_c` a font asset, based on an image asset, monospace or variable width characters.
 * `tileset_c` a tileset asset, based on an image asset, defaults to 16x16 blocks.
+
+### Tilemaps and Levels
+
+Toybox provides a tilemap system for creating tile-based game worlds with entities and AI.
+
+* `tilemap_c` - A 2D grid of tiles for defining game levels.
+    * `tile_s` structure with index, type (none, solid, platform, water), flags, and custom data.
+    * Supports accessing tiles with `operator[x, y]`.
+    * Can be used as a base class or standalone.
+* `tilemap_level_c` - An extended tilemap with entity support and rendering.
+    * Inherits from both `tilemap_c` and `asset_c`.
+    * Can be loaded from files or created procedurally.
+    * `update(viewport_c& viewport, int display_id, int ticks)` to update and render the level.
+    * Manages entities with AI actions.
+    * Handles dirty region tracking for tile updates.
+* `entity_s` - A game entity structure for sprites, enemies, items, etc.
+    * Type, group, action index, frame index, flags (e.g., hidden).
+    * Position as fixed-point rectangle (`fcrect_s`).
+    * Custom data storage for entity-specific and action-specific data.
+* `action_f` - Function type for AI actions: `void(*)(tilemap_level_c&, entity_s&)`.
+    * Actions are registered in the level's action vector.
+    * Each entity references an action by index.
