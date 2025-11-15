@@ -69,8 +69,8 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [ ] Improve geometry API clarity
     - [ ] Fix stencil mask bug on Atari target 
 - [x] Update sample project
-    - [-] Tilemap based scene
-    - [ ] Basic entities
+    - [x] Tilemap based scene
+    - [x] Basic entities
         - [ ] Player controlled with joystick
 
 ### v3.0 - A complete general purpose game engine

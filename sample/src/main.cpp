@@ -20,7 +20,7 @@ static asset_manager_c& setup_assets() {
 
         // Sprites are loaded from image, but uses lambda to rempa colors
         { SPRITES, asset_manager_c::asset_def_s(asset_c::tileset, 1, "sprites.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
-            shared_ptr_c<image_c> image = new image_c(path, 0);
+            auto image = new image_c(path, 0);
             constexpr auto table = canvas_c::remap_table_c({
                 {1, 10}, {2, 11}, {3, 11}, {4, 12}, {5, 13}, {6, 14}
             });
@@ -33,7 +33,11 @@ static asset_manager_c& setup_assets() {
         { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") },
         
         { TILESET_WALL, asset_manager_c::asset_def_s(asset_c::tileset, 2, "wall.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
-            shared_ptr_c<image_c> image = new image_c(path, 0);
+            auto image = new image_c(path, 0);
+            return new tileset_c(image, size_s(16, 16));
+        })},
+        { TILESET_SPR, asset_manager_c::asset_def_s(asset_c::tileset, 2, "player.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
+            auto image = new image_c(path, 0);
             return new tileset_c(image, size_s(16, 16));
         })},
 
@@ -62,7 +66,11 @@ int main(int argc, const char * argv[]) {
         audio_mixer_c::shared().play(assets.music(MUSIC));
         
         // Setup and start the scene
+#if 0
         auto main_scene = new fullscreen_scene_c();
+#else
+        auto main_scene = new tilemap_scene();
+#endif
         scene_manager_c::shared().run(main_scene);
 
         return 0;

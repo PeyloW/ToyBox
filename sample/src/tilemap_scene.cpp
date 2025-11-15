@@ -9,16 +9,21 @@
 #include "demo_assets.hpp"
 
 static constexpr uint16_t is_target = 1 << 0;
+
 enum entity_type {
     PLAYER = 0,
     BOX = 1
 };
 
 enum tile_type {
-    EMPTY = 0,  // Color #0
-    WALL = 1,   // Tile  #1
-    FLOOR = -7, // Color #7
-    TARGET = -9 // Color #9
+    EMPTY = 0,   // Color  #0 - Black
+    WALL = 1,    // Tile   #1 - Brick wall
+    FLOOR = -10, // Color #10 - Light gray
+    TARGET = -13 // Color #13 - Light blue
+};
+
+enum player_frame_index {
+    UP, DOWN, LEFT, RIGHT
 };
 
 static void player_control(tilemap_level_c& level, entity_s& entity) {
@@ -38,9 +43,9 @@ tilemap_level_c* make_tilemaplevel() {
         "    #-----#########",
         "    #######        ",
     };
-    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(19,11)), nullptr);
+    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(19*16,11*16)), &asset_manager_c::shared().tileset(TILESET_WALL));
     auto& level = *level_ptr;
-    
+        
     // Setup available actions
     level.actions().emplace_back(&actions::idle);
     level.actions().emplace_back(&player_control);
@@ -48,10 +53,13 @@ tilemap_level_c* make_tilemaplevel() {
     // Setup entity type defs:
     auto& player = level.entity_type_defs().emplace_back();
     player.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    player.frame_defs.push_back({ 0, {-8, -8} });
+    player.frame_defs.push_back({ 2, {-8, -8} }); // Up
+    player.frame_defs.push_back({ 1, {-8, -8} }); // Down
+    player.frame_defs.push_back({ 4, {-8, -8} }); // Left
+    player.frame_defs.push_back({ 3, {-8, -8} }); // Right
     auto& box = level.entity_type_defs().emplace_back();
     box.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    box.frame_defs.push_back({ 1, {-8, -8} });
+    box.frame_defs.push_back({ 5, {-8, -8} });
 
     for (int y = 0; y < 11; ++y) {
         const char* line = recipe[y];
@@ -69,22 +77,23 @@ tilemap_level_c* make_tilemaplevel() {
                     tile.type = tile_s::solid;
                     break;
                 case '-':
-                    tile.flags = FLOOR;
+                    tile.index = FLOOR;
                     break;
                 case '.':
                     tile.index = TARGET;
                     tile.flags = is_target;
                     break;
                 case '@':
-                    tile.flags = 1;
+                    tile.index = FLOOR;
                     level.all_entities().emplace(level.all_entities().begin(), (entity_s){
                         .type=PLAYER, .group=PLAYER,
                         .action = 1,
+                        .frame_index = DOWN,
                         .position=fcrect_s{ center(), {16,16} }
                     });
                     break;
                 case '$':
-                    tile.flags = 1;
+                    tile.index = FLOOR;
                     level.all_entities().emplace_back((entity_s){
                         .type=BOX, .group=BOX,
                         .position=fcrect_s{ center(), {16,16} }
@@ -106,7 +115,7 @@ tilemap_scene::tilemap_scene() :
 }
 
 scene_c::configuration_s& tilemap_scene::configuration() const {
-    static scene_c::configuration_s config{size_s(320, 208), 2, true};
+    static scene_c::configuration_s config{size_s(320, 208), asset_manager_c::shared().tileset(TILESET_SPR).image()->palette(), 2, false};
     return config;
 }
 

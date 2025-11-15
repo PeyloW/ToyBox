@@ -42,7 +42,7 @@ namespace toybox {
     class tilemap_c : nocopy_c {
     public:
         tilemap_c(const rect_s& tilespace_bounds);
-        virtual ~tilemap_c() = default;
+        ~tilemap_c() = default;
         
         __forceinline tile_s& operator[](point_s p) __pure { return (*this)[p.x, p.y]; }
         __forceinline const tile_s& operator[](point_s p) const __pure { return (*this)[p.x, p.y]; }

@@ -58,6 +58,7 @@ namespace toybox {
     /**
      A `basic_palette_c` is an arbitrary list of colors.
      */
+    static_assert(!is_polymorphic<nocopy_c>::value);
     template<int Count>
     class basic_palette_c : public array_s<color_c, Count>, public nocopy_c {
     public:
@@ -77,7 +78,8 @@ namespace toybox {
      A `palette_c` is a specialized list of colors with exactly 16 colors.
      NOTE: Should Amiga target allow for 32?
      */
-    class palette_c : public basic_palette_c<16>, public display_item_c {
+    static_assert(!is_polymorphic<basic_palette_c<16>>::value);
+    class palette_c : public display_item_c, public basic_palette_c<16> {
     public:
         type_e display_type() const override { return palette; }
         palette_c() : basic_palette_c<16>() {}

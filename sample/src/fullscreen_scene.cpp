@@ -21,7 +21,7 @@ fullscreen_scene_c::fullscreen_scene_c() :
 };
 
 scene_c::configuration_s &fullscreen_scene_c::configuration() const {
-    static scene_c::configuration_s config{size_s(320, 208), 2, true};
+    static scene_c::configuration_s config{size_s(320, 208), asset_manager_c::shared().image(BACKGROUND).palette(), 2, true};
     return config;
 }
 
@@ -33,8 +33,6 @@ void fullscreen_scene_c::will_appear(bool obsured) {
     for (int i = 0; i < 16; i++) {
         clear_viewport.fill(i, rect_s(i * 20, 198, 20, 2));
     }
-    auto &clear_pal = clear_display.get(PRIMARY_PALETTE).palette();
-    copy(image.palette()->begin(), image.palette()->end(), clear_pal.begin());
 }
 
 void fullscreen_scene_c::update(display_list_c& display_list, int ticks) {

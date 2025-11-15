@@ -41,6 +41,7 @@ namespace toybox {
 
     }
         
+    static_assert(!is_polymorphic<nocopy_c>::value);
     template<typename T>
     class  unique_ptr_c : public detail::basic_ptr_c<T>, public nocopy_c {
     public:

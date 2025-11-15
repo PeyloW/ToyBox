@@ -134,6 +134,8 @@ namespace toybox {
     
     template<typename T> struct is_trivially_copyable : public bool_constant<__is_trivially_copyable(T)> {};
   
+    template<typename T> struct is_polymorphic : public bool_constant<__is_polymorphic(T)> {};
+    
 #pragma mark - Iterator traits
     
     template<typename I>

@@ -49,8 +49,8 @@ namespace toybox {
         __forceinline void set_palette(const shared_ptr_c<palette_c> &palette) {
             _palette = palette;
         }
-        __forceinline shared_ptr_c<palette_c> &palette() const {
-            return *(shared_ptr_c<palette_c>*)&_palette;
+        __forceinline const shared_ptr_c<palette_c> &palette() const {
+            return _palette;
         }
         __forceinline size_s size() const { return _size; }
         __forceinline bool masked() const { return _maskmap != nullptr; }

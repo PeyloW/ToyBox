@@ -12,7 +12,7 @@
 using namespace toybox;
 
 scene_c::scene_c() : manager(scene_manager_c::shared()) {}
-scene_c::configuration_s scene_c::default_configuration = { size_s(320, 208), 2, true };
+scene_c::configuration_s scene_c::default_configuration = { size_s(320, 208), nullptr, 2, true };
 scene_c::configuration_s& scene_c::configuration() const {
     return default_configuration;
 }
@@ -27,6 +27,14 @@ public:
         _full_restores_left = 2;
     }
     virtual void will_begin(const scene_c *from, const scene_c *to) override {
+        auto to_pal = to->configuration().palette.get();
+        if (to_pal) {
+            // Copy the configuration palette to the primary palette of each display list
+            for (int i = 0; i < 2; ++i) {
+                auto& palette = manager.display_list((scene_manager_c::display_list_e)i).get(PRIMARY_PALETTE).palette();
+                copy(to_pal->begin(), to_pal->end(), palette.begin());
+            }
+        }
     };
     virtual bool tick(int ticks) override {
         return --_full_restores_left <= 0;
@@ -83,11 +91,6 @@ void scene_manager_c::run(scene_c *rootscene, transition_c *transition) {
                     auto &back_viewport = update_clear();
                     back_viewport.with_dirtymap(back_viewport.dirtymap(), [&] {
                         update_scene(scene, ticks);
-                        auto &clear = display_list(display_list_e::clear);
-                        auto &back = display_list(display_list_e::back);
-                        auto &fr_pal = clear.get(PRIMARY_PALETTE).palette();
-                        auto &to_pal = back.get(PRIMARY_PALETTE).palette();
-                        copy(fr_pal.begin(), fr_pal.end(), to_pal.begin());
                     });
                 } else {
                     update_scene(scene, ticks);

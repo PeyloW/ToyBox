@@ -17,7 +17,8 @@ namespace toybox {
      Contains an `image_c` for the bitmap data, and a `dirtymap_c` to restore
      dirty areas.
      */
-    class viewport_c : public canvas_c, public display_item_c {
+    static_assert(!is_polymorphic<canvas_c>::value);
+    class viewport_c : public display_item_c, public canvas_c {
     public:
         __forceinline type_e display_type() const override { return viewport; }
 

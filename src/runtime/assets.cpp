@@ -119,7 +119,7 @@ asset_c* asset_manager_c::create_asset(int id, const asset_def_s &def) const {
                 // TODO: Implement file format and loading.
                 return nullptr;
             default:
-                hard_assert(0);
+                hard_assert(0 && "Custom asset must have create function.");
                 break;
         }
     }

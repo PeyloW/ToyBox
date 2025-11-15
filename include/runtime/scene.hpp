@@ -35,6 +35,7 @@ namespace toybox {
          */
         struct configuration_s {
             const size_s viewport_size;
+            const shared_ptr_c<palette_c> palette; // May be empty
             const int buffer_count;
             const bool use_clear;
         };

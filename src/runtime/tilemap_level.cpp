@@ -44,7 +44,7 @@ tilemap_level_c::tilemap_level_c(rect_s bounds, tileset_c* tileset) : tilemap_c(
     // TODO: Is this correct? This requires bounds to be {0,0} for the level tilemap.
     // And we should probably only dirty the visible region is the level is larger than the display size.
     _tiles_dirtymap = dirtymap_c::create(bounds.size);
-    _tiles_dirtymap->mark(bounds);
+    set_visible_bounds(bounds);
 }
 
 tilemap_level_c::tilemap_level_c(const char* path, tileset_c* tileset) : tilemap_c(rect_s()), _tileset(tileset) {
@@ -57,10 +57,12 @@ tilemap_level_c::tilemap_level_c(const char* path, tileset_c* tileset) : tilemap
     }
 }
 
+tilemap_level_c::~tilemap_level_c() {
+    assert(0 && "Why?");
+}
 
 void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
     _viewport = &viewport;
-    _tiles_dirtymap->clear();
     // Update the AI for the level world, and entities
     // NOTE: How to handle AI if dropping frames?
     update_level();
@@ -71,6 +73,7 @@ void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
         auto& viewport = manager.display_list((scene_manager_c::display_list_e)idx).get(display_id).viewport();
         viewport.dirtymap()->merge(*_tiles_dirtymap);
     }
+    _tiles_dirtymap->clear();
     // Draw all the tiles, both updates, and previously dirtied by drawing sprites
     draw_tiles();
     // And lastly draw all the sprites needed
@@ -95,6 +98,10 @@ void tilemap_level_c::update_actions() {
 void tilemap_level_c::draw_tiles() {
     auto& viewport = active_viewport();
     viewport.with_clipping(false, [&](){
+        // Need to capture the dirtu map here, so we have one.
+        // And then do the restore without dirtymap so we do not dirty it when restoring.
+        auto dirtymap = viewport.dirtymap();
+        assert(dirtymap != nullptr && "Viewport must have dirtymap");
         viewport.with_dirtymap(nullptr, [&]() {
             auto restore = [&](const rect_s& rect) {
                 const rect_s tile_rect = rect_s(
@@ -117,7 +124,7 @@ void tilemap_level_c::draw_tiles() {
                 }
             };
             dirtymap_c::restore_f func(restore);
-            viewport.dirtymap()->restore(func);
+            dirtymap->restore(func);
         });
     });
 }
@@ -132,7 +139,7 @@ void tilemap_level_c::draw_entities() {
             if (ent_def.frame_defs.size() > 0) {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
                 const point_s center = static_cast<point_s>(entity.position.center);
-                const point_s at = center - frame_def.offset;
+                const point_s at = center + frame_def.offset;
                 viewport.draw(*ent_def.tileset, frame_def.index, at);
             }
         }
@@ -156,6 +163,13 @@ bool tilemap_level_c::collides_with_entity(fcrect_s& rect, uint8_t in_group, int
     // When checking for collision between entities center rect is treated as a circle of `width` diameter.
     // On collision the index of the entity colided with is returned
     return false;
+}
+
+void tilemap_level_c::set_visible_bounds(const rect_s& bounds) {
+    // TODO: When changing bounds columns (and eventually rows) of tiles needs to be marked dirty.
+    // NOTE: Outside of visible bounds should always be clean.
+    _tiles_dirtymap->mark(bounds);
+    _visible_bounds = bounds;
 }
 
 void tilemap_level_c::splice_subtilemap(int index) {

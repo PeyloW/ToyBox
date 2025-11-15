@@ -33,6 +33,7 @@ namespace toybox {
         
         void mark(const rect_s &rect);
         void merge(const dirtymap_c &dirtymap);
+        bool is_dirty() const { return _is_dirty; }
         void restore(canvas_c &canvas, const image_c &clean_image);
         void restore(restore_f& func);
         void clear();
@@ -43,6 +44,7 @@ namespace toybox {
         static int instance_size(size_s *size);
         dirtymap_c(const size_s size) : _size(size) {}
         const size_s _size;
+        bool _is_dirty;
         uint8_t _data[];
     };
     

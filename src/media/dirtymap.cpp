@@ -87,6 +87,7 @@ void dirtymap_c::mark(const rect_s &rect) {
     const int16_t end_bit = x2 % BITS_PER_BYTE;
     assert(end_bit < 8 && "End bit must be less than 8");
     
+    _is_dirty = true;
     uint8_t *data = _data + (start_byte + _size.width * y1);
 
     if (extra_rows == 0) {
@@ -125,6 +126,8 @@ void dirtymap_c::mark(const rect_s &rect) {
 }
 
 void dirtymap_c::merge(const dirtymap_c &dirtymap) {
+    if (!dirtymap.is_dirty()) return;
+    _is_dirty = true;
     uint32_t *l_dest = (uint32_t*)_data;
     const uint32_t *l_source = (uint32_t*)dirtymap._data;
     int16_t long_count;
@@ -139,6 +142,7 @@ void dirtymap_c::merge(const dirtymap_c &dirtymap) {
 }
 
 void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
+    // No check for dirty here, rely on restore(func) to handle this.
     auto &image = canvas.image();
     assert(image.size() == clean_image.size() && "Canvas and clean image sizes must match");
     assert(_size.width * TOYBOX_DIRTYMAP_TILE_SIZE.width * 8 >= clean_image.size().width && "Dirtymap width must cover image width");
@@ -157,6 +161,8 @@ void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
 }
 
 void dirtymap_c::restore(function_c<void(const rect_s&)>& func) {
+    if (!_is_dirty) return;
+    _is_dirty = false;
 #if TOYBOX_DEBUG_DIRTYMAP
     static uint32_t s_restore_generation = 0;
     s_restore_generation++;
@@ -199,6 +205,7 @@ void dirtymap_c::restore(function_c<void(const rect_s&)>& func) {
 }
 
 void dirtymap_c::clear() {
+    _is_dirty = false;
     memset(_data, 0, _size.width * _size.height);
 }
 

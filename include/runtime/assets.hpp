@@ -54,12 +54,30 @@ namespace toybox {
         template<derived_from<asset_c> T>
         __forceinline T &asset(int id) const { return (T&)(asset(id)); };
 
-        __forceinline image_c &image(int id) const { return (image_c&)(asset(id)); }
-        __forceinline tileset_c &tileset(int id) const { return (tileset_c&)(asset(id)); }
-        __forceinline font_c &font(int id) const { return (font_c&)(asset(id)); }
-        __forceinline sound_c &sound(int id) const { return (sound_c&)(asset(id)); }
-        __forceinline music_c &music(int id) const { return (music_c&)(asset(id)); }
-        __forceinline tilemap_level_c &tilemap_level(int id) const { return (tilemap_level_c&)(asset(id)); }
+        __forceinline image_c &image(int id) const {
+            assert(asset(id).asset_type() == asset_c::image);
+            return (image_c&)(asset(id));
+        }
+        __forceinline tileset_c &tileset(int id) const {
+            assert(asset(id).asset_type() == asset_c::tileset);
+            return (tileset_c&)(asset(id));
+        }
+        __forceinline font_c &font(int id) const {
+            assert(asset(id).asset_type() == asset_c::font);
+            return (font_c&)(asset(id));
+        }
+        __forceinline sound_c &sound(int id) const {
+            assert(asset(id).asset_type() == asset_c::sound);
+            return (sound_c&)(asset(id));
+        }
+        __forceinline music_c &music(int id) const {
+            assert(asset(id).asset_type() == asset_c::music);
+            return (music_c&)(asset(id));
+        }
+        __forceinline tilemap_level_c &tilemap_level(int id) const {
+            assert(asset(id).asset_type() == asset_c::tilemap_level);
+            return (tilemap_level_c&)(asset(id));
+        }
 
         unique_ptr_c<char> data_path(const char* file) const;
         unique_ptr_c<char> user_path(const char* file) const;

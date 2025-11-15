@@ -14,10 +14,12 @@ namespace toybox {
     
     class dirtymap_c;
     
-    class tilemap_level_c : public tilemap_c, public asset_c {
+    static_assert(!is_polymorphic<tilemap_c>::value);
+    class tilemap_level_c : public asset_c, public tilemap_c {
     public:
         tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset);
         tilemap_level_c(const char* path, tileset_c* tileset);
+        ~tilemap_level_c();
         
         __forceinline type_e asset_type() const override final { return tilemap_level; }
 
@@ -41,6 +43,9 @@ namespace toybox {
         vector_c<action_f, 0>& actions() { return _actions; };
         vector_c<entity_type_def_s, 0>& entity_type_defs() { return _entity_type_defs; };
         vector_c<entity_s, 0>& all_entities() { return _all_entities; }
+        
+        const rect_s&visible_bounds() const { return _visible_bounds; };
+        void set_visible_bounds(const rect_s& bounds);
         
         void splice_subtilemap(int index);
     protected:

@@ -35,7 +35,7 @@ namespace toybox {
             int index;
             point_s offset;
         };
-        shared_ptr_c<tileset_c> tileset;
+        tileset_c* tileset;
         vector_c<frame_def_s, 0> frame_defs; //
     };
         

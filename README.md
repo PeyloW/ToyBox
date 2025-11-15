@@ -15,6 +15,8 @@ All code must compile with gcc and clang with C++23 enabled, no standard librari
 
 Make no assumption of integer/pointer size. Host may use 32 bit integers, target **must** use 16 bit integers. Whenever possible use explicitly sized types, `int16_t` not `short`.
 
+Try to avoid multiple inheritance, and when done only the the first inherited class can be polymorphic. Add statuc asserts before the class definition to ensure this.
+
 Rely on `static_assert` to ensure expected sizes for structs are correct. Asserts are enabled on host, but not on Atari target. Asserts with `hard_assert` are used liberally to ensure correctness.
     
 ### Game Setup
