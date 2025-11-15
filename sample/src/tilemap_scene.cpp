@@ -15,10 +15,10 @@ enum entity_type {
 };
 
 enum tile_type {
-    EMPTY = 0,
-    WALL = 1,
-    FLOOR = 2,
-    TARGET = 3
+    EMPTY = 0,  // Color #0
+    WALL = 1,   // Tile  #1
+    FLOOR = -7, // Color #7
+    TARGET = -9 // Color #9
 };
 
 static void player_control(tilemap_level_c& level, entity_s& entity) {

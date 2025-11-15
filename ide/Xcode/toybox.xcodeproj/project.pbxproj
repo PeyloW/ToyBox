@@ -29,6 +29,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A61D9EA42EC80AF300F0A182 /* Exceptions for "png2ilbm" folder in "toybox_index" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/main.cpp,
+			);
+			target = A68D49DD2EA1343F00174946 /* toybox_index */;
+		};
 		A627180E2EC12B6800F365D7 /* Exceptions for "tests" folder in "toybox_index" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -62,6 +69,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		A61D9E932EC8098400F0A182 /* png2ilbm */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A61D9EA42EC80AF300F0A182 /* Exceptions for "png2ilbm" folder in "toybox_index" target */,
+			);
+			name = png2ilbm;
+			path = ../../tools/png2ilbm;
+			sourceTree = SOURCE_ROOT;
+		};
 		A68D499C2EA132E700174946 /* include */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			name = include;
@@ -119,6 +135,7 @@
 				A68D499D2EA132E700174946 /* LICENSE.txt */,
 				A68D49A02EA132E700174946 /* README.md */,
 				A68D4FC22EA1EA2900174946 /* ROADMAP.md */,
+				A61D9E932EC8098400F0A182 /* png2ilbm */,
 				A68D49DF2EA1343F00174946 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -144,6 +161,22 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
+		A61D9E9D2EC80A2800F0A182 /* png2ilbm */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "HOST=sdl2 install";
+			buildConfigurationList = A61D9E9E2EC80A2800F0A182 /* Build configuration list for PBXLegacyTarget "png2ilbm" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = ../../tools/png2ilbm;
+			dependencies = (
+			);
+			name = png2ilbm;
+			packageProductDependencies = (
+			);
+			passBuildSettingsInEnvironment = 1;
+			productName = toybox;
+		};
 		A68D49702EA1314600174946 /* toybox */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "HOST=sdl2 all";
@@ -232,6 +265,7 @@
 				A68D49702EA1314600174946 /* toybox */,
 				A68D49DD2EA1343F00174946 /* toybox_index */,
 				A68D4C8B2EA138FA00174946 /* sample */,
+				A61D9E9D2EC80A2800F0A182 /* png2ilbm */,
 			);
 		};
 /* End PBXProject section */
@@ -247,6 +281,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		A61D9E9F2EC80A2800F0A182 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A61D9EA02EC80A2800F0A182 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A68D49712EA1314600174946 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -260,6 +308,7 @@
 					"-std=c++23",
 					"-Wno-vla-cxx-extension",
 					"-I/opt/homebrew/include/SDL2",
+					"-I/opt/homebrew/include",
 				);
 			};
 			name = Debug;
@@ -277,6 +326,7 @@
 					"-std=c++23",
 					"-Wno-vla-cxx-extension",
 					"-I/opt/homebrew/include/SDL2",
+					"-I/opt/homebrew/include",
 				);
 			};
 			name = Release;
@@ -427,6 +477,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A61D9E9E2EC80A2800F0A182 /* Build configuration list for PBXLegacyTarget "png2ilbm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A61D9E9F2EC80A2800F0A182 /* Debug */,
+				A61D9EA02EC80A2800F0A182 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A68D496F2EA1314600174946 /* Build configuration list for PBXProject "toybox" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

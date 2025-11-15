@@ -19,6 +19,7 @@ enum demo_assets_e {
     SPRITES,    // tileset
     MUSIC,      // music
 // Used by tilemap_scene
+    TILESET_WALL,
     TILESET_SPR,// Tileset for sprites
     LEVEL       // tilemap level
 };

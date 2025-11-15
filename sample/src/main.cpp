@@ -32,6 +32,11 @@ static asset_manager_c& setup_assets() {
         // Music is just an SNDH file
         { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") },
         
+        { TILESET_WALL, asset_manager_c::asset_def_s(asset_c::tileset, 2, "wall.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
+            shared_ptr_c<image_c> image = new image_c(path, 0);
+            return new tileset_c(image, size_s(16, 16));
+        })},
+
         // Level is not loaded at all, dynamically created on demand
         { LEVEL, asset_manager_c::asset_def_s(asset_c::tilemap_level, 2, nullptr, [](const asset_manager_c &manager, const char *path) -> asset_c* {
             return make_tilemaplevel();

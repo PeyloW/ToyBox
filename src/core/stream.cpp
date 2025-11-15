@@ -131,7 +131,7 @@ fstream_c::~fstream_c() {
 
 static constexpr const char* mode_for_mode(fstream_c::openmode_e mode) {
     constexpr const char* const s_table[8] = {
-        nullptr, "r", "w", "r+",
+        nullptr, "r", "w", "w+",
         "a", "a+", "a+", nullptr
     };
     assert((uint8_t)mode < 8 && "Mode value must be less than 8");
