@@ -1,5 +1,11 @@
 ## TOYBOX ROADMAP
 
+Legend:
+
+- [ ] Pending
+- [-] In progress
+- [x] Completed
+
 ### v1.1 - A modern toolchain
 
 Split out ToyBox from ChromaGrid, allowing it to be used as a standalone piece of software for building simple mouse driven games.
@@ -14,7 +20,7 @@ Split out ToyBox from ChromaGrid, allowing it to be used as a standalone piece o
     - [x] Update to use libcmini top of tree (0.54 too old for elf)
     - [x] Remove libcmini 0.47 workarounds
 - [x] Update sources to ~~C++20~~ C++23
-- [-] Add unit tests
+- [x] Add unit tests
 - [x] Add sample project
 - [x] Update documentation
 - [x] Add Xcode IDE to toybox project
@@ -25,18 +31,18 @@ Split out ToyBox from ChromaGrid, allowing it to be used as a standalone piece o
 Support simple horizontally scrolling games controlled with joystick. ETA Summer 2026.
 
 - [x] `fixed16_t` math library, 12:4 bits
-- [x] `screen_c` as a subclass of `canvas_c`
-    - [ ] Wrapper for an `image_c` with its own size and offset
-    - [ ] Translate & clip drawing primitives to superclass
-- [x] Rudimentary `display_list_c` only supporting a single `screen_c` and `palette_c`
+- [x] `viewport_c` as a subclass of `canvas_c`
+    - [-] Wrapper for an `image_c` with its own size and offset
+    - [ ] Translate, clip, and dirty drawing primitives to superclass
+- [x] Rudimentary `display_list_c` only supporting a single `viewport_c` and `palette_c`
     - [x] Use active `display_list_c` not `image_c`
-    - [ ] Update Atari target to HW scroll display if needed
+    - [ ] Update Atari target to HW scroll viewport if needed
     - [ ] Update host to generate _HW scrolled_ display
-- [ ] `tilemap_c` for defining a tiled display from 16x16 blocks
-    - [ ] Source from `tileset_c`
+- [-] `tilemap_c` for defining a tiled display from 16x16 blocks
+    - [-] Source from `tileset_c`
     - [ ] Support at least two layers of graphics in input
-    - [ ] General tile types; empty, solid, climbable, hurts, etc.
-- [ ] `entity_c` for defining basic game AI
+    - [-] General tile types; empty, solid, climbable, hurts, etc.
+- [-] `entity_c` for defining basic game AI
     - [ ] User controllable entity
     - [ ] Collision with `tilemap_c`
     - [ ] Collision with other entities of set types
@@ -45,18 +51,23 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
 - [ ] Implement `controller_c` to read ST joystick 1 or 0.
     - [ ] Implement basic `state_recognizer_c`
     - [ ] Concrete implementations for taps and holds
-
+- [ ] A tilemap editor
+    - [ ] Generate tileset from multiple image inputs
+    - [ ] Edit subtilemaps
+    - [ ] Edit entities
+        - [ ] Create entity defs
+    - [ ] Define and implement file format 
 
 ### v3.0 - A complete general purpose game engine
 
 Support static one screen or eight way scrolling games with rasters and split-screen. Controlled by mouse, joystick, jagpad and/or keyboard. ETA Summer 2028.
 
 - [ ] `display_list_c` can have several items
-    - [ ] Multiple `screen_c` for screen splits
+    - [ ] Multiple `viewport_c` for viewport splits
     - [ ] Multiple `palette_c` for palette splits
     - [ ] Multiple `raster_c` for rasters
         - [ ] Define line offset and color index
-- [ ] `screen_c` support infinite horizontal and vertical offset
+- [ ] `viewport_c` support infinite horizontal and vertical offset
 - [ ] More dynamic game entities
     - [ ] Basic _bullet_ AI entity
     - [ ] Basic path following AI entity

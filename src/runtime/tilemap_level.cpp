@@ -6,7 +6,7 @@
 //
 
 #include "core/iffstream.hpp"
-#include "media/screen.hpp"
+#include "media/viewport.hpp"
 #include "media/dirtymap.hpp"
 #include "runtime/scene.hpp"
 #include "runtime/tilemap_level.hpp"
@@ -58,24 +58,24 @@ tilemap_level_c::tilemap_level_c(const char* path, tileset_c* tileset) : tilemap
 }
 
 
-void tilemap_level_c::update(screen_c& screen, int display_id, int ticks) {
-    _screen = &screen;
+void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
+    _viewport = &viewport;
     _tiles_dirtymap->clear();
     // Update the AI for the level world, and entities
     // NOTE: How to handle AI if dropping frames?
     update_level();
     update_actions();
-    // AI may update tiles, so we need to dirty screens to redraw them
+    // AI may update tiles, so we need to dirty viewports to redraw them
     auto& manager = scene_manager_c::shared();
     for (int idx = (int)scene_manager_c::front; idx <= (int)scene_manager_c::back; ++idx) {
-        auto& screen = manager.display_list((scene_manager_c::display_list_e)idx).get(display_id).screen();
-        screen.dirtymap()->merge(*_tiles_dirtymap);
+        auto& viewport = manager.display_list((scene_manager_c::display_list_e)idx).get(display_id).viewport();
+        viewport.dirtymap()->merge(*_tiles_dirtymap);
     }
     // Draw all the tiles, both updates, and previously dirtied by drawing sprites
     draw_tiles();
     // And lastly draw all the sprites needed
     draw_entities();
-    _screen = nullptr;
+    _viewport = nullptr;
 }
 
 void tilemap_level_c::update_level() {
@@ -93,9 +93,9 @@ void tilemap_level_c::update_actions() {
 }
 
 void tilemap_level_c::draw_tiles() {
-    auto& screen = active_screen();
-    screen.with_clipping(false, [&](){
-        screen.with_dirtymap(nullptr, [&]() {
+    auto& viewport = active_viewport();
+    viewport.with_clipping(false, [&](){
+        viewport.with_dirtymap(nullptr, [&]() {
             auto restore = [&](const rect_s& rect) {
                 const rect_s tile_rect = rect_s(
                     rect.origin.x >> 4, rect.origin.y >> 4,
@@ -107,9 +107,9 @@ void tilemap_level_c::draw_tiles() {
                     for (int x = tile_rect.origin.x; x <= tile_rect.max_x(); ++x) {
                         const auto& tile = (*this)[x, y];
                         if (tile.index <= 0) {
-                            screen.fill(-tile.index, rect_s(at, size_s(16, 16)));
+                            viewport.fill(-tile.index, rect_s(at, size_s(16, 16)));
                         } else {
-                            screen.draw(*_tileset, tile.index, at);
+                            viewport.draw(*_tileset, tile.index, at);
                         }
                         at.x += 16;
                     }
@@ -117,13 +117,13 @@ void tilemap_level_c::draw_tiles() {
                 }
             };
             dirtymap_c::restore_f func(restore);
-            screen.dirtymap()->restore(func);
+            viewport.dirtymap()->restore(func);
         });
     });
 }
 
 void tilemap_level_c::draw_entities() {
-    auto& screen = active_screen();
+    auto& viewport = active_viewport();
     // NOTE: This will need to be a list of visible entities eventually
     for (auto& entity : _all_entities) {
         // Draw entity if not explicitly hidden, and have frame definitions.
@@ -133,7 +133,7 @@ void tilemap_level_c::draw_entities() {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
                 const point_s center = static_cast<point_s>(entity.position.center);
                 const point_s at = center - frame_def.offset;
-                screen.draw(*ent_def.tileset, frame_def.index, at);
+                viewport.draw(*ent_def.tileset, frame_def.index, at);
             }
         }
     }

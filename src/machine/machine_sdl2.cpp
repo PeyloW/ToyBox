@@ -7,7 +7,7 @@
 #ifdef TOYBOX_HOST
 #include "machine/machine.hpp"
 #include "machine/host_bridge.hpp"
-#include "media/screen.hpp"
+#include "media/viewport.hpp"
 #include "media/display_list.hpp"
 #include "media/audio.hpp"
 #include "machine/timer.hpp"
@@ -84,8 +84,8 @@ public:
         const palette_c *active_palette = nullptr;
         for (const auto& entry : *display) {
             switch (entry.item.display_type()) {
-                case display_item_c::screen:
-                    active_image = &entry.screen().image();
+                case display_item_c::viewport:
+                    active_image = &entry.viewport().image();
                     break;
                 case display_item_c::palette:
                     active_palette = &entry.palette();

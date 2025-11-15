@@ -21,7 +21,7 @@ namespace toybox {
         
         __forceinline type_e asset_type() const override final { return tilemap_level; }
 
-        virtual void update(screen_c& screen, int display_id, int ticks);
+        virtual void update(viewport_c& viewport, int display_id, int ticks);
         virtual void update_level();
         virtual void update_actions();
         virtual void draw_tiles();
@@ -30,9 +30,9 @@ namespace toybox {
         void mark_tiles_dirtymap(point_s point);
         void mark_tiles_dirtymap(rect_s rect);
 
-        screen_c& active_screen() {
-            assert(_screen && "No active canvas");
-            return *_screen;
+        viewport_c& active_viewport() {
+            assert(_viewport && "No active viewport");
+            return *_viewport;
         };
 
         bool collides_with_level(fcrect_s& rect);
@@ -44,7 +44,7 @@ namespace toybox {
         
         void splice_subtilemap(int index);
     protected:
-        screen_c* _screen;
+        viewport_c* _viewport;
         dirtymap_c* _tiles_dirtymap;
         rect_s _visible_bounds;
         tileset_c* _tileset;

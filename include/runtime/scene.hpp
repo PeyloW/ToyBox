@@ -9,7 +9,7 @@
 
 #include "machine/timer.hpp"
 #include "machine/input.hpp"
-#include "media/screen.hpp"
+#include "media/viewport.hpp"
 #include "media/display_list.hpp"
 #include "core/vector.hpp"
 
@@ -35,7 +35,7 @@ namespace toybox {
          The `configuration_s` defines how to display and configures a `scene_c.`
          */
         struct configuration_s {
-            const size_s screen_size;
+            const size_s viewport_size;
             const int buffer_count;
             const bool use_clear;
         };
@@ -121,7 +121,7 @@ namespace toybox {
 
         void swap_display_lists();
 
-        inline screen_c& update_clear();
+        inline viewport_c& update_clear();
         inline void update_scene(scene_c &scene, int32_t ticks);
 
         __forceinline void enqueue_delete(scene_c* scene) {
@@ -132,7 +132,7 @@ namespace toybox {
         inline void end_transition();
 
         vector_c<display_list_c, 3> _display_lists;
-        int _active_physical_screen;
+        int _active_display_list;
     };
     
 }

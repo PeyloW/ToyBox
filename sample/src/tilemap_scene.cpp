@@ -114,6 +114,6 @@ void tilemap_scene::will_appear(bool obsured) {
 }
 
 void tilemap_scene::update(display_list_c& display, int ticks) {
-    auto& screen = display.get(PRIMARY_SCREEN).screen();
-    _level.update(screen, PRIMARY_SCREEN, ticks);
+    auto& viewport = display.get(PRIMARY_VIEWPORT).viewport();
+    _level.update(viewport, PRIMARY_VIEWPORT, ticks);
 }

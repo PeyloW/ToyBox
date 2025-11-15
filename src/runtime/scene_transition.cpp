@@ -39,15 +39,15 @@ namespace toybox {
                 _palette = nullptr;
             }
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
-            auto &phys_screen = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_SCREEN).screen();
-            auto &log_screen = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_SCREEN).screen();
-            phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
+            auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
+            auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
+            phys_viewport.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_viewport, &log_viewport] {
                 const size_s ts(320, 208);
                 for (int y = 0; y < 208; y += ts.height) {
                     for (int x = 0; x < 320; x += ts.width) {
                         point_s at(x, y);
                         rect_s rect(at, ts);
-                        phys_screen.draw_aligned(log_screen.image(), rect, at);
+                        phys_viewport.draw_aligned(log_viewport.image(), rect, at);
                     }
                 }
             });
@@ -76,11 +76,11 @@ public:
     
     virtual bool tick(int ticks) override {
         if (_transition_state.full_restores_left > 2) {
-            auto &phys_screen = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_SCREEN).screen();
-            auto &log_screen = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_SCREEN).screen();
+            auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
+            auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
-            phys_screen.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_screen, &log_screen] {
-                phys_screen.fill(_through, rect_s(point_s(), phys_screen.size()));
+            phys_viewport.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_viewport, &log_viewport] {
+                phys_viewport.fill(_through, rect_s(point_s(), phys_viewport.size()));
             });
             if (shade == canvas_c::STENCIL_FULLY_OPAQUE) {
                 if (_palette) {
@@ -144,9 +144,9 @@ public:
         if (count < 17) {
             //m.set_active_palette(&_palettes[count]);
         } else if (count < 18) {
-            auto &phys_screen = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_SCREEN).screen();
-            auto &log_screen = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_SCREEN).screen();
-            phys_screen.draw_aligned(log_screen.image(), point_s());
+            auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
+            auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
+            phys_viewport.draw_aligned(log_viewport.image(), point_s());
         } else if (count < 34) {
             //m.set_active_palette(&_palettes[count - 1]);
         } else {

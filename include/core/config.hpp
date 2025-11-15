@@ -52,14 +52,6 @@
 #   define TOYBOX_DIRTYMAP_TILE_SIZE size_s(16, 16)
 #endif
 
-#ifndef TOYBOX_DEBUG_RESTORE_SCREEN
-#   ifdef __M68000__
-#       define TOYBOX_DEBUG_RESTORE_SCREEN 0
-#   else
-#       define TOYBOX_DEBUG_RESTORE_SCREEN 1
-#   endif
-#endif
-
 #ifndef TOYBOX_RESERVE_A6_GLOBAL
 #   define TOYBOX_RESERVE_A6_GLOBAL 0
 #endif

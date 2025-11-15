@@ -8,15 +8,15 @@
 #include "shared.hpp"
 
 #include "media/display_list.hpp"
-#include "media/screen.hpp"
+#include "media/viewport.hpp"
 
 __neverinline void test_display_list() {
     printf("== Start: test_display_list\n\r");
     display_list_c list;
-    screen_c screen(size_s(320, 16));
+    viewport_c viewport(size_s(320, 16));
     palette_c p1, p2, p3;
     hard_assert(is_sorted(list.begin(), list.end()) && "Empty list should be sorted");
-    list.insert_sorted({PRIMARY_SCREEN, 2, screen});
+    list.insert_sorted({PRIMARY_VIEWPORT, 2, viewport});
     hard_assert(is_sorted(list.begin(), list.end()) && "List should remain sorted after first insert");
     list.insert_sorted({PRIMARY_PALETTE, 0, p1});
     hard_assert(is_sorted(list.begin(), list.end()) && "List should remain sorted after second insert");
@@ -26,7 +26,7 @@ __neverinline void test_display_list() {
     hard_assert(is_sorted(list.begin(), list.end()) && "List should remain sorted after fourth insert");
 
     constexpr pair_c<int, display_item_c::type_e> expections[] = {
-        {0, display_item_c::palette}, {2, display_item_c::palette}, {2, display_item_c::screen}, {20, display_item_c::palette}
+        {0, display_item_c::palette}, {2, display_item_c::palette}, {2, display_item_c::viewport}, {20, display_item_c::palette}
     };
     int i = 0;
     for (const auto& item : list) {

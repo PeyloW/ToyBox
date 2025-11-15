@@ -17,6 +17,8 @@ scene_c::configuration_s& scene_c::configuration() const {
     return default_configuration;
 }
 
+// TODO: Transitions needs to be completely rewritten for display_lists.
+// NOTE: Cross fade through a color may be the only option worth it for now.
 transition_c::transition_c() : manager(scene_manager_c::shared()) {}
 
 class no_transition_c final : public transition_c {
@@ -27,8 +29,6 @@ public:
     virtual void will_begin(const scene_c *from, const scene_c *to) override {
     };
     virtual bool tick(int ticks) override {
-        // TODO: Fix
-        //phys_screen.draw_aligned(log_screen.image(), point_s());
         return --_full_restores_left <= 0;
     }
 private:
@@ -41,14 +41,14 @@ scene_manager_c::scene_manager_c() :
 {
     machine_c::shared();
     _overlay_scene = nullptr;
-    _active_physical_screen = 0;
+    _active_display_list = 0;
     _transition = nullptr;
     for (int i = 0; i < 3; i++) {
         auto& list = _display_lists.emplace_back();
         palette_c& pal = *new palette_c();
-        screen_c& scr = *new screen_c(size_s(320, 208));
+        viewport_c& vpt = *new viewport_c(size_s(320, 208));
         list.emplace_front(PRIMARY_PALETTE, -1, pal);
-        list.emplace_front(PRIMARY_SCREEN, -1, scr);
+        list.emplace_front(PRIMARY_VIEWPORT, -1, vpt);
     }
     srand48(time(nullptr));
 }
@@ -82,8 +82,8 @@ void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_
                 auto &config = scene.configuration();
                 // Merge dirty maps here!
                 if (config.use_clear) {
-                    auto &back_screen = update_clear();
-                    back_screen.with_dirtymap(back_screen.dirtymap(), [&] {
+                    auto &back_viewport = update_clear();
+                    back_viewport.with_dirtymap(back_viewport.dirtymap(), [&] {
                         update_scene(scene, ticks);
                         auto &clear = display_list(display_list_e::clear);
                         auto &back = display_list(display_list_e::back);
@@ -94,9 +94,6 @@ void scene_manager_c::run(scene_c *rootscene, scene_c *overlayscene, transition_
                 } else {
                     update_scene(scene, ticks);
                 }
-#if TOYBOX_DEBUG_RESTORE_SCREEN && DEBUG_DIRTYMAP
-                physical_screen.dirtymap->debug("AF next");
-#endif
             }
             _deletion_stack.clear();
         }
@@ -157,35 +154,31 @@ display_list_c &scene_manager_c::display_list(display_list_e id) const {
     if (id == display_list_e::clear) {
         return (display_list_c&)_display_lists[2];
     } else {
-        int idx = ((int)id + _active_physical_screen) & 0x1;
+        int idx = ((int)id + _active_display_list) & 0x1;
         return (display_list_c&)_display_lists[idx];
     }
 }
 
 void scene_manager_c::swap_display_lists() {
-    _active_physical_screen = (_active_physical_screen + 1) & 0x1;
+    _active_display_list = (_active_display_list + 1) & 0x1;
 }
 
 
-screen_c& scene_manager_c::update_clear() {
-    screen_c *screens[3] = {
-        &_display_lists[0].get(PRIMARY_SCREEN).screen(),
-        &_display_lists[1].get(PRIMARY_SCREEN).screen(),
-        &_display_lists[2].get(PRIMARY_SCREEN).screen(),
+viewport_c& scene_manager_c::update_clear() {
+    viewport_c *viewports[3] = {
+        &_display_lists[0].get(PRIMARY_VIEWPORT).viewport(),
+        &_display_lists[1].get(PRIMARY_VIEWPORT).viewport(),
+        &_display_lists[2].get(PRIMARY_VIEWPORT).viewport(),
     };
-    screens[0]->dirtymap()->merge(*screens[2]->dirtymap());
-    screens[1]->dirtymap()->merge(*screens[2]->dirtymap());
-    screens[2]->dirtymap()->clear();
-    #if TOYBOX_DEBUG_RESTORE_SCREEN && DEBUG_DIRTYMAP
-    screens[(_active_physical_screen + 1) & 0x1]->dirtymap->debug("log");
-    screens[_active_physical_screen]->dirtymap->debug("phys");
-    #endif
-    screens[2]->dirtymap()->clear();
+    viewports[0]->dirtymap()->merge(*viewports[2]->dirtymap());
+    viewports[1]->dirtymap()->merge(*viewports[2]->dirtymap());
+    viewports[2]->dirtymap()->clear();
+    viewports[2]->dirtymap()->clear();
     debug_cpu_color(DEBUG_CPU_PHYS_RESTORE);
-    auto &back_screen = *screens[(_active_physical_screen + 1) & 0x1];
-    auto &clear = *screens[2];
-    back_screen.dirtymap()->restore(back_screen, clear.image());
-    return back_screen;
+    auto &back_viewport = *viewports[(_active_display_list + 1) & 0x1];
+    auto &clear = *viewports[2];
+    back_viewport.dirtymap()->restore(back_viewport, clear.image());
+    return back_viewport;
 }
 
 void scene_manager_c::update_scene(scene_c &scene, int32_t ticks) {
@@ -203,8 +196,8 @@ void scene_manager_c::begin_transition(transition_c *transition, const scene_c *
         const auto &config = to->configuration();
         if (config.use_clear) {
             auto& clear = display_list(display_list_e::clear);
-            auto& screen = clear.get(PRIMARY_SCREEN).screen();
-            screen.with_dirtymap(screen.dirtymap(), [&]{
+            auto& viewport = clear.get(PRIMARY_VIEWPORT).viewport();
+            viewport.with_dirtymap(viewport.dirtymap(), [&]{
                 to->will_appear(obsured);
             });
         } else {

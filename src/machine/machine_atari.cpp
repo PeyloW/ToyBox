@@ -7,7 +7,7 @@
 
 #include "machine/machine.hpp"
 #include "machine/timer.hpp"
-#include "media/screen.hpp"
+#include "media/viewport.hpp"
 #include "media/display_list.hpp"
 #include "core/algorithm.hpp"
 
@@ -143,8 +143,8 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
         assert(is_sorted(display_list->begin(), display_list->end()) && "Display list must be sorted");
         for (const auto& entry : *display_list) {
             switch (entry.item.display_type()) {
-                case display_item_c::screen:
-                    set_active_image(&entry.screen().image());
+                case display_item_c::viewport:
+                    set_active_image(&entry.viewport().image());
                     break;
                 case display_item_c::palette:
                     set_active_palette(&entry.palette());

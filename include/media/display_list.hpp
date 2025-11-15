@@ -11,29 +11,29 @@
 
 namespace toybox {
 
-    class screen_c;
+    class viewport_c;
     class palette_c;
 
     class display_item_c {
     public:
         enum class type_e : uint8_t {
-            screen, palette
+            viewport, palette
         };
         using enum type_e;
         virtual type_e display_type() const __pure = 0;
     };
-    
+
     enum {
-        PRIMARY_SCREEN = -1,
+        PRIMARY_VIEWPORT = -1,
         PRIMARY_PALETTE = -2
     };
     struct display_list_entry_s {
         int id;
         int row;
         display_item_c &item;
-        __forceinline screen_c& screen() const {
-            assert(item.display_type() == display_item_c::screen && "Display item is not a screen");
-            return (screen_c&)item;
+        __forceinline viewport_c& viewport() const {
+            assert(item.display_type() == display_item_c::viewport && "Display item is not a viewport");
+            return (viewport_c&)item;
         }
         __forceinline palette_c& palette() const {
             assert(item.display_type() == display_item_c::palette && "Display item is not a palette");
