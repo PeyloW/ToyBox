@@ -45,7 +45,8 @@ namespace toybox {
         dirtymap_c(const size_s size) : _size(size) {}
         const size_s _size;
         bool _is_dirty;
-        uint8_t _data[];
+        uint8_t __padding;
+        uint8_t _data[];    // _data **must** be on an even address.
     };
-    
+
 }

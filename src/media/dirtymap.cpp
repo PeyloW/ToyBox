@@ -51,6 +51,7 @@ static void init_lookup_table_if_needed() {
 }
 
 dirtymap_c* dirtymap_c::create(size_s size) {
+    assert(offsetof(dirtymap_c, _data) % 1 == 0);
     int bytes = dirtymap_c::instance_size(&size);
     return new (_calloc(1, bytes)) dirtymap_c(size);
 }
@@ -126,6 +127,7 @@ void dirtymap_c::mark(const rect_s &rect) {
 }
 
 void dirtymap_c::merge(const dirtymap_c &dirtymap) {
+    assert(_size == dirtymap._size);
     if (!dirtymap.is_dirty()) return;
     _is_dirty = true;
     uint32_t *l_dest = (uint32_t*)_data;

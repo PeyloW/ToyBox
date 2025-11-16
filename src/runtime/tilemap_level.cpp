@@ -43,7 +43,12 @@ static_assert(sizeof(tlmp_header_s) == 12);
 tilemap_level_c::tilemap_level_c(rect_s bounds, tileset_c* tileset) : tilemap_c(bounds), _tileset(tileset) {
     // TODO: Is this correct? This requires bounds to be {0,0} for the level tilemap.
     // And we should probably only dirty the visible region is the level is larger than the display size.
-    _tiles_dirtymap = dirtymap_c::create(bounds.size);
+    // Size here is depending on the size of the viewport to draw in later. Is max screen size good enough?
+    size_s size(
+        max(bounds.size.width, (int16_t)320),
+        max(bounds.size.height, (int16_t)208)
+    );
+    _tiles_dirtymap = dirtymap_c::create(size);
     set_visible_bounds(bounds);
 }
 
