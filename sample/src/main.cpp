@@ -33,11 +33,11 @@ static asset_manager_c& setup_assets() {
         { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") },
         
         { TILESET_WALL, asset_manager_c::asset_def_s(asset_c::tileset, 2, "wall.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
-            auto image = new image_c(path, 0);
+            auto image = new image_c(path);
             return new tileset_c(image, size_s(16, 16));
         })},
         { TILESET_SPR, asset_manager_c::asset_def_s(asset_c::tileset, 2, "player.iff", [](const asset_manager_c &manager, const char *path) -> asset_c* {
-            auto image = new image_c(path, 0);
+            auto image = new image_c(path,0); // Color #0 is transparent
             return new tileset_c(image, size_s(16, 16));
         })},
 

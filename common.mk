@@ -29,7 +29,7 @@ else ifeq ($(HOST),none)
 	FLAGS+=-g0 -DNDEBUG
 	FLAGS+=-s
 #	FLAGS+=-S
-	FLAGS+=-DTOYBOX_DEBUG_CPU=0
+	FLAGS+=-DTOYBOX_DEBUG_CPU=1
 	CFLAGS+=-Os -fomit-frame-pointer -fno-threadsafe-statics
 	CFLAGS+=-fno-exceptions -Wno-write-strings -Wno-pointer-arith -Wno-packed-not-aligned -fno-rtti
 	CFLAGS+=-I $(LIBCMINIINC)

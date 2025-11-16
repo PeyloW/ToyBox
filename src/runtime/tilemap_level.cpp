@@ -70,9 +70,12 @@ void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
     _viewport = &viewport;
     // Update the AI for the level world, and entities
     // NOTE: How to handle AI if dropping frames?
+    debug_cpu_color(0x010);
     update_level();
+    debug_cpu_color(0x020);
     update_actions();
     // AI may update tiles, so we need to dirty viewports to redraw them
+    debug_cpu_color(0x030);
     auto& manager = scene_manager_c::shared();
     for (int idx = (int)scene_manager_c::front; idx <= (int)scene_manager_c::back; ++idx) {
         auto& viewport = manager.display_list((scene_manager_c::display_list_e)idx).get(display_id).viewport();
@@ -80,8 +83,10 @@ void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
     }
     _tiles_dirtymap->clear();
     // Draw all the tiles, both updates, and previously dirtied by drawing sprites
+    debug_cpu_color(0x040);
     draw_tiles();
     // And lastly draw all the sprites needed
+    debug_cpu_color(0x050);
     draw_entities();
     _viewport = nullptr;
 }
@@ -119,10 +124,13 @@ void tilemap_level_c::draw_tiles() {
                     for (int x = tile_rect.origin.x; x <= tile_rect.max_x(); ++x) {
                         const auto& tile = (*this)[x, y];
                         if (tile.index <= 0) {
+                            debug_cpu_color(0x043);
                             viewport.fill(-tile.index, rect_s(at, size_s(16, 16)));
                         } else {
-                            viewport.draw(*_tileset, tile.index, at);
+                            debug_cpu_color(0x240);
+                            viewport.draw_aligned(*_tileset, tile.index, at);
                         }
+                        debug_cpu_color(0x040);
                         at.x += 16;
                     }
                     at.y += 16;
@@ -145,7 +153,9 @@ void tilemap_level_c::draw_entities() {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
                 const point_s center = static_cast<point_s>(entity.position.center);
                 const point_s at = center + frame_def.offset;
+                debug_cpu_color(0x053);
                 viewport.draw(*ent_def.tileset, frame_def.index, at);
+                debug_cpu_color(0x050);
             }
         }
     }
