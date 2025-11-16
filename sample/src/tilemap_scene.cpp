@@ -35,7 +35,7 @@ static void player_control(tilemap_level_c& level, entity_s& entity) {
     }
     if ((dir & controller_c::left) == true) {
         entity.position.center.x -= 1;
-    } else if ((dir & controller_c::down) == true) {
+    } else if ((dir & controller_c::right) == true) {
         entity.position.center.x += 1;
     }
 }

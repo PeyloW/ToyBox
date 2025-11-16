@@ -70,7 +70,7 @@ namespace toybox {
         };
         using enum direcrions_e;
         enum class button_e : uint8_t {
-            fire = 1 << 4
+            fire = 1 << 7
         };
         using enum button_e;
         

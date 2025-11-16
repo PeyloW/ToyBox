@@ -19,6 +19,10 @@
     .globl g_mouse_interupt
     .globl g_system_mouse_interupt
 
+    .extern g_joysticks
+    .globl g_joystick_interupt
+    .globl g_system_joystick_interupt
+
     .globl g_microwire_write
 
     .struct
@@ -47,6 +51,8 @@ g_system_clock_interupt:
     .dc.l    0x0
 g_system_mouse_interupt:
     .dc.l    0x0
+g_system_joystick_interupt:
+    .dc.l   0x0
 
     .text
     .even
@@ -133,7 +139,7 @@ g_mouse_interupt:
     move.w  %d0, -(%sp)
 #if TOYBOX_DEBUG_CPU
     move.w  0xffff8240.w,-(%sp)
-    move.w  #0x101,0xffff8240.w
+    move.w  #0x102,0xffff8240.w
 #endif
     move.b  (%a0),%d0
     and.b   #0x3,%d0
@@ -149,6 +155,26 @@ g_mouse_interupt:
 #endif
     move.w  (%sp)+,%d0
     move.l  g_system_mouse_interupt,-(%sp)
+    rts
+
+g_joystick_interupt:
+#if TOYBOX_DEBUG_CPU
+    move.w  0xffff8240.w,-(%sp)
+    move.w  #0x201,0xffff8240.w
+#endif
+    cmp.b   #0xfe,(%a0)
+    bne.s   .not_joy0
+    move.b  1(%a0),g_joysticks+0
+    bra.s   .joy_done
+.not_joy0:
+    cmp.b   #0xff,(%a0)
+    bne.s   .joy_done
+    move.b  2(%a0),g_joysticks+1
+.joy_done:
+#if TOYBOX_DEBUG_CPU
+    move.w  (%sp)+,0xffff8240.w
+#endif
+    move.l  g_system_joystick_interupt,-(%sp)
     rts
 
 g_microwire_write:

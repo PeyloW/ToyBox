@@ -21,6 +21,14 @@ namespace toybox {
     static void debug_cpu_color(uint16_t) { }
 #endif
 
+    static __forceinline void hard_crash() {
+#ifdef __M68000__
+        __asm__ volatile ("move.w #1,0xffff8241.w" :  :  : );
+#else
+        hard_assert(false);
+#endif
+    }
+
     template<typename T, const int Bytes = sizeof(T)>
     __forceinline void move_inc_to(T src, void* &dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
