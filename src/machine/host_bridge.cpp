@@ -15,6 +15,7 @@ extern "C" {
     extern void g_vbl_interupt();
     extern void g_clock_interupt();
     extern void g_update_mouse(point_s position, bool left, bool right);
+    extern void g_update_joystick(controller_c::direcrions_e directions, bool fire);
 }
 
 static host_bridge_c *s_bridge = nullptr;
@@ -40,6 +41,10 @@ void host_bridge_c::clock_interupt() {
 // Host must call when mouse state changes
 void host_bridge_c::update_mouse(point_s position, bool left, bool right) {
     g_update_mouse(position, left, right);
+}
+
+void host_bridge_c::update_joystick(controller_c::direcrions_e directions, bool fire) {
+    g_update_joystick(directions, fire);
 }
 
 #endif

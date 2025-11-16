@@ -22,7 +22,7 @@ using namespace toybox;
 class sdl2_host_bridge final : public host_bridge_c {
 public:
     sdl2_host_bridge(machine_c &machine) : _machine(machine) {
-        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
+        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER);
         _window = SDL_CreateWindow("ToyBox", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 400, SDL_WINDOW_SHOWN);
         _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
         _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, 320, 200);
@@ -36,9 +36,18 @@ public:
         desired.callback = nullptr;          // No callback, we'll use SDL_QueueAudio
         _device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
         
+        // Initialize joystick if available
+        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+            if (SDL_IsGameController(i)) {
+                _controller = SDL_GameControllerOpen(i);
+                break;
+            }
+        }
+        
         set_shared(this);
     }
     ~sdl2_host_bridge() {
+        if (_controller) SDL_GameControllerClose(_controller);
         if (_device_id) SDL_CloseAudioDevice(_device_id);
         if (_texture) SDL_DestroyTexture(_texture);
         if (_renderer) SDL_DestroyRenderer(_renderer);
@@ -169,11 +178,14 @@ public:
         timer_c &vbl = timer_c::shared(timer_c::timer_e::vbl);
         _vbl_timer = SDL_AddTimer(1000 / vbl.base_freq(), vbl_cb, this);
         _clock_timer = SDL_AddTimer(5, clock_cb, this);
-
+        controller_c::direcrions_e joy_directions = controller_c::none;
+        bool joy_fire = false;
+        
         while (!s_should_quit.load()) {
             SDL_Event event;
             const display_list_c *previous_display_list = nullptr;
             while (SDL_PollEvent(&event)) {
+                bool update_joy = false;
                 switch (event.type) {
                     case SDL_QUIT:
                         s_should_quit.store(true);
@@ -188,10 +200,51 @@ public:
                         host_bridge_c::shared().update_mouse(point_s(x / 2, y / 2), left, right);
                         break;
                     }
+                    case SDL_CONTROLLERAXISMOTION: {
+                        static constexpr Sint16 deadzone = 8000;
+                        switch (event.caxis.axis) {
+                            case SDL_CONTROLLER_AXIS_LEFTY:
+                                joy_directions = joy_directions - controller_c::up - controller_c::down;
+                                if (event.caxis.value < -deadzone) {
+                                    joy_directions = joy_directions + controller_c::up;
+                                } else if (event.caxis.value > deadzone) {
+                                    joy_directions = joy_directions + controller_c::down;
+                                }
+                                update_joy = true;
+                                break;
+                            case SDL_CONTROLLER_AXIS_LEFTX:
+                                joy_directions = joy_directions - controller_c::left - controller_c::right;
+                                if (event.caxis.value < -deadzone) {
+                                    joy_directions = joy_directions + controller_c::left;
+                                } else if (event.caxis.value > deadzone) {
+                                    joy_directions = joy_directions + controller_c::right;
+                                }
+                                update_joy = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    case SDL_CONTROLLERBUTTONDOWN:
+                        if (event.cbutton.button == 0) {
+                            joy_fire = true;
+                            update_joy = true;
+                        }
+                        break;
+                    case SDL_CONTROLLERBUTTONUP:
+                        if (event.cbutton.button == 0) {
+                            joy_fire = false;
+                            update_joy = true;
+                        }
+                        break;
                     default:
                         break;
                 }
+                if (update_joy) {
+                    host_bridge_c::shared().update_joystick(joy_directions, joy_fire);
+                }
             }
+
             pause_timers();
             auto display_list = _machine.active_display_list();
             if (display_list != previous_display_list) {
@@ -220,6 +273,7 @@ private:
     SDL_Texture *_texture = nullptr;
     SDL_Thread *_thread = nullptr;
     SDL_AudioDeviceID _device_id;
+    SDL_GameController *_controller = nullptr;
     machine_c &_machine;
     std::recursive_mutex _timer_mutex;
     Uint32 _vbl_timer = 0;

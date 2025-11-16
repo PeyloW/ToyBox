@@ -36,10 +36,22 @@ namespace toybox {
         return (T)((U)a | (U)b);
     }
 
+    __forceinline constexpr auto operator+(optionset_type auto a, optionset_type auto b) -> decltype(a) {
+        using T = decltype(a);
+        using U = __underlying_type(T);
+        return (T)((U)a | (U)b);
+    }
+
     __forceinline constexpr auto operator&(optionset_type auto a, optionset_type auto b) -> decltype(a) {
         using T = decltype(a);
         using U = __underlying_type(T);
         return (T)((U)a & (U)b);
+    }
+
+    __forceinline constexpr auto operator-(optionset_type auto a, optionset_type auto b) -> decltype(a) {
+        using T = decltype(a);
+        using U = __underlying_type(T);
+        return (T)((U)a & ~(U)b);
     }
 
     constexpr auto operator|=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
@@ -47,9 +59,19 @@ namespace toybox {
         return a;
     }
 
+    constexpr auto operator+=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
+        a = a + b;
+        return a;
+    }
+
     constexpr auto operator&=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
         a = a & b;
         return a;
     }
-    
+
+    constexpr auto operator-=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
+        a = a - b;
+        return a;
+    }
+
 }

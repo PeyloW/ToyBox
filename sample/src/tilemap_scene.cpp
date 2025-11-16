@@ -27,6 +27,17 @@ enum player_frame_index {
 };
 
 static void player_control(tilemap_level_c& level, entity_s& entity) {
+    auto dir = controller_c::shared().directions();
+    if ((dir & controller_c::up) == true) {
+        entity.position.center.y -= 1;
+    } else if ((dir & controller_c::down) == true) {
+        entity.position.center.y += 1;
+    }
+    if ((dir & controller_c::left) == true) {
+        entity.position.center.x -= 1;
+    } else if ((dir & controller_c::down) == true) {
+        entity.position.center.x += 1;
+    }
 }
 
 tilemap_level_c* make_tilemaplevel() {

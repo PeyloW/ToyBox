@@ -29,6 +29,7 @@ namespace toybox {
         enum class button_e : uint8_t {
             right, left
         };
+        using enum button_e;
         
         static mouse_c &shared();
         
@@ -48,13 +49,45 @@ namespace toybox {
     };
     
     /**
-     A `joystick_c` is an abstraction for joystick/joypad input.
+     A `controller_c` is an abstraction for joystick/joypad input.
      The joysticks are lazy initialized singleton.
      TODO: Implement this
      */
-    class joystick_c : public nocopy_c {
+    class controller_c : public nocopy_c {
+    public:
+        enum class port_e : uint8_t {
+            joy_0, joy_1 /* , jaypad_a, jaypad_b */
+        };
+        using enum port_e;
+        
+        static controller_c& shared(port_e port = joy_1);
+        
+        enum class direcrions_e : uint8_t {
+            none = 0,
+            up = 1 << 0, down = 1 << 1, left = 1 << 2, right = 1 << 3,
+            up_left = up | left, up_righ = up | right,
+            down_left = down | left, down_right = down | right
+        };
+        using enum direcrions_e;
+        enum class button_e : uint8_t {
+            fire = 1 << 4
+        };
+        using enum button_e;
+        
+        direcrions_e directions() const;
+        
+        bool is_pressed(button_e button) const;
+        button_state_e state(button_e button) const;
+    private:
+        controller_c(port_e port);
+        ~controller_c();
+        port_e _port;
     };
-    
+    template<>
+    class is_optionset<controller_c::direcrions_e> : public true_type {};
+    template<>
+    class is_optionset<controller_c::button_e> : public true_type {};
+
     /**
      A `keyboard_c` is an abstraction for keyboard input.
      The keyboard is a lazy initialized singleton.

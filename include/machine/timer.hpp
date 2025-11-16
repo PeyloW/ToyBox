@@ -27,6 +27,7 @@ namespace toybox {
         enum class timer_e : uint8_t {
             vbl, clock
         };
+        using enum timer_e;
         using func_t = void(*)(void);
         using func_a_t = void(*)(void *);
         using func_i_t = void(*)(int);
