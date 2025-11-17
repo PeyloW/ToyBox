@@ -46,11 +46,11 @@ namespace toybox {
         __target_volatile uint16_t halftoneRAM[16];
         __target_volatile int16_t srcIncX;
         __target_volatile int16_t srcIncY;
-        __target_volatile uint16_t *pSrc;
+        __target_volatile uint16_t* __target_volatile pSrc;
         __target_volatile uint16_t endMask[3];
         __target_volatile int16_t dstIncX;
         __target_volatile int16_t dstIncY;
-        __target_volatile uint16_t *pDst;
+        __target_volatile uint16_t* __target_volatile pDst;
         __target_volatile uint16_t countX;
         __target_volatile uint16_t countY;
         __target_volatile hop_e HOP;
@@ -71,16 +71,16 @@ namespace toybox {
             return halftoneRAM[mode & 0xf];
         }
 #ifdef __M68000__
-        void start(bool hog = false) {
+        __forceinline void start(bool hog = false) {
             if (hog) {
                 __asm__ volatile ("move.b #0xc0,0xffff8A3C.w \n\t"  : : : );
             } else {
                 __asm__ volatile (
                                   "move.b #0x80,0xffff8A3C.w \n\t"
                                   "nop \n"
-                                  ".Lrestart: bset.b #7,0xffff8A3C.w \n\t"
+                                  "1: bset.b #7,0xffff8A3C.w \n\t"
                                   "nop \n\t"
-                                  "bne.s .Lrestart \n\t" : : : );
+                                  "bne.s 1b \n\t" : : : );
             }
         }
 #else
