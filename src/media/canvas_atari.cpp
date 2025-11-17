@@ -43,8 +43,6 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
 
     const int16_t dst_max_x = rect.max_x();
     const int16_t dst_words_dec_1  = ((dst_max_x / 16) - (rect.origin.x / 16));
-    // TODO: Make this smarter to we can hog for 128-192 cycles at a time.
-    const bool use_hog = dst_words_dec_1 == 0 && rect.size.height <= 16;
 
     // Source
     blitter->srcIncX = 0;
@@ -92,7 +90,7 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
         blitter->pDst   = dst_bitmap;
         blitter->countY = rect.size.height;
 
-        blitter->start(use_hog);
+        blitter->start();
 
         color >>= 1;
         dst_bitmap++;
@@ -149,19 +147,6 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
             blitter->endMask[2] = m;
             blitter->start(hog);
         }
-    } else if (countX <= 16) {
-        const auto maxLinesPerBlit = 5 - copy_words;
-        assert(maxLinesPerBlit > 0 && maxLinesPerBlit <= 4);
-        blitter->HOP = blitter_s::hop_e::src;
-        blitter->LOP = blitter_s::lop_e::src;
-        // Calculate max lines per blit to keep countX * countY <= 16
-        assert(maxLinesPerBlit > 0);
-        for (auto remLines = countY; remLines > 0; ) {
-            const auto blitLines = MIN(remLines, maxLinesPerBlit);
-            blitter->countY = blitLines;
-            blitter->start(true);
-            remLines -= blitLines;
-        }
     } else {
         blitter->countY = countY;
         blitter->HOP = blitter_s::hop_e::src;
@@ -180,8 +165,6 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
     const int16_t dst_max_x       = (at.x + rect.size.width - 1);
     const int16_t src_words_dec_1 = ((src_max_x / 16) - (rect.origin.x / 16));
     const int16_t dst_words_dec_1 = ((dst_max_x / 16) - (at.x / 16));
-    // TODO: Make this smarter to we can hog for 128-192 cycles at a time.
-    const bool use_hog = src_words_dec_1 == 0 && rect.size.height <= 16;
 
     // Source
     blitter->srcIncX = 8;
@@ -237,7 +220,7 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
         blitter->pSrc   = src_bitmap;
         blitter->countY = rect.size.height;
 
-        blitter->start(use_hog);
+        blitter->start();
 
         src_bitmap++;
         dst_bitmap++;
@@ -254,8 +237,6 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     const int16_t dst_max_x       = (at.x + rect.size.width - 1);
     const int16_t src_words_dec_1 = ((src_max_x / 16) - (rect.origin.x / 16));
     const int16_t dst_words_dec_1 = ((dst_max_x / 16) - (at.x / 16));
-    // TODO: Make this smarter to we can hog for 128-192 cycles at a time.
-    const bool use_hog = src_words_dec_1 == 0 && rect.size.height <= 16;
     
     // Source
     blitter->srcIncX = 2;
@@ -311,7 +292,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
         blitter->pSrc   = src_maskmap;
         blitter->countY = rect.size.height;
 
-        blitter->start(use_hog);
+        blitter->start();
 
         dst_bitmap++;
     } while_dbra(i);
@@ -333,7 +314,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
         blitter->pSrc   = src_bitmap;
         blitter->countY = rect.size.height;
 
-        blitter->start(use_hog);
+        blitter->start();
 
         src_bitmap++;
         dst_bitmap++;
@@ -350,8 +331,6 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
     const int16_t dst_max_x       = (at.x + rect.size.width - 1);
     const int16_t src_words_dec_1 = ((src_max_x / 16) - (rect.origin.x / 16));
     const int16_t dst_words_dec_1 = ((dst_max_x / 16) - (at.x / 16));
-    // TODO: Make this smarter to we can hog for 128-192 cycles at a time.
-    const bool use_hog = src_words_dec_1 == 0 && rect.size.height <= 16;
 
     // Source
     blitter->srcIncX = 2;
@@ -411,7 +390,7 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
         blitter->pSrc   = src_maskmap;
         blitter->countY = rect.size.height;
 
-        blitter->start(use_hog);
+        blitter->start();
 
         color >>= 1;
         dst_bitmap++;

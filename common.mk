@@ -26,8 +26,9 @@ else ifeq ($(HOST),none)
 	CC=/opt/cross-mint/bin/m68k-atari-mintelf-c++
 	AR=/opt/cross-mint/bin/m68k-atari-mintelf-ar
 	FLAGS+=-m68000 -mshort -mfastcall
-	FLAGS+=-g0 -DNDEBUG
-	FLAGS+=-s
+	FLAGS+=-DNDEBUG
+#	FLAGS+=-g0 -DNDEBUG
+#	FLAGS+=-s
 #	FLAGS+=-S
 	FLAGS+=-DTOYBOX_DEBUG_CPU=0
 	CFLAGS+=-Os -fomit-frame-pointer -fno-threadsafe-statics
