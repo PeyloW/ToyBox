@@ -32,12 +32,12 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
 
 - [x] `fixed16_t` math library, 12:4 bits
 - [x] `viewport_c` as a subclass of `canvas_c`
-    - [-] Wrapper for an `image_c` with its own size and offset
-    - [ ] Separate viewport size from image size
-    - [ ] Move drawing primitives with translate, clip, and dirty to superclass
+    - [x] Wrapper for an `image_c` with its own size and offset
+    - [x] Separate viewport size from image size
+    - [-] Move drawing primitives with translate, clip, and dirty to superclass
 - [x] Basic `display_list_c` supporting single `viewport_c` and `palette_c`
     - [x] Use active `display_list_c` not `image_c`
-    - [ ] Hardware scroll viewport on Atari target
+    - [-] Hardware scroll viewport on Atari target
     - [ ] Hardware scrolled display on host
 - [ ] Rewrite `transition_c` system for display lists
     - [ ] Cross-fade through color
@@ -55,7 +55,7 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [ ] Optimize AI and rendering for visible entities only
 - [ ] Implement `audio_mixer_c`
     - [ ] Four channels of mixed audio
-- [ ] Implement `controller_c` to read ST joystick 0 or 1
+- [x] Implement `controller_c` to read ST joystick 0 or 1
     - [ ] Basic `state_recognizer_c`
     - [ ] Implementations for taps and holds
 - [ ] Implement `keyboard_c`
@@ -66,12 +66,13 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [ ] Edit entities and entity defs
     - [ ] Implement file format
 - [ ] Refine core APIs
-    - [ ] Improve geometry API clarity
+    - [x] Improve geometry API clarity
     - [ ] Fix stencil mask bug on Atari target 
 - [x] Update sample project
     - [x] Tilemap based scene
     - [x] Basic entities
-        - [ ] Player controlled with joystick
+        - [x] Player controlled with joystick
+        - [ ] Hardware scroll horizontally a little bit
 
 ### v3.0 - A complete general purpose game engine
 

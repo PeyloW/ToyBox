@@ -73,16 +73,25 @@ namespace toybox {
     }
 
     template<ordered T>
-    constexpr const T& max(const T& a) {
+    __forceinline constexpr const T& max(const T& a) {
         return a;
     }
-
     template<ordered T, typename... Ts>
-    constexpr const T& max(const T& a, const T& b, const Ts&... rest) {
+    __forceinline constexpr const T& max(const T& a, const T& b, const Ts&... rest) {
         const T& m = (a < b) ? b : a;
         return max(m, rest...);
     }
     
+    template<ordered T>
+    __forceinline constexpr const T& min(const T& a) {
+        return a;
+    }
+    template<ordered T, typename... Ts>
+    __forceinline constexpr const T& min(const T& a, const T& b, const Ts&... rest) {
+        const T& m = (a < b) ? a : b;
+        return min(m, rest...);
+    }
+
 #pragma mark - Random numbers
     
     static uint16_t fast_rand_seed = 0xace1u;

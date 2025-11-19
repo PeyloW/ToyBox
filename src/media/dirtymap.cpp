@@ -64,16 +64,17 @@ int dirtymap_c::instance_size(size_s *size) {
     return sizeof(dirtymap_c) + data_size;
 }
 
+template<bool dirty>
 void dirtymap_c::mark(const rect_s &rect) {
     const int16_t x1 = rect.origin.x / TOYBOX_DIRTYMAP_TILE_SIZE.width;
     const int16_t x2 = (rect.max_x()) / TOYBOX_DIRTYMAP_TILE_SIZE.width;
     const int16_t y1 = rect.origin.y / TOYBOX_DIRTYMAP_TILE_SIZE.height;
     assert(y1 < _size.height && "Y coordinate must be within dirtymap height");
 #define BITS_PER_BYTE 8
-    static constexpr uint8_t first_byte_masks[BITS_PER_BYTE] = {
+    static constexpr uint8_t s_first_byte_masks[BITS_PER_BYTE] = {
         0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80
     };
-    static constexpr uint8_t last_byte_masks[BITS_PER_BYTE] = {
+    static constexpr uint8_t s_last_byte_masks[BITS_PER_BYTE] = {
         0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF
     };
 
@@ -90,41 +91,72 @@ void dirtymap_c::mark(const rect_s &rect) {
     
     _is_dirty = true;
     uint8_t *data = _data + (start_byte + _size.width * y1);
-
+    uint8_t first_byte_mask = s_first_byte_masks[start_bit];
+    uint8_t last_byte_mask = s_last_byte_masks[end_bit];
+    if constexpr (!dirty) {
+        first_byte_mask = ~first_byte_mask;
+        last_byte_mask = ~last_byte_mask;
+    }
+    
     if (extra_rows == 0) {
         if (start_byte == end_byte) {
-            *data |= (first_byte_masks[start_bit] & last_byte_masks[end_bit]);
-        } else {
-            or_inc_to(first_byte_masks[start_bit], data);
-            int j;
-            while_dbra_count(j, end_byte - start_byte - 1) {
-                *data++ = 0xFF;
+            if constexpr (dirty) {
+                *data |= (first_byte_mask & last_byte_mask);
+            } else {
+                *data &= (first_byte_mask | last_byte_mask);
             }
-            *data |= (last_byte_masks[end_bit]);
+        } else {
+            if constexpr (dirty) {
+                *data++ |= first_byte_mask;
+                int j;
+                while_dbra_count(j, end_byte - start_byte - 1) {
+                    *data++ = 0xff;
+                }
+                *data |= last_byte_mask;
+            } else {
+                *data++ &= first_byte_mask;
+                int j;
+                while_dbra_count(j, end_byte - start_byte - 1) {
+                    *data++ = 0x00;
+                }
+                *data &= last_byte_mask;
+            }
         }
     } else {
         if (start_byte == end_byte) {
-            auto mask = (first_byte_masks[start_bit] & last_byte_masks[end_bit]);
             for (int16_t y = 0; y <= extra_rows; y++) {
-                *data |= mask;
+                if constexpr (dirty) {
+                    *data |= (first_byte_mask & last_byte_mask);
+                } else {
+                    *data &= (first_byte_mask | last_byte_mask);
+                }
                 data += _size.width;
             }
         } else {
-            auto mask_first = (first_byte_masks[start_bit]);
-            auto mask_last = (last_byte_masks[end_bit]);
             for (int16_t y = 0; y <= extra_rows; y++) {
                 auto line_data = data;
-                *line_data++ |= mask_first;
-                int j;
-                while_dbra_count(j, end_byte - start_byte - 1) {
-                    *line_data++ = 0xFF;
+                if constexpr (dirty) {
+                    *line_data++ |= first_byte_mask;
+                    int j;
+                    while_dbra_count(j, end_byte - start_byte - 1) {
+                        *line_data++ = 0xff;
+                    }
+                    *line_data |= last_byte_mask;
+                } else {
+                    *line_data++ &= first_byte_mask;
+                    int j;
+                    while_dbra_count(j, end_byte - start_byte - 1) {
+                        *line_data++ = 0x00;
+                    }
+                    *line_data &= last_byte_mask;
                 }
-                *line_data |= mask_last;
                 data += _size.width;
             }
         }
     }
 }
+template void dirtymap_c::mark<true>(const rect_s &rect);
+template void dirtymap_c::mark<false>(const rect_s &rect);
 
 void dirtymap_c::merge(const dirtymap_c &dirtymap) {
     assert(_size == dirtymap._size);

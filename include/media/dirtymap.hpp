@@ -31,6 +31,7 @@ namespace toybox {
         
         static dirtymap_c* create(size_s size);
         
+        template<bool dirty = true>
         void mark(const rect_s &rect);
         void merge(const dirtymap_c &dirtymap);
         bool is_dirty() const { return _is_dirty; }

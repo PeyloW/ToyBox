@@ -143,9 +143,12 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
         assert(is_sorted(display_list->begin(), display_list->end()) && "Display list must be sorted");
         for (const auto& entry : *display_list) {
             switch (entry.item.display_type()) {
-                case display_item_c::viewport:
+                case display_item_c::viewport: {
+                    auto config = entry.viewport().display_config();
+                    // TODO: Refactor as set_active_viewport, and use a g_active_config for the VBL
                     set_active_image(&entry.viewport().image());
                     break;
+                }
                 case display_item_c::palette:
                     set_active_palette(&entry.palette());
                     break;

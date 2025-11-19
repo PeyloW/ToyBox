@@ -38,6 +38,8 @@ static void player_control(tilemap_level_c& level, entity_s& entity) {
     } else if ((dir & controller_c::right) == true) {
         entity.position.center.x += 1;
     }
+    point_s offset((int16_t)entity.position.center.x - 160, 0);
+    level.active_viewport().set_offset(offset);
 }
 
 tilemap_level_c* make_tilemaplevel() {

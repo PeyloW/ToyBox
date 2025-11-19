@@ -24,6 +24,7 @@ namespace toybox {
      */
     class image_c final : public asset_c {
         friend class canvas_c;
+        friend class viewport_c;
         friend class machine_c;
     public:
         enum class compression_type_e : uint8_t {
