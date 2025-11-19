@@ -16,7 +16,7 @@ enum entity_type {
 };
 
 enum tile_type {
-    EMPTY = 0,   // Color  #0 - Black
+    EMPTY = -1,   // Color  #0 - Black
     WALL = 1,    // Tile   #1 - Brick wall
     FLOOR = -10, // Color #10 - Light gray
     TARGET = -13 // Color #13 - Light blue

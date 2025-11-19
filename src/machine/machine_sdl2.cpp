@@ -131,7 +131,7 @@ public:
             point_s at;
             for (at.y = 0; at.y < screen_size.height; at.y++) {
                 for (at.x = 0; at.x < screen_size.width; at.x++) {
-                    const auto c = get_pixel(image, at + offset);
+                    const auto c = get_pixel(image, at + offset, false);
                     if (c != image_c::MASKED_CIDX) {
                         auto offset = (at.y * screen_size.width + at.x);
                         buffer[offset] = palette[c];

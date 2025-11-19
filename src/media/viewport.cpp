@@ -63,7 +63,8 @@ viewport_c::~viewport_c() {
 
 void viewport_c::set_offset(point_s offset) {
     assert(offset.y == 0 && "Vertical offset must be 0");
-    offset.x = max((int16_t)0, min((int16_t)(_viewport_size.width - 320), offset.x));
+    const auto screen_width = image().size().width;
+    offset.x = max((int16_t)0, min((int16_t)(_viewport_size.width - screen_width), offset.x));
     const int16_t old_left_tile = _offset.x >> 4;
     const int16_t new_left_tile = offset.x >> 4;
     
@@ -76,18 +77,18 @@ void viewport_c::set_offset(point_s offset) {
         if (tile_delta > 0) {
             // Scrolling right: mark right
             //_dirtymap->mark<dirtymap_c::mark_type_e::clean>(mark_rect);
-            mark_rect.origin.x += 320;
-            _dirtymap->mark<dirtymap_c::mark_type_e::dirty>(mark_rect);
+            mark_rect.origin.x += screen_width;
+            _dirtymap->mark(mark_rect);
         } else {
-            // Scrolling left: mark left, unmark right
+            // Scrolling left: mark left
             const int16_t left_tiles_gained = -tile_delta;
-            _dirtymap->mark<dirtymap_c::mark_type_e::dirty>(mark_rect);
-            //mark_rect.origin.x += 320;
+            _dirtymap->mark(mark_rect);
+            //mark_rect.origin.x += screen_width;
             //_dirtymap->mark<dirtymap_c::mark_type_e::clean>(mark_rect);
         }
         _clip_rect = rect_s(
             offset.x & ~0xf, 0,
-            336, mark_rect.size.height
+            screen_width,_viewport_size.height
         );
 #if TOYBOX_DEBUG_DIRTYMAP
         _dirtymap->print_debug("viewport::set_offset()");

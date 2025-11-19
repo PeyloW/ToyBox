@@ -90,26 +90,22 @@ void dirtymap_c::mark(const rect_s &rect) {
         assert((rect.origin.x & 0xf) == 0 && (rect.origin.y & 0xf) == 0);
         assert((rect.size.width & 0xf) == 0 && (rect.size.width & 0xf) == 0);
         const size_s size(_tilespace_width * 16, _byte_layout_size.height * 16);
-        // TODO: Clear bytes directly for top and borrom
+        // TODO: Clear bytes directly for top and bottom
         if (rect.origin.y > 0) {
             rect_s r(0,0,size.width, rect.origin.y);
             mark<mark_type_e::clean>(r);
-            print_debug("Clean Top");
         }
         if (rect.max_y() + 1 < size.height) {
             rect_s r(0,rect.max_y() + 1,size.width, size.height - (rect.max_y() + 1));
             mark<mark_type_e::clean>(r);
-            print_debug("Clean Bottom");
         }
         if (rect.origin.x > 0) {
             rect_s r(0,rect.origin.y,rect.origin.x, rect.size.height);
             mark<mark_type_e::clean>(r);
-            print_debug("Clean Left");
         }
         if (rect.max_x() + 1 < size.width) {
             rect_s r(rect.max_x() + 1,rect.origin.y,size.width - (rect.max_x() + 1), rect.size.height);
             mark<mark_type_e::clean>(r);
-            print_debug("Clean Right");
         }
         return;
     }

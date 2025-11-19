@@ -201,6 +201,9 @@ void tilemap_level_c::set_visible_bounds(const rect_s& bounds) {
     // TODO: When changing bounds columns (and eventually rows) of tiles needs to be marked dirty.
     // NOTE: Outside of visible bounds should always be clean.
     _tiles_dirtymap->mark(bounds);
+#if TOYBOX_DEBUG_DIRTYMAP
+    _tiles_dirtymap->print_debug("tilemap_level_c::set_visible_bounds()");
+#endif
     _visible_bounds = bounds;
 }
 
