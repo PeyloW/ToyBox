@@ -49,7 +49,7 @@ namespace toybox {
         __forceinline tile_s& operator[](int x, int y) __pure { return _tiles[x + y * _tilespace_bounds.size.width]; }
         __forceinline const tile_s& operator[](int x, int y) const __pure { return _tiles[x + y * _tilespace_bounds.size.width]; }
 
-    private:
+    protected:
         rect_s _tilespace_bounds;
         vector_c<tile_s, 0> _tiles;
         vector_c<int,0> _activate_entity_idxs;

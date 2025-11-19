@@ -17,8 +17,6 @@ namespace toybox {
     namespace detail {
         class basic_canvas_c;
     }
-
-    static_assert(TOYBOX_DIRTYMAP_TILE_SIZE.width % 16 == 0, "Tile width must be a multiple of 16");
     
     /**
      A `dirtymap_c` represents dirty areas of a `canvas_c` that is in need of
@@ -28,23 +26,28 @@ namespace toybox {
     class dirtymap_c : public nocopy_c {
     public:
         using restore_f = function_c<void(const rect_s&)>;
+        static constexpr size_s tile_size = size_s(16, 16);
         
         static dirtymap_c* create(size_s size);
         
-        template<bool dirty = true>
+        __forceinline size_s size() const { return size_s(_byte_layout_size.width * 16, _byte_layout_size.height * 16); }
+
+        enum class mark_type_e : uint8_t { dirty, clean, mask };
+        template<mark_type_e = mark_type_e::dirty>
         void mark(const rect_s &rect);
         void merge(const dirtymap_c &dirtymap);
         bool is_dirty() const { return _is_dirty; }
         void restore(canvas_c &canvas, const image_c &clean_image);
         void restore(restore_f& func);
         void clear();
-#if TOYBOX_DEBUG_DIRTYMAP
-        void debug(const char *name) const;
-#endif
+        
+        rect_s dirty_bounds() const;  // Intended for host debugging
+        void print_debug(const char *name) const; // Intended for host debugging
     private:
-        static int instance_size(size_s *size);
-        dirtymap_c(const size_s size) : _size(size) {}
-        const size_s _size;
+        static int instance_size(size_s size);
+        dirtymap_c(const size_s size);
+        const int16_t _tilespace_width;
+        const size_s _byte_layout_size;
         bool _is_dirty;
         uint8_t __padding;
         uint8_t _data[];    // _data **must** be on an even address.

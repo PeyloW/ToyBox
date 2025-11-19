@@ -16,6 +16,7 @@
 namespace toybox {
     
     class canvas_c : public nocopy_c {
+        friend class viewport_c;
     public:
         class remap_table_c : nocopy_c {
         public:
@@ -72,6 +73,8 @@ namespace toybox {
             commands();
             _clipping = old_clip;
         }
+        const rect_s& clip_rect() const { return _clip_rect; }
+        void set_clip_rect(const rect_s& rect) { _clip_rect = rect; }
 
         template<invocable<> Commands>
         void with_stencil(const stencil_t* const stencil, Commands commands) {

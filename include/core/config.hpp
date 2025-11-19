@@ -44,12 +44,8 @@
 #   ifdef __M68000__
 #       define TOYBOX_DEBUG_DIRTYMAP 0
 #   else
-#       define TOYBOX_DEBUG_DIRTYMAP 0
+#       define TOYBOX_DEBUG_DIRTYMAP 1
 #   endif
-#endif
-
-#ifndef TOYBOX_DIRTYMAP_TILE_SIZE
-#   define TOYBOX_DIRTYMAP_TILE_SIZE size_s(16, 16)
 #endif
 
 #ifndef TOYBOX_RESERVE_A6_GLOBAL

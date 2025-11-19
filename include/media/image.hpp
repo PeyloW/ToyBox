@@ -26,6 +26,7 @@ namespace toybox {
         friend class canvas_c;
         friend class viewport_c;
         friend class machine_c;
+        friend class host_bridge_c;
     public:
         enum class compression_type_e : uint8_t {
             none,
@@ -61,6 +62,7 @@ namespace toybox {
         void put_pixel(int ci, point_s) const;
         
     private:
+        int imp_get_pixel(point_s at) const;
         shared_ptr_c<palette_c> _palette;
         unique_ptr_c<uint16_t> _bitmap;
         uint16_t *_maskmap;

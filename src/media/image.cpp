@@ -27,27 +27,31 @@ image_c::image_c(const size_s size, bool masked, shared_ptr_c<palette_c> palette
 
 int image_c::get_pixel(point_s at) const {
     if (_size.contains(at)) {
-        int word_offset = (at.x / 16) + at.y * _line_words;
-        const uint16_t bit = 1 << (15 - at.x & 15);
-        if (_maskmap != nullptr) {
-            uint16_t *maskmap = _maskmap + word_offset;
-            if (!(*maskmap & bit)) {
-                return MASKED_CIDX;
-            }
-        }
-        uint8_t ci = 0;
-        uint8_t cb = 1;
-        uint16_t *bitmap = _bitmap + (word_offset << 2);
-        int bp;
-        do_dbra(bp, 3) {
-            if (*bitmap++ & bit) {
-                ci |= cb;
-            }
-            cb <<= 1;
-        } while_dbra(bp);
-        return ci;
+        return imp_get_pixel(at);
     }
     return _maskmap != nullptr ? MASKED_CIDX : 0;
+}
+
+int image_c::imp_get_pixel(point_s at) const {
+    int word_offset = (at.x / 16) + at.y * _line_words;
+    const uint16_t bit = 1 << (15 - at.x & 15);
+    if (_maskmap != nullptr) {
+        uint16_t *maskmap = _maskmap + word_offset;
+        if (!(*maskmap & bit)) {
+            return MASKED_CIDX;
+        }
+    }
+    uint8_t ci = 0;
+    uint8_t cb = 1;
+    uint16_t *bitmap = _bitmap + (word_offset << 2);
+    int bp;
+    do_dbra(bp, 3) {
+        if (*bitmap++ & bit) {
+            ci |= cb;
+        }
+        cb <<= 1;
+    } while_dbra(bp);
+    return ci;
 }
 
 void image_c::put_pixel(int ci, point_s at) const {
@@ -429,7 +433,7 @@ bool image_c::save(const char *path, image_c::compression_type_e compression, bo
                     header.mask_color = masked_cidx;
                 }
                 header.aspect[0] = 10;
-                header.aspect[0] = 11;
+                header.aspect[1] = 11;
                 header.page_size = {320, 200};
                 ilbm.begin(::cc4::BMHD, chunk);
                 ilbm.write(&header);

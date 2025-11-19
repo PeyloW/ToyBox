@@ -112,6 +112,8 @@ namespace toybox {
         vector_c<scene_c*, 8> _scene_stack;
         vector_c<unique_ptr_c<scene_c>, 8> _deletion_stack;
 
+        void configure_display_lists(scene_c::configuration_s& configuration);
+        
         void swap_display_lists();
 
         inline viewport_c& update_clear();

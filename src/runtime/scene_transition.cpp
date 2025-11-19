@@ -42,14 +42,7 @@ namespace toybox {
             auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
             auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
             phys_viewport.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_viewport, &log_viewport] {
-                const size_s ts(320, 208);
-                for (int y = 0; y < 208; y += ts.height) {
-                    for (int x = 0; x < 320; x += ts.width) {
-                        point_s at(x, y);
-                        rect_s rect(at, ts);
-                        phys_viewport.draw_aligned(log_viewport.image(), rect, at);
-                    }
-                }
+                phys_viewport.draw_aligned(log_viewport.image(), log_viewport.clip_rect(), log_viewport.clip_rect().origin);
             });
             if (shade == canvas_c::STENCIL_FULLY_OPAQUE) {
                 _transition_state.full_restores_left--;

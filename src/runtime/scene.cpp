@@ -12,7 +12,7 @@
 using namespace toybox;
 
 scene_c::scene_c() : manager(scene_manager_c::shared()) {}
-scene_c::configuration_s scene_c::default_configuration = { size_s(320, 208), nullptr, 2, true };
+scene_c::configuration_s scene_c::default_configuration = { viewport_c::min_size, nullptr, 2, true };
 scene_c::configuration_s& scene_c::configuration() const {
     return default_configuration;
 }
@@ -50,13 +50,7 @@ scene_manager_c::scene_manager_c() :
     machine_c::shared();
     _active_display_list = 0;
     _transition = nullptr;
-    for (int i = 0; i < 3; i++) {
-        auto& list = _display_lists.emplace_back();
-        palette_c& pal = *new palette_c();
-        viewport_c& vpt = *new viewport_c(size_s(320, 208));
-        list.emplace_front(PRIMARY_PALETTE, -1, pal);
-        list.emplace_front(PRIMARY_VIEWPORT, -1, vpt);
-    }
+    configure_display_lists(scene_c::default_configuration);
     srand48(time(nullptr));
 }
 
@@ -150,6 +144,21 @@ display_list_c &scene_manager_c::display_list(display_list_e id) const {
     }
 }
 
+void scene_manager_c::configure_display_lists(scene_c::configuration_s& configuration) {
+    _display_lists.clear();
+    for (int i = 0; i < 3; i++) {
+        auto& list = _display_lists.emplace_back();
+        palette_c& pal = *new palette_c();
+        if (configuration.palette) {
+            copy(configuration.palette->begin(), configuration.palette->end(), pal.begin());
+        }
+        viewport_c& vpt = *new viewport_c(configuration.viewport_size);
+        vpt.set_offset(point_s(0,0));
+        list.emplace_front(PRIMARY_PALETTE, -1, pal);
+        list.emplace_front(PRIMARY_VIEWPORT, -1, vpt);
+    }
+}
+
 void scene_manager_c::swap_display_lists() {
     _active_display_list = (_active_display_list + 1) & 0x1;
 }
@@ -198,6 +207,10 @@ void scene_manager_c::begin_transition(transition_c *transition, const scene_c *
         _transition = new no_transition_c();
     }
     _transition->will_begin(from, to);
+    if (to) {
+        // TODO: This will have to move into transition_c evantually
+        configure_display_lists(to->configuration());
+    }
 }
 
 void scene_manager_c::update_transition(int32_t ticks) {

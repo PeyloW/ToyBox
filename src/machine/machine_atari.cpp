@@ -17,7 +17,7 @@ using namespace toybox;
 
 extern "C" {
     const palette_c *g_active_palette = nullptr;
-    const image_c *g_active_image = nullptr;
+    detail::display_config_t g_active_display_config;
 }
 
 
@@ -145,8 +145,7 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
             switch (entry.item.display_type()) {
                 case display_item_c::viewport: {
                     auto config = entry.viewport().display_config();
-                    // TODO: Refactor as set_active_viewport, and use a g_active_config for the VBL
-                    set_active_image(&entry.viewport().image());
+                    set_active_viewport(&entry.viewport());
                     break;
                 }
                 case display_item_c::palette:
@@ -155,21 +154,18 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
             }
         }
     } else {
-        set_active_image(nullptr);
+        set_active_viewport(nullptr);
         set_active_palette(nullptr);
     }
 }
 
 
-void machine_c::set_active_image(const image_c *image, point_s offset) {
-    assert(offset.x == 0 && offset.y == 0 && "Offset must be zero");
-    timer_c::with_paused_timers([this, image] {
-        g_active_image = image;
-        if (type() > ste) {
-#ifdef __M68000__
-            *((uint16_t*)0x452) = 1;
-            *((uint16_t **)0x45E) = image->_bitmap.get();
-#endif
+void machine_c::set_active_viewport(const viewport_c *viewport) {
+    timer_c::with_paused_timers([this, viewport] {
+        if (viewport) {
+            g_active_display_config = viewport->display_config();
+        } else {
+            g_active_display_config = { 0, 0, 0 };
         }
     });
 }

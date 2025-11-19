@@ -10,26 +10,50 @@
 
 using namespace toybox;
 
+static int16_t multof16(int16_t v) {
+    return (v + 15) & ~0xf;
+}
 
-static size_s backing_size(size_s viewpost_size) {
+static size_s fixed_viewport_size(size_s viewport_size) {
     return size_s(
         // Width is min 320, and max 336 which is enough for HW scroll
-        min(max(320, (viewpost_size.width + 15) & ~0xf), 336),
+        min(viewport_c::max_size.width, max(viewport_c::min_size.width, multof16(viewport_size.width))),
         // Height is nearest multiple of 16, + 8 for HW scroll
-        ((viewpost_size.height + 15) & ~0xf) + 8
+        min(viewport_c::max_size.height, max(viewport_c::min_size.height, multof16(viewport_size.height)))
     );
 }
+
+static size_s fixed_backing_size(size_s fixed_viewport_size) {
+    return size_s(
+        // Width is min 320, and max 336 which is enough for HW scroll
+        min(fixed_viewport_size.width, (int16_t)336),
+        // Height is nearest multiple of 16, + 8 for HW scroll
+        fixed_viewport_size.height + 6 // ~(2032-320)/320 extra lines
+    );
+}
+
+detail::viewport_image_holder::viewport_image_holder(size_s viewport_size) :
+    _viewport_size(fixed_viewport_size(viewport_size)),
+    _backing_image(fixed_backing_size(_viewport_size), false, nullptr)
+{}
+
 // View port size is the total potential area, the image only what is needed to support hardware scrolling that area.
 viewport_c::viewport_c(size_s viewport_size) :
-    _viewport_size(viewport_size),
-    _image(backing_size(viewport_size), false, nullptr),
-    canvas_c(_image)
+    detail::viewport_image_holder(viewport_size),
+    canvas_c(_backing_image)
 {
-    assert(image().size().width >= 320 &&  image().size().width <= 336);
-    assert(image().size().height >= 208);
-    assert(_viewport_size.width > 0 && _viewport_size.width < 2048);  // To fit in fix16_t, about 6 screens wide
-    assert(_viewport_size.height >= 200 && _viewport_size.height <= 208); // Only one screen height for now.
-    _dirtymap = dirtymap_c::create(_image.size());
+    assert(image().size().width >= 320 && image().size().width <= 336);
+    assert(image().size().height >= _viewport_size.height);
+    assert(_viewport_size.contained_by(max_size));
+    assert(min_size.contained_by(_viewport_size));
+    _clip_rect = rect_s(_offset, size_s(image().size().width, _viewport_size.height));
+    _dirtymap = dirtymap_c::create(_viewport_size);
+    _dirtymap->clear();
+    _dirtymap->mark(_clip_rect);
+#if TOYBOX_DEBUG_DIRTYMAP
+        _dirtymap->print_debug("viewport_c::viewport_c()");
+#endif
+    assert(_dirtymap->dirty_bounds().contained_by(_clip_rect));
 }
 
 viewport_c::~viewport_c() {
@@ -47,31 +71,35 @@ void viewport_c::set_offset(point_s offset) {
         const int16_t tile_delta = new_left_tile - old_left_tile;
         rect_s mark_rect(
             min(old_left_tile, new_left_tile) << 4, 0,
-            abs(tile_delta) << 4, _image.size().height
+            abs(tile_delta) << 4, _viewport_size.height
         );
         if (tile_delta > 0) {
-            // Scrolling right: unmark left, mark right
-            _dirtymap->mark<false>(mark_rect);
+            // Scrolling right: mark right
+            //_dirtymap->mark<dirtymap_c::mark_type_e::clean>(mark_rect);
             mark_rect.origin.x += 320;
-            _dirtymap->mark<true>(mark_rect);
+            _dirtymap->mark<dirtymap_c::mark_type_e::dirty>(mark_rect);
         } else {
             // Scrolling left: mark left, unmark right
             const int16_t left_tiles_gained = -tile_delta;
-            _dirtymap->mark<true>(mark_rect);
-            mark_rect.origin.x += 320;
-            _dirtymap->mark<false>(mark_rect);
+            _dirtymap->mark<dirtymap_c::mark_type_e::dirty>(mark_rect);
+            //mark_rect.origin.x += 320;
+            //_dirtymap->mark<dirtymap_c::mark_type_e::clean>(mark_rect);
         }
         _clip_rect = rect_s(
             offset.x & ~0xf, 0,
             336, mark_rect.size.height
         );
+#if TOYBOX_DEBUG_DIRTYMAP
+        _dirtymap->print_debug("viewport::set_offset()");
+#endif
+        //assert(_dirtymap->dirty_bounds().contained_by(_clip_rect));
     }
     _offset = offset;
 }
 
-const viewport_c::display_config_t viewport_c::display_config() const {
+const detail::display_config_t viewport_c::display_config() const {
     uint8_t extra = _image.size().width > 320 ? 4 : 0;
-    display_config_t config{
+    detail::display_config_t config{
         _image._bitmap + ((_offset.x >> 4) << 2),// _bitmap_start
         (uint8_t)((_offset.x & 0xf) ? 0 : extra),// Add 4 extra words per line if shift is 0, if needed
         (uint8_t)(_offset.x & 0xf)               // Pixel shift

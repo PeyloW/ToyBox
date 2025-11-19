@@ -8,6 +8,7 @@
 #ifdef TOYBOX_HOST
 
 #include "machine/host_bridge.hpp"
+#include "media/image.hpp"
 
 using namespace toybox;
 
@@ -45,6 +46,14 @@ void host_bridge_c::update_mouse(point_s position, bool left, bool right) {
 
 void host_bridge_c::update_joystick(controller_c::direcrions_e directions, bool fire) {
     g_update_joystick(directions, fire);
+}
+
+int host_bridge_c::get_pixel(const image_c& image, point_s at, bool clipping) const {
+    if (clipping) {
+        return image.get_pixel(at);
+    } else {
+        return image.imp_get_pixel(at);
+    }
 }
 
 #endif

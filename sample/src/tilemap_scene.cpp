@@ -44,19 +44,20 @@ static void player_control(tilemap_level_c& level, entity_s& entity) {
 
 tilemap_level_c* make_tilemaplevel() {
     static constexpr const char *recipe[] = {
-        "    #####          ",
-        "    #---#          ",
-        "    #$--#          ",
-        "  ###--$##         ",
-        "  #--$-$-#         ",
-        "###-#-##-#   ######",
-        "#---#-##-#####--..#",
-        "#-$--$----------..#",
-        "#####-###-#@##--..#",
-        "    #-----#########",
-        "    #######        ",
+        "       #####              ",
+        "       #---#              ",
+        "       #$--#              ",
+        "     ###--$##             ",
+        "     #--$-$-#             ",
+        "   ###-#-##-#   ######    ",
+        "   #---#-##-#####--..#    ",
+        "   #-$--$----------..#    ",
+        "   #####-###-#@##--..#    ",
+        "       #-----#########    ",
+        "       #######            ",
     };
-    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(19*16,11*16)), &asset_manager_c::shared().tileset(TILESET_WALL));
+    const size_s size((int16_t)strlen(recipe[0]), 11);
+    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(size.width*16,size.height*16)), &asset_manager_c::shared().tileset(TILESET_WALL));
     auto& level = *level_ptr;
         
     // Setup available actions
@@ -74,9 +75,9 @@ tilemap_level_c* make_tilemaplevel() {
     box.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
     box.frame_defs.push_back({ 5, {-8, -8} });
 
-    for (int y = 0; y < 11; ++y) {
+    for (int y = 0; y < size.height; ++y) {
         const char* line = recipe[y];
-        for (int x = 0; x < 19; x++) {
+        for (int x = 0; x < size.width; x++) {
             auto& tile = level[x,y];
             auto center = [&]() {
                 return fpoint_s(x * 16 + 8, y * 16 + 8);
@@ -128,7 +129,7 @@ tilemap_scene::tilemap_scene() :
 }
 
 scene_c::configuration_s& tilemap_scene::configuration() const {
-    static scene_c::configuration_s config{size_s(320, 208), asset_manager_c::shared().tileset(TILESET_SPR).image()->palette(), 2, false};
+    static scene_c::configuration_s config{_level.visible_bounds().size, asset_manager_c::shared().tileset(TILESET_SPR).image()->palette(), 2, false};
     return config;
 }
 

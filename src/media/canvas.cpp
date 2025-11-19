@@ -44,7 +44,7 @@ static __forceinline bool with_clipped_rect(canvas_c *canvas, const rect_s &rect
 
 void canvas_c::fill(uint8_t ci, const rect_s &rect) {
     assert(_image._maskmap == nullptr && "Image must not have a maskmap");
-    assert(rect.contained_by(size()) && "Rect must be contained within canvas bounds");
+    assert(rect.contained_by(_clip_rect) && "Rect must be contained within canvas bounds");
     if (_clipping) {
         if (with_clipped_rect(this, rect, rect.origin, [&] (const rect_s &rect, point_s at) {
             fill(ci, rect);

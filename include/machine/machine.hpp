@@ -14,7 +14,7 @@ namespace toybox {
     
     
     class palette_c;
-    class image_c;
+    class viewport_c;
     class display_list_c;
     
     /**
@@ -41,7 +41,7 @@ namespace toybox {
         static int with_machine(int argc, const char * argv[], machine_f f);
         
         type_e type() const __pure;
-        size_s screen_size() const __pure;
+        size_s screen_size() const __pure; // NOTE: static constexpr?
         size_t max_memory() const __pure;
         size_t user_memory() const __pure;
         void free_system_memory();
@@ -55,7 +55,7 @@ namespace toybox {
         static machine_c* _shared_machine;
         machine_c();
         ~machine_c();
-        void set_active_image(const image_c* image, point_s offset = point_s());
+        void set_active_viewport(const viewport_c* viewport);
         void set_active_palette(const palette_c* palette);
 #if TOYBOX_TARGET_ATARI
         uint32_t _old_super;

@@ -104,7 +104,7 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
     assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
     assert((srcImage.size().width & 0xf) == 0 && "Source image width must be 16-byte aligned");
     assert(!rect.size.is_empty() && "Rect size must not be empty");
-    assert(rect_s(at, rect.size).contained_by(size()) && "Destination rect must be within canvas bounds");
+    assert(rect_s(at, rect.size).contained_by(_clip_rect) && "Destination rect must be within canvas bounds");
     assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
         
     auto blitter = pBlitter;

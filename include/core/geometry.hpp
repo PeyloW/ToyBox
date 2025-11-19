@@ -51,6 +51,9 @@ namespace toybox {
         constexpr bool contains(const point_s point) const {
             return point.x >= 0 && point.y >= 0 && point.x < width && point.y < height;
         }
+        constexpr bool contained_by(const base_size_s size) const {
+            return width <= size.width && height <= size.height;
+        }
         constexpr bool is_empty() const {
             return width <= 0 || height <= 0;
         }

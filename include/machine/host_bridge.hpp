@@ -19,6 +19,7 @@ namespace toybox {
     using namespace toybox;
     
     class sound_c;
+    class image_c;
     
     /**
      A `host_bridge_c` is the abstraction needed for running a target emulated
@@ -48,6 +49,8 @@ namespace toybox {
 
         // Host should provide a play function
         virtual void play(const sound_c &sound) {};
+        
+        int get_pixel(const image_c& image, point_s at, bool clipping = true) const;
         
     private:
         

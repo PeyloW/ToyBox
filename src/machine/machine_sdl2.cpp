@@ -22,10 +22,11 @@ using namespace toybox;
 class sdl2_host_bridge final : public host_bridge_c {
 public:
     sdl2_host_bridge(machine_c &machine) : _machine(machine) {
+        const auto screen_size = machine.screen_size();
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER);
-        _window = SDL_CreateWindow("ToyBox", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 400, SDL_WINDOW_SHOWN);
+        _window = SDL_CreateWindow("ToyBox", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_size.width * 2, screen_size.height * 2, SDL_WINDOW_SHOWN);
         _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-        _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, 320, 200);
+        _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, screen_size.width, screen_size.height);
 
         SDL_AudioSpec desired;
         SDL_zero(desired);
@@ -89,12 +90,12 @@ public:
         std::lock_guard<std::recursive_mutex> lock(_timer_mutex);
 
         
-        const image_c *active_image = nullptr;
+        const viewport_c *active_viewport = nullptr;
         const palette_c *active_palette = nullptr;
         for (const auto& entry : *display) {
             switch (entry.item.display_type()) {
                 case display_item_c::viewport:
-                    active_image = &entry.viewport().image();
+                    active_viewport = &entry.viewport();
                     break;
                 case display_item_c::palette:
                     active_palette = &entry.palette();
@@ -107,14 +108,15 @@ public:
 
         // Clear buffer to black
         struct color_s { uint8_t rgb[3]; uint8_t _; };
-        color_s buffer[320 * 200];
-        memset(buffer, 0, sizeof(color_s) * 320 * 200);
+        const auto screen_size = machine_c::shared().screen_size();
+        color_s buffer[screen_size.width * screen_size.height];
+        memset(buffer, 0, sizeof(color_s) * screen_size.width * screen_size.height);
         
-        if (active_image != NULL) {
+        if (active_viewport != NULL) {
             // If active image is set...
             {
-                const auto size = active_image->size();
-                hard_assert(size.width == 320 && size.height >= 200);
+                const auto size = active_viewport->image().size();
+                hard_assert(size.width >= screen_size.width && size.height >= screen_size.height);
             }
             color_s palette[16] = { 0 };
             if (active_palette) {
@@ -124,12 +126,14 @@ public:
                     buffer[i]._ = 0;
                 }
             }
+            const point_s offset = active_viewport->offset();
+            const image_c& image = active_viewport->image();
             point_s at;
-            for (at.y = 0; at.y < 200; at.y++) {
-                for (at.x = 0; at.x < 320; at.x++) {
-                    const auto c = active_image->get_pixel(at);
+            for (at.y = 0; at.y < screen_size.height; at.y++) {
+                for (at.x = 0; at.x < screen_size.width; at.x++) {
+                    const auto c = get_pixel(image, at + offset);
                     if (c != image_c::MASKED_CIDX) {
-                        auto offset = (at.y * 320 + at.x);
+                        auto offset = (at.y * screen_size.width + at.x);
                         buffer[offset] = palette[c];
                     }
                 }
@@ -138,8 +142,8 @@ public:
         void *pixels;
         int pitch;
         SDL_LockTexture(_texture, nullptr, &pixels, &pitch);
-        hard_assert(pitch / 4 == 320);
-        memcpy(pixels, buffer, pitch * 200);
+        hard_assert(pitch / 4 == screen_size.width);
+        memcpy(pixels, buffer, pitch * screen_size.height);
         SDL_UnlockTexture(_texture);
     }
     
