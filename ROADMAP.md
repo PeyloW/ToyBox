@@ -37,8 +37,8 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [-] Move drawing primitives with translate, clip, and dirty to superclass
 - [x] Basic `display_list_c` supporting single `viewport_c` and `palette_c`
     - [x] Use active `display_list_c` not `image_c`
-    - [-] Hardware scroll viewport on Atari target
-    - [ ] Hardware scrolled display on host
+    - [x] Hardware scroll viewport on Atari target
+    - [x] Hardware scrolled display on host
 - [ ] Rewrite `transition_c` system for display lists
     - [ ] Cross-fade through color
     - [ ] Update existing transitions
@@ -72,7 +72,9 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [x] Tilemap based scene
     - [x] Basic entities
         - [x] Player controlled with joystick
-        - [ ] Hardware scroll horizontally a little bit
+        - [ ] Wall collision for the player
+        - [ ] Boxes can be pushed around  
+    - [x] Hardware scroll horizontally a little bit
 
 ### v3.0 - A complete general purpose game engine
 

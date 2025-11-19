@@ -7,7 +7,7 @@
     .extern g_vbl_tick
     .extern g_clock_functions
     .extern g_clock_tick
-    .extern g_active_image
+    .extern g_active_display_config
     .globl g_vbl_interupt
     .globl g_system_vbl_freq
     .globl g_system_vbl_interupt
@@ -33,12 +33,9 @@ timer_func_func:        ds.l    1
 timer_func_context:     ds.l    1
 
     .struct
-image_vtable:           ds.l    1
-image_palette:          ds.l    2
-image_bitmap:           ds.l    1
-image_maskmap:          ds.l    1
-image_size:             ds.w    2
-image_line_words:       ds.w    1
+display_config_bitmap_start:    ds.l    1
+display_config_extra_words:     ds.b    1
+display_config_pixel_shift:     ds.b    1
 
     .data
     .even
@@ -60,10 +57,9 @@ g_system_joystick_interupt:
 g_vbl_interupt:
     movem.l %d0-%d2/%a0-%a2,-(%sp)
     ori.w    #0x0700,%sr
-    move.l  g_active_image,%d0
-    beq.s   .no_active_image
-    move.l  %d0,%a0
-    move.l  image_bitmap(%a0),%d0   ||| MUST MATCH image_c::_bitmap offset!!!
+    lea.l   g_active_display_config,%a0
+    move.l  display_config_bitmap_start(%a0),%d0
+    beq.s   .no_active_config
 |   move.l  %d0,0x044e.w           ||| Do not let TOS overrwite.
     move.l  %d0,%d2
     move.w  %d0,%d1
@@ -75,7 +71,9 @@ g_vbl_interupt:
     move.b  %d2,0xffff8205.w
     move.b  %d1,0xffff8207.w
     move.b  %d0,0xffff8209.w
-.no_active_image:
+    move.b  display_config_extra_words(%a0),0xffff820f.w
+    move.b  display_config_pixel_shift(%a0),0xffff8265.w
+.no_active_config:
     addq.l  #1,g_vbl_tick
     move.w    #0x2400,%sr
     lea     g_vbl_functions, %a2

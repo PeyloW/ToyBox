@@ -17,7 +17,7 @@ using namespace toybox;
 
 extern "C" {
     const palette_c *g_active_palette = nullptr;
-    detail::display_config_t g_active_display_config;
+    detail::display_config_t g_active_display_config = {0,0,0};
 }
 
 
