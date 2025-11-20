@@ -13,25 +13,32 @@ LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
 HOST?=sdl2
 ifeq ($(HOST),sdl2)
+	STRIP?=off
 	INFO=Building for sdl2 host
 	HB_PATH=/opt/homebrew/bin
 	CC=clang++
 	AR=ar
-	FLAGS+=-O0 -g -DTOYBOX_HOST=sdl2
+	FLAGS+=-Og -g -DTOYBOX_HOST=sdl2
+ifeq ($(STRIP),on)
+	FLAGS+=-s
+endif
 	CFLAGS+=$(shell $(HB_PATH)/sdl2-config --cflags)
 	CFLAGS+=-Wno-vla-cxx-extension -Werror
 	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
 else ifeq ($(HOST),none)
+	STRIP?=on
 	INFO=Building for atari target
 	CC=/opt/cross-mint/bin/m68k-atari-mintelf-c++
 	AR=/opt/cross-mint/bin/m68k-atari-mintelf-ar
 	FLAGS+=-m68000 -mshort -mfastcall
 	FLAGS+=-DNDEBUG
-#	FLAGS+=-g0 -DNDEBUG
-#	FLAGS+=-s
+ifeq ($(STRIP),on)
+	FLAGS+=-s
+endif
 #	FLAGS+=-S
 	FLAGS+=-DTOYBOX_DEBUG_CPU=0
 	CFLAGS+=-Os -fomit-frame-pointer -fno-threadsafe-statics
+	CFLAGS+=-fgcse-after-reload -fpredictive-commoning -ftree-partial-pre -funswitch-loops
 	CFLAGS+=-fno-exceptions -Wno-write-strings -Wno-pointer-arith -Wno-packed-not-aligned -fno-rtti
 	CFLAGS+=-I $(LIBCMINIINC)
 	LDFLAGS+=-nostdlib -L$(LIBCMINILIB)/ -lcmini -lgcc
