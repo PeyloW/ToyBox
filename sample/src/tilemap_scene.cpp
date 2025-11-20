@@ -133,7 +133,7 @@ scene_c::configuration_s& tilemap_scene::configuration() const {
     return config;
 }
 
-void tilemap_scene::will_appear(bool obsured) {
+void tilemap_scene::will_appear(bool obscured) {
 }
 
 void tilemap_scene::update(display_list_c& display, int ticks) {

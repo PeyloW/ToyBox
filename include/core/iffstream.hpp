@@ -47,11 +47,11 @@ namespace toybox {
         constexpr bool operator==(uint32_t ul) const { return ulong == ul; }
         constexpr bool operator==(uint8_t ub[4]) const { return ubytes == ub; }
 
-        // Allow ? to match any charcter, and * to match any until end.
-        // Exmaple: "?LVL" matches "1LVL" and "2LVL". "LVL*" matches any cc4 starting with LVL.
+        // Allow ? to match any character, and * to match any until end.
+        // Example: "?LVL" matches "1LVL" and "2LVL". "LVL*" matches any cc4 starting with LVL.
         bool matches(cc4_t m) const;
 
-        // Return an inner pointer to a cstring representatio valid until next call tocstring().
+        // Return an inner pointer to a cstring representation valid until next call to cstring().
         const char* cstring() const;
     };
     static_assert(sizeof(cc4_t) == 4);

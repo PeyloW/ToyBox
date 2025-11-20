@@ -28,7 +28,7 @@ struct tlmp_header_s {
 static_assert(sizeof(tlmp_header_s) == 12);
 
 /*
- TODO: The file format needs to be revisited once the programatic implemention is complete.
+ TODO: The file format needs to be revisited once the programmatic implementation is complete.
  File format is:
  Tilemap = FORM # { TLMP
     TMHD # { tlmp_header_s }
@@ -94,7 +94,7 @@ void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
 
 void tilemap_level_c::update_level() {
     // We do nothing in base class, subclasses may use this to update tiles.
-    // For animations, or chnaging state completey for times platforms, etc.
+    // For animations, or changing state completely for timed platforms, etc.
 }
 
 void tilemap_level_c::update_actions() {

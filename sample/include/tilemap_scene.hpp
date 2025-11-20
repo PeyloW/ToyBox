@@ -19,7 +19,7 @@ public:
     tilemap_scene();
 
     virtual scene_c::configuration_s &configuration() const override;
-    virtual void will_appear(bool obsured) override;
+    virtual void will_appear(bool obscured) override;
     virtual void update(display_list_c& display, int ticks) override;
 
 private:

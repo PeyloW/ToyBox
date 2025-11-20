@@ -25,7 +25,7 @@ scene_c::configuration_s &fullscreen_scene_c::configuration() const {
     return config;
 }
 
-void fullscreen_scene_c::will_appear(bool obsured) {
+void fullscreen_scene_c::will_appear(bool obscured) {
     auto &clear_display = manager.display_list(scene_manager_c::display_list_e::clear);
     auto &clear_viewport = clear_display.get(PRIMARY_VIEWPORT).viewport();
     auto &image = asset_manager_c::shared().image(BACKGROUND);

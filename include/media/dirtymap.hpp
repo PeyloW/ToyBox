@@ -21,7 +21,7 @@ namespace toybox {
     /**
      A `dirtymap_c` represents dirty areas of a `canvas_c` that is in need of
      redrawing.
-     NOTO: Is support for dirty grids other than 16x16 pixels needed.
+     NOTE: Is support for dirty grids other than 16x16 pixels needed.
      */
     class dirtymap_c : public nocopy_c {
     public:
@@ -30,7 +30,10 @@ namespace toybox {
         
         static dirtymap_c* create(size_s size);
         
-        __forceinline size_s size() const { return size_s(_byte_layout_size.width * 16, _byte_layout_size.height * 16); }
+        __forceinline size_s size() const {
+            return size_s(_tilespace_size.width * tile_size.width,
+                          _tilespace_size.height * tile_size.height);
+        }
 
         enum class mark_type_e : uint8_t { dirty, clean, mask };
         template<mark_type_e = mark_type_e::dirty>
@@ -44,12 +47,10 @@ namespace toybox {
         rect_s dirty_bounds() const;  // Intended for host debugging
         void print_debug(const char *name) const; // Intended for host debugging
     private:
-        static int instance_size(size_s size);
         dirtymap_c(const size_s size);
-        const int16_t _tilespace_width;
-        const size_s _byte_layout_size;
+        const size_s _tilespace_size;
+        const int8_t _line_bytes;
         bool _is_dirty;
-        uint8_t __padding;
         uint8_t _data[];    // _data **must** be on an even address.
     };
 

@@ -45,7 +45,7 @@ namespace toybox {
         virtual configuration_s &configuration() const;
         static configuration_s default_configuration;
         
-        virtual void will_appear(bool obsured) {};
+        virtual void will_appear(bool obscured) {};
         virtual void will_disappear(bool obscured) {};
         
         virtual void update(display_list_c &display_list, int ticks) {};
@@ -122,7 +122,7 @@ namespace toybox {
         __forceinline void enqueue_delete(scene_c* scene) {
             _deletion_stack.emplace_back(scene);
         }
-        inline void begin_transition(transition_c* transition, const scene_c* from, scene_c* to, bool obsured);
+        inline void begin_transition(transition_c* transition, const scene_c* from, scene_c* to, bool obscured);
         inline void update_transition(int32_t ticks);
         inline void end_transition();
 

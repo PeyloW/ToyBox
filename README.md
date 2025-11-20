@@ -15,7 +15,7 @@ All code must compile with gcc and clang with C++23 enabled, no standard librari
 
 Make no assumption of integer/pointer size. Host may use 32 bit integers, target **must** use 16 bit integers. Whenever possible use explicitly sized types, `int16_t` not `short`.
 
-Try to avoid multiple inheritance, and when done only the the first inherited class can be polymorphic. Add statuc asserts before the class definition to ensure this.
+Try to avoid multiple inheritance, and when done only the first inherited class can be polymorphic. Add static asserts before the class definition to ensure this.
 
 Rely on `static_assert` to ensure expected sizes for structs are correct. Asserts are enabled on host, but not on Atari target. Asserts with `hard_assert` are used liberally to ensure correctness.
     
@@ -32,21 +32,71 @@ A game is intended to be implemented as a stack of scenes. Navigating to a new s
 
 * `scene_manager_c` - The manager singleton.
     * `push(...)`, `pop(...)`, `replace(...)` to manage the scene stack.
-    * `front`, `back`, `clear` three display lists with viewports: front is being presented, back is being drawn, and clear is used for restoring other viewports from their dirtymaps.
-    * `display_list(id)` access a specific display list by ID.
+    * `display_list(id)` access a specific display list by ID (clear=-1, front=0, back=1): front is being presented, back is being drawn, and clear is used for restoring other viewports from their dirtymaps.
+    * Display lists can be accessed via the `display_list_e` enum with values: `clear`, `front`, `back`.
 * `scene_c` - The abstract scene baseclass.
-    * `configuration()` the scene configuration with viewport_size, buffer_count, and use_clear flag.
+    * `configuration()` the scene configuration with viewport_size, palette, buffer_count, and use_clear flag.
     * `will_appear(bool obscured)` called when scene becomes the top scene and will appear.
         * Implement to draw initial content to the clear viewport.
     * `update(display_list_c &display_list, int ticks)` update the scene, drawing to the provided display list's viewport.
 * `transition_c` - A transition between two scenes, run for push, pop and replace operations.
-* `viewport_c` - A viewport for displaying content, analogous to an Amiga viewport.
-    * Subclass of `canvas_c` for drawing operations.
-    * Contains an `image_c` for the bitmap buffer and a `dirtymap_c` for dirty region tracking.
+
+### Displaying Graphics
+
+What is shown in screen is defined by the currently active display list, the scene manager sets the front display list as the active display list when swapping display lists.
+
 * `display_list_c` - A sorted list of display items (viewports and palettes) to be presented.
     * `PRIMARY_VIEWPORT` constant (-1) for the main viewport.
     * `PRIMARY_PALETTE` constant (-2) for the main palette.
+    * As of ToyBox 2.0 only one item per type is allowed, in future version additional items will be used to do raster and screen splits.
+    * A display list is in concept similar to an Amiga copper list.
+* `viewport_c` - A viewport for displaying content, analogous to an Amiga viewport.
+	* The view port has a size, and an offset for controlling hardware scrolling.
+		* A size larger than a screen means the viewport is scrollable.
+			* As of ToyBox v2.0 the view port can be up to about 6 screens wide, but must be one screen tall.
+		* The offset is the top left visible pixel of the viewport visible on screen.
+			* Setting the offset updates the clipping rectangle to the potentially visible rect of the screen.   
+	* Subclass of `canvas_c` for drawing operations.
+		* **Warning**: The viewport is responsible for managing the clip rectangle.
+	* Contains an `image_c` for the bitmap buffer and a `dirtymap_c` for dirty region tracking.
+		* **Warning**: The image size may be smaller than the viewport size, with the canvas intentionally drawing out of bounds.
+			* For horizontal HW scroll an image only 16px wider than the screen is needed, with additional lines at the bottom to allow for the bitmap data to be shifted.
+			* Example: With an offset of {50,0} the visible first pixel on screen is {48,0}. Drawing to pixel {350,0} will draw on screen space pixel {302,0} and in image space pixel {30,1}.
+		* The dirtymap is in viewport size, it is the responsibility of the client to only restore within the clip rect.
+			* Masking the dirtymap to the clip rect before restore is the easiest solution 
 
+### Drawing Graphics
+
+Graphics are drawn onto a canvas; a viewport is a subclass of canvas. Source of drawing operations can be an image, a tile from a tileset, or text using a font. 
+
+* `canvas_c` The manager of drawing operations onto a destination `image_c`.
+	* By default drawing operations are clipped against the clip rect, and dirties the dirty rect. You may want to override this:
+		* `with_clipping()` draw with clip rect enabled/disabled
+			* Clipping is expensive, avoid if possible
+		* `with_dirtymap()` draw with dirtymap enabled/disabled
+			* Must be disabled for restore operations.   
+	* `draw_aligned()` Draws graphics that are aligned to even 16px.
+		* Use for performance when drawing for example tile graphics.
+		* Only image and tileset source allowed
+		* Source must not be masked.
+		* Operation may use a stencil
+	* `draw()` All other drawing operations
+		* Any source allowed.
+		* Masked sources are drawn as sprites.
+		* A masked source may be drawn as a solid color only
+		* Stencil is always ignored
+	* `draw_3_patch()` Draw an image with fixed width left and right caps, repeating/clipping the middle part as needed.
+		* Use to draw UI elements such as buttons.  
+* `image_c` A bitmap image, optionally with a mask
+	* The backing store for all graphics
+	* Create programmatically by size, or load from ILBM IFF files.
+* `tileset_c` A wrapper of an image to represent a set of equally sized tile images. 
+	* Use for tileset or sprite sheets.
+	* Create from an image and tile size.
+* `font_c` Conceptually similar to a tileset, with each tile image representing an ASCII character.
+	* Supports monospaced and variable width characters.
+	* Create from an image and a character size.
+		* Variable width character fonts have equal sized characters in image, the font searches empty space to size characters at construction.
 
 ### Asset Management
 
@@ -59,7 +109,7 @@ Assets are images, sound effects, music, levels, or any other data the game need
     * `add_asset_def(id, def)` add an asset definition, with an ID, batch sets to be included in, and optionally a lambda for how to load and construct the asset.
 * `image_c` an image asset, loaded from EA IFF 85 ILBM files (.iff).
 * `sound_c` a sound asset, loaded from Audio Interchange File Format (.aif).
-* `ymmusic_c` a music asset, loaded from uncompressed Sound Header files (.snd).
+* `ymmusic_c` a music asset, loaded from SNDH files (.sndh).
 * `font_c` a font asset, based on an image asset, monospace or variable width characters.
 * `tileset_c` a tileset asset, based on an image asset, defaults to 16x16 blocks.
 

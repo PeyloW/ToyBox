@@ -96,7 +96,7 @@ void blitter_s::start(bool hog) {
             inc_dst(false);
             do_shift();
             if ((!is_nfsr()) || ((~(0xffff>>skew)) > endMask[2])) {
-                // Only inc if not no final read, or skew leaved unmasked bits
+                // Only inc if not no final read, or skew left unmasked bits
                 inc_src(false);
                 read_src();
             }

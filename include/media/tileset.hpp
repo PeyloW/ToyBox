@@ -14,9 +14,9 @@ namespace toybox {
     using namespace toybox;
  
     /**
-     A `tileset_c` is a convenience wrapper ontop of `image_c` for handling a
+     A `tileset_c` is a convenience wrapper on top of `image_c` for handling a
      a set of equally sized tiles.
-     Tiles can be indexed as column/row using a `point_t`, or by a continious
+     Tiles can be indexed as column/row using a `point_t`, or by a continuous
      index.
      */
     class tileset_c : public asset_c {

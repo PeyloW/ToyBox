@@ -187,17 +187,17 @@ void scene_manager_c::update_scene(scene_c &scene, int32_t ticks) {
     scene.update(back, ticks);
 }
 
-void scene_manager_c::begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obsured) {
+void scene_manager_c::begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obscured) {
     if (to) {
         const auto &config = to->configuration();
         if (config.use_clear) {
             auto& clear = display_list(display_list_e::clear);
             auto& viewport = clear.get(PRIMARY_VIEWPORT).viewport();
             viewport.with_dirtymap(viewport.dirtymap(), [&]{
-                to->will_appear(obsured);
+                to->will_appear(obscured);
             });
         } else {
-            to->will_appear(obsured);
+            to->will_appear(obscured);
         }
     }
     if (_transition) delete _transition;
