@@ -16,7 +16,7 @@ using namespace toybox;
 #define DEBUG_BLITTER 0
 
 static struct blitter_s _Blitter;
-struct blitter_s *toybox::pBlitter = &_Blitter;
+struct blitter_s* toybox::pBlitter = &_Blitter;
 
 //
 // Emulate blitter on host machine.

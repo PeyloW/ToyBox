@@ -56,7 +56,7 @@ namespace toybox {
             return _data[Count - 1];
         }
         
-        bool operator==(const array_s &other) const {
+        bool operator==(const array_s& other) const {
             if (this == &other) {
                 return true;
             } else {

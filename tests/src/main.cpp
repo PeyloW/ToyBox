@@ -7,7 +7,7 @@
 
 #include "shared.hpp"
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     // Test collections
     test_array_and_vector();
     test_dynamic_vector();

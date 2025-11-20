@@ -20,16 +20,16 @@ namespace toybox {
         static audio_mixer_c& shared();
 
         __forceinline int channel_count() const __pure { return 1; }
-        void play(const sound_c &sound, uint8_t priority = 0);
-        void stop(const sound_c &sound);
+        void play(const sound_c& sound, uint8_t priority = 0);
+        void stop(const sound_c& sound);
 
-        void play(const music_c &music_c, int track = 1); // Track starts at 1, not 0;
-        void stop(const music_c &music);
+        void play(const music_c& music_c, int track = 1); // Track starts at 1, not 0;
+        void stop(const music_c& music);
         
         void stop_all();
 
     private:
-        const music_c *_active_music;
+        const music_c* _active_music;
         int _active_track;
         audio_mixer_c();
         ~audio_mixer_c();

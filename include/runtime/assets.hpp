@@ -41,7 +41,7 @@ namespace toybox {
      */
     class asset_manager_c final : nocopy_c {
     public:
-        static asset_manager_c &shared();
+        static asset_manager_c& shared();
         
         ~asset_manager_c() {}
 
@@ -49,32 +49,32 @@ namespace toybox {
         void preload(uint32_t sets, progress_f progress = nullptr);
         void unload(uint32_t sets);
         
-        asset_c &asset(int id) const;
+        asset_c& asset(int id) const;
 
         template<derived_from<asset_c> T>
-        __forceinline T &asset(int id) const { return (T&)(asset(id)); };
+        __forceinline T& asset(int id) const { return (T&)(asset(id)); };
 
-        __forceinline image_c &image(int id) const {
+        __forceinline image_c& image(int id) const {
             assert(asset(id).asset_type() == asset_c::image);
             return (image_c&)(asset(id));
         }
-        __forceinline tileset_c &tileset(int id) const {
+        __forceinline tileset_c& tileset(int id) const {
             assert(asset(id).asset_type() == asset_c::tileset);
             return (tileset_c&)(asset(id));
         }
-        __forceinline font_c &font(int id) const {
+        __forceinline font_c& font(int id) const {
             assert(asset(id).asset_type() == asset_c::font);
             return (font_c&)(asset(id));
         }
-        __forceinline sound_c &sound(int id) const {
+        __forceinline sound_c& sound(int id) const {
             assert(asset(id).asset_type() == asset_c::sound);
             return (sound_c&)(asset(id));
         }
-        __forceinline music_c &music(int id) const {
+        __forceinline music_c& music(int id) const {
             assert(asset(id).asset_type() == asset_c::music);
             return (music_c&)(asset(id));
         }
-        __forceinline tilemap_level_c &tilemap_level(int id) const {
+        __forceinline tilemap_level_c& tilemap_level(int id) const {
             assert(asset(id).asset_type() == asset_c::tilemap_level);
             return (tilemap_level_c&)(asset(id));
         }
@@ -83,7 +83,7 @@ namespace toybox {
         unique_ptr_c<char> user_path(const char* file) const;
 
         struct asset_def_s {
-            using asset_create_f = asset_c*(*)(const asset_manager_c &manager, const char* path);
+            using asset_create_f = asset_c*(*)(const asset_manager_c& manager, const char* path);
             constexpr asset_def_s(asset_c::type_e type, uint32_t sets, const char* file = nullptr, asset_create_f create = nullptr) :
                 type(type), sets(sets), file(file), create(create) {}
             asset_c::type_e type;
@@ -92,12 +92,12 @@ namespace toybox {
             asset_create_f create;
         };
 
-        void add_asset_def(int id, const asset_def_s &def);
-        int add_asset_def(const asset_def_s &def);
+        void add_asset_def(int id, const asset_def_s& def);
+        int add_asset_def(const asset_def_s& def);
 
     private:
         asset_manager_c();
-        asset_c* create_asset(int id, const asset_def_s &def) const;
+        asset_c* create_asset(int id, const asset_def_s& def) const;
 
         vector_c<asset_def_s, TOYBOX_ASSET_COUNT> _asset_defs;
         mutable vector_c<unique_ptr_c<asset_c>, TOYBOX_ASSET_COUNT> _assets;

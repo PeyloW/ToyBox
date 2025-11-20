@@ -36,14 +36,14 @@ int image_c::imp_get_pixel(point_s at) const {
     int word_offset = (at.x / 16) + at.y * _line_words;
     const uint16_t bit = 1 << (15 - at.x & 15);
     if (_maskmap != nullptr) {
-        uint16_t *maskmap = _maskmap + word_offset;
+        uint16_t* maskmap = _maskmap + word_offset;
         if (!(*maskmap & bit)) {
             return MASKED_CIDX;
         }
     }
     uint8_t ci = 0;
     uint8_t cb = 1;
-    uint16_t *bitmap = _bitmap + (word_offset << 2);
+    uint16_t* bitmap = _bitmap + (word_offset << 2);
     int bp;
     do_dbra(bp, 3) {
         if (*bitmap++ & bit) {
@@ -60,7 +60,7 @@ void image_c::put_pixel(int ci, point_s at) const {
         const uint16_t bit = 1 << (15 - at.x & 15);
         const uint16_t mask = ~bit;
         if (_maskmap != nullptr) {
-            uint16_t *maskmap = _maskmap + word_offset;
+            uint16_t* maskmap = _maskmap + word_offset;
             if (image_c::is_masked(ci)) {
                 *maskmap &= mask;
                 ci = 0;
@@ -70,7 +70,7 @@ void image_c::put_pixel(int ci, point_s at) const {
         } else if (image_c::is_masked(ci)) {
             return;
         }
-        uint16_t *bitmap = _bitmap + (word_offset << 2);
+        uint16_t* bitmap = _bitmap + (word_offset << 2);
         uint8_t cb = 1;
         int bp;
         do_dbra(bp, 3) {
@@ -116,16 +116,16 @@ static_assert(sizeof(ilbm_header_s) == 20, "Header size mismatch");
 namespace toybox {
     template<>
     struct struct_layout<ilbm_header_s> {
-        static constexpr const char * value = "4w4b1w2b2w";
+        static constexpr const char* value = "4w4b1w2b2w";
     };
 }
 
-static void image_read(iffstream_c &file, uint16_t line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
+static void image_read(iffstream_c& file, uint16_t line_words, int height, uint16_t* bitmap, uint16_t* maskmap) {
     uint16_t word_buffer[line_words];
     const int bp_count = (maskmap ? 5 : 4);
     while_dbra_count(height, height) {
         for (int bp = 0; bp < bp_count; bp++) {
-            uint16_t *buffer;
+            uint16_t* buffer;
             if (bp < 4) {
                 buffer = (uint16_t*)word_buffer;
             } else {
@@ -148,12 +148,12 @@ static void image_read(iffstream_c &file, uint16_t line_words, int height, uint1
     }
 }
 
-static void image_read_packbits(iffstream_c &file, uint16_t line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
+static void image_read_packbits(iffstream_c& file, uint16_t line_words, int height, uint16_t* bitmap, uint16_t* maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
     uint16_t word_buffer[line_words * bp_count];
     while_dbra_count(height, height) {
-        uint8_t *buffer = (uint8_t*)word_buffer;
-        uint8_t *bufferEnd = buffer + (line_words * bp_count * 2);
+        uint8_t* buffer = (uint8_t*)word_buffer;
+        uint8_t* bufferEnd = buffer + (line_words * bp_count * 2);
         while (buffer < bufferEnd) {
             int8_t cmd;
             if (!file.read((uint8_t*)&cmd, 1)) {
@@ -197,14 +197,14 @@ static void image_read_packbits(iffstream_c &file, uint16_t line_words, int heig
     }
 }
 
-image_c::image_c(const char *path, int masked_cidx) :
+image_c::image_c(const char* path, int masked_cidx) :
     _palette(nullptr), _bitmap(nullptr), _maskmap(nullptr), _size(), _line_words(0)
 {
     bool masked = false;
     iffstream_c file(path);
     iff_group_s form;
     if (!file.good() || !file.first(cc4::FORM, ::cc4::ILBM, form)) {
-        hard_assert(0);
+        hard_assert(0 && "Failed to load ILBM file");
         return; // Not a ILBM
     }
     iff_chunk_s chunk;
@@ -279,7 +279,7 @@ image_c::image_c(const char *path, int masked_cidx) :
 }
 
 
-static void image_write(iffstream_c &file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
+static void image_write(iffstream_c& file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t* bitmap, uint16_t* maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
     uint16_t word_buffer[line_words * bp_count];
     while_dbra_count(height, height) {
@@ -303,7 +303,7 @@ static void image_write(iffstream_c &file, uint16_t line_words, uint16_t next_li
     }
 }
 
-static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, int row_byte_count) {
+static int image_packbits_into_body(uint8_t* body, const uint8_t* row_buffer, int row_byte_count) {
     assert(row_byte_count >= 2 && "Row byte count must be at least 2");
 #define PACKBITS_MIN_RUN 3
 #define PACKBITS_MAX_BYTES 128
@@ -316,13 +316,13 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
         *body++ = -(count - 1);
         *body++ = byte;
     };
-    const auto packDumpIntoBody = [&body] (uint8_t *buf, int count) {
+    const auto packDumpIntoBody = [&body] (uint8_t* buf, int count) {
         *body++ = count - 1;
         memcpy(body, buf, count);
         body += count;
     };
     
-    uint8_t *const body_begin = body;
+    uint8_t* const body_begin = body;
     uint8_t current_byte, previous_byte = '\0';
     static uint8_t buffer[256];
     short buffer_byte_count;
@@ -382,7 +382,7 @@ static int image_packbits_into_body(uint8_t *body, const uint8_t *row_buffer, in
     return (int)(body - body_begin);
 }
 
-static void image_write_packbits(iffstream_c &file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t *bitmap, uint16_t *maskmap) {
+static void image_write_packbits(iffstream_c& file, uint16_t line_words, uint16_t next_line_words, int height, uint16_t* bitmap, uint16_t* maskmap) {
     const int bp_count = (maskmap ? 5 : 4);
     uint16_t word_buffer[line_words * bp_count];
     while_dbra_count(height, height) {
@@ -400,7 +400,7 @@ static void image_write_packbits(iffstream_c &file, uint16_t line_words, uint16_
             }
         }
         uint8_t body[line_words * bp_count * 2 + 32];
-        int bytes = image_packbits_into_body(body, (const uint8_t *)word_buffer, line_words * bp_count * 2);
+        int bytes = image_packbits_into_body(body, (const uint8_t*)word_buffer, line_words * bp_count * 2);
         file.write(body, bytes);
         
         bitmap += next_line_words * 4;
@@ -411,7 +411,7 @@ static void image_write_packbits(iffstream_c &file, uint16_t line_words, uint16_
 }
 
 
-bool image_c::save(const char *path, image_c::compression_type_e compression, bool masked, int masked_cidx) {
+bool image_c::save(const char* path, image_c::compression_type_e compression, bool masked, int masked_cidx) {
     // DeluxePain ST format and custom deflate not supported
     assert(compression < compression_type_e::vertical && "DeluxePaint ST vertical compression not supported");
 

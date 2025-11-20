@@ -20,7 +20,7 @@ namespace toybox {
         constexpr base_point_s() : x(0), y(0) {}
         constexpr base_point_s(int16_t x, int16_t y) : x(x), y(y) {}
         Type x, y;
-        constexpr bool operator==(const base_point_s &p) const {
+        constexpr bool operator==(const base_point_s& p) const {
             return x == p.x && y == p.y;
         }
         template<typename OType>
@@ -64,8 +64,8 @@ namespace toybox {
         using point_s = base_point_s<Type>;
         using size_s = base_size_s<Type>;
         constexpr base_rect_s() : origin(), size() {}
-        constexpr base_rect_s(const size_s &s) : origin(), size(s) {}
-        constexpr base_rect_s(const point_s &o, const size_s &s) : origin(o), size(s) {}
+        constexpr base_rect_s(const size_s& s) : origin(), size(s) {}
+        constexpr base_rect_s(const point_s& o, const size_s& s) : origin(o), size(s) {}
         constexpr base_rect_s(int16_t x, int16_t y, int16_t w, int16_t h) : origin(x, y), size(w, h) {}
 
         point_s origin;
@@ -97,7 +97,7 @@ namespace toybox {
         }
         /// Clip this rect to the bounds of clip_bounds, adjusting at accordingly.
         /// Returns true if the rect was completely clipped (size became <= 0).
-        bool clip_to(const base_rect_s& clip_bounds, point_s &at) {
+        bool clip_to(const base_rect_s& clip_bounds, point_s& at) {
             bool did_clip = false;
 
             // Clip left edge

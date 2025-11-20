@@ -7,6 +7,7 @@
 
 #include "tilemap_scene.hpp"
 #include "demo_assets.hpp"
+#include "fullscreen_scene.hpp"
 
 static constexpr uint16_t is_target = 1 << 0;
 
@@ -43,7 +44,7 @@ static void player_control(tilemap_level_c& level, entity_s& entity) {
 }
 
 tilemap_level_c* make_tilemaplevel() {
-    static constexpr const char *recipe[] = {
+    static constexpr const char* recipe[] = {
         "       #####              ",
         "       #---#              ",
         "       #$--#              ",
@@ -123,20 +124,24 @@ tilemap_level_c* make_tilemaplevel() {
 }
 
 
-tilemap_scene::tilemap_scene() :
+tilemap_scene_c::tilemap_scene_c() :
     _level(asset_manager_c::shared().tilemap_level(LEVEL))
 {
 }
 
-scene_c::configuration_s& tilemap_scene::configuration() const {
+scene_c::configuration_s& tilemap_scene_c::configuration() const {
     static scene_c::configuration_s config{_level.visible_bounds().size, asset_manager_c::shared().tileset(TILESET_SPR).image()->palette(), 2, false};
     return config;
 }
 
-void tilemap_scene::will_appear(bool obscured) {
+void tilemap_scene_c::will_appear(bool obscured) {
 }
 
-void tilemap_scene::update(display_list_c& display, int ticks) {
+void tilemap_scene_c::update(display_list_c& display, int ticks) {
     auto& viewport = display.get(PRIMARY_VIEWPORT).viewport();
     _level.update(viewport, PRIMARY_VIEWPORT, ticks);
+    if (controller_c::shared().state() == button_state_e::clicked) {
+        auto next_scene = new fullscreen_scene_c();
+        manager.replace(next_scene);
+    }
 }

@@ -19,31 +19,31 @@ void stream_c::set_assert_on_error(bool assert) {
 bool stream_c::good() const { return true; };
 bool stream_c::flush() { return true; }
 
-stream_c &stream_c::operator<<(manipulator_f m) {
+stream_c& stream_c::operator<<(manipulator_f m) {
     return m(*this);
 }
 
-stream_c &stream_c::operator<<(const char* str) {
+stream_c& stream_c::operator<<(const char* str) {
     auto len = strlen(str);
     write(reinterpret_cast<const uint8_t*>(str), len);
     return *this;
 }
 
-stream_c &stream_c::operator<<(char c) {
+stream_c& stream_c::operator<<(char c) {
     write(reinterpret_cast<const uint8_t*>(&c), 1);
     return *this;
 }
-stream_c &stream_c::operator<<(unsigned char c) {
+stream_c& stream_c::operator<<(unsigned char c) {
     write(reinterpret_cast<const uint8_t*>(&c), 1);
     return *this;
 }
-stream_c &stream_c::operator<<(int16_t i) {
+stream_c& stream_c::operator<<(int16_t i) {
     return *this << static_cast<int32_t>(i);
 }
-stream_c &stream_c::operator<<(uint16_t i) {
+stream_c& stream_c::operator<<(uint16_t i) {
     return *this << static_cast<uint32_t>(i);
 }
-stream_c &stream_c::operator<<(int32_t i) {
+stream_c& stream_c::operator<<(int32_t i) {
     char buf[12];
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -63,9 +63,9 @@ stream_c &stream_c::operator<<(int32_t i) {
             write(reinterpret_cast<uint8_t*>(buf), fillc);
         }
     }
-    return *this << static_cast<const char *>(buf);
+    return *this << static_cast<const char*>(buf);
 }
-stream_c &stream_c::operator<<(uint32_t i) {
+stream_c& stream_c::operator<<(uint32_t i) {
     if (i > 0x7fffffff) {
         if (_width > 6) {
             int ow = _width;
@@ -92,18 +92,18 @@ stream_c& toybox::tbin = s_tbin;
 stream_c& toybox::tbout = s_tbout;
 stream_c& toybox::tberr = s_tberr;
 
-static stream_c &s_endl(stream_c &s) {
+static stream_c& s_endl(stream_c& s) {
 #ifdef __M68000__
     return s << "\n\r";
 #else
     return s << '\n';
 #endif
 }
-static stream_c &s_ends(stream_c &s) {
+static stream_c& s_ends(stream_c& s) {
     s.write(reinterpret_cast<const uint8_t*>(""), 1);
     return s;
 }
-static stream_c &s_flush(stream_c &s) {
+static stream_c& s_flush(stream_c& s) {
     s.flush();
     return s;
 }

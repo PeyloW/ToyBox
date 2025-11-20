@@ -7,6 +7,7 @@
 
 #include "fullscreen_scene.hpp"
 #include "demo_assets.hpp"
+#include "tilemap_scene.hpp"
 
 fullscreen_scene_c::fullscreen_scene_c() :
     scene_c(),
@@ -44,5 +45,11 @@ void fullscreen_scene_c::update(display_list_c& display_list, int ticks) {
     while_dbra_count(i, 4) {
         const int p = (idx - i * 20) % 64;
         back_viewport.draw(_sprites, i, _pos[p]);
+    }
+    if (mouse_c::shared().state(mouse_c::left) == button_state_e::clicked) {
+        auto next_scene = new tilemap_scene_c();
+        manager.replace(next_scene);
+    } else if (mouse_c::shared().state(mouse_c::right) == button_state_e::clicked) {
+        manager.pop();
     }
 }

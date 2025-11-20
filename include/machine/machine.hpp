@@ -35,10 +35,10 @@ namespace toybox {
         };
         using enum type_e;
         
-        static machine_c &shared();
-        
-        using machine_f = int (*)(machine_c &machine);
-        static int with_machine(int argc, const char * argv[], machine_f f);
+        static machine_c& shared();
+
+        using machine_f = int (*)(machine_c& machine);
+        static int with_machine(int argc, const char* argv[], machine_f f);
         
         type_e type() const __pure;
         size_s screen_size() const __pure; // NOTE: static constexpr?

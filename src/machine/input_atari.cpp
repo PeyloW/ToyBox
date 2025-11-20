@@ -16,10 +16,10 @@ using namespace toybox;
 extern "C" {
 #ifdef __M68000__
     extern timer_c::func_a_t g_system_mouse_interupt;
-    extern void g_mouse_interupt(void *);
+    extern void g_mouse_interupt(void*);
     extern timer_c::func_a_t g_system_joystick_interupt;
-    extern void g_joystick_interupt(void *);
-    static _KBDVECS *g_keyboard_vectors = nullptr;
+    extern void g_joystick_interupt(void*);
+    static _KBDVECS* g_keyboard_vectors = nullptr;
 
     static void init_keyboard_vectors(void) {
         if (g_keyboard_vectors == nullptr) {

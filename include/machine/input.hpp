@@ -31,10 +31,10 @@ namespace toybox {
         };
         using enum button_e;
         
-        static mouse_c &shared();
-        
-        const rect_s &limits() const;
-        void set_limits(const rect_s &limits);
+        static mouse_c& shared();
+
+        const rect_s& limits() const;
+        void set_limits(const rect_s& limits);
         
         bool is_pressed(button_e button) const;
         button_state_e state(button_e button) const;
@@ -77,11 +77,12 @@ namespace toybox {
         direcrions_e directions() const;
         
         bool is_pressed(button_e button) const;
-        button_state_e state(button_e button) const;
+        button_state_e state(button_e button = fire) const;
     private:
         controller_c(port_e port);
         ~controller_c();
         port_e _port;
+        mutable uint32_t _update_tick;
     };
     template<>
     class is_optionset<controller_c::direcrions_e> : public true_type {};

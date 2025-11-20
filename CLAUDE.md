@@ -77,6 +77,8 @@
 	- Use `__forceinline` for single-statement functions.
 	- Exclude assert statements and non-Atari preprocessor blocks from statement count.
 	- Assert statements do not count as statements for inline classification purposes.
+	- Static functions named with a `__` prefix can use `__forceinline`, these are helper functions fo more readable code.
+	- Functions in `detail` namespace can also be `__forceinline`, these are also helper functions.
 
 ## Documentation
 

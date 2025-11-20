@@ -21,12 +21,12 @@ namespace toybox {
      */
     class tileset_c : public asset_c {
     public:
-        tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size);
+        tileset_c(const shared_ptr_c<image_c>& image, size_s tile_size);
         virtual ~tileset_c() {};
 
         __forceinline type_e asset_type() const override final { return tileset; }
 
-        __forceinline const shared_ptr_c<image_c> &image() const __pure {
+        __forceinline const shared_ptr_c<image_c>& image() const __pure {
             return _image;
         }
 

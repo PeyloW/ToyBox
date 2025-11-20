@@ -29,10 +29,10 @@ namespace toybox {
         };
         using enum timer_e;
         using func_t = void(*)(void);
-        using func_a_t = void(*)(void *);
+        using func_a_t = void(*)(void*);
         using func_i_t = void(*)(int);
         
-        static timer_c &shared(timer_e timer);
+        static timer_c& shared(timer_e timer);
 
         template<invocable<> Commands>
         static inline void with_paused_timers(Commands commands) {
@@ -53,8 +53,8 @@ namespace toybox {
         
         void add_func(const func_t func, uint8_t freq = 0);
         void remove_func(const func_t func);
-        void add_func(const func_a_t func, void *context = nullptr, uint8_t freq = 0);
-        void remove_func(const func_a_t func, const void *context = nullptr);
+        void add_func(const func_a_t func, void* context = nullptr, uint8_t freq = 0);
+        void remove_func(const func_a_t func, const void* context = nullptr);
         
         uint32_t tick();
         void reset_tick();

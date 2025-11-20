@@ -15,9 +15,9 @@
 #include <functional>
 #include <string>
 
-typedef std::deque<const char *> arguments_t;
+typedef std::deque<const char* > arguments_t;
 typedef std::function<void(arguments_t&)> handler_t;
-typedef std::pair<const char *, handler_t> arg_handler_t;
+typedef std::pair<const char* , handler_t> arg_handler_t;
 struct arg_compare_t;
 typedef std::map<std::string, arg_handler_t, arg_compare_t> arg_handlers_t;
 #include <sstream>
@@ -38,12 +38,12 @@ struct arg_compare_t {
     }
 };
 
-static void do_unknown_arg(const char *arg) {
+static void do_unknown_arg(const char* arg) {
     printf("Unknown %s '%s'.\n", arg[0] == '-' ? "option" : "command", arg);
     exit(-1);
 }
 
-static void do_print_help(const char *usage, const arg_handlers_t &arg_handlers) {
+static void do_print_help(const char* usage, const arg_handlers_t& arg_handlers) {
     size_t max_len = 0;
     for (const auto &com : arg_handlers) {
         max_len = std::max(max_len, com.first.length());
@@ -83,7 +83,7 @@ static void do_print_help(const char *usage, const arg_handlers_t &arg_handlers)
     }
 }
 
-static void do_handle_args(arguments_t &args, const arg_handlers_t &arg_handlers, bool fail_on_unknown = false) {
+static void do_handle_args(arguments_t& args, const arg_handlers_t& arg_handlers, bool fail_on_unknown = false) {
     while (args.size() > 0) {
         auto arg = args.front();
         const auto command = arg_handlers.find(arg);

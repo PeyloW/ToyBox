@@ -63,8 +63,8 @@ namespace toybox {
     class basic_palette_c : public array_s<color_c, Count>, public nocopy_c {
     public:
         basic_palette_c() = default;
-        basic_palette_c(uint16_t *cs) { copy(cs, cs + Count, this->begin()); }
-        basic_palette_c(uint8_t *c) {
+        basic_palette_c(uint16_t* cs) { copy(cs, cs + Count, this->begin()); }
+        basic_palette_c(uint8_t* c) {
             c += 3 * Count;
             int i;
             do_dbra(i, Count - 1) {
@@ -83,8 +83,8 @@ namespace toybox {
     public:
         type_e display_type() const override { return palette; }
         palette_c() : basic_palette_c<16>() {}
-        palette_c(uint16_t *cs) : basic_palette_c<16>(cs) {}
-        palette_c(uint8_t *c) : basic_palette_c<16>(c) {}
+        palette_c(uint16_t* cs) : basic_palette_c<16>(cs) {}
+        palette_c(uint8_t* c) : basic_palette_c<16>(c) {}
     };
     
 }

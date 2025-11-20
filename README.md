@@ -38,7 +38,7 @@ A game is intended to be implemented as a stack of scenes. Navigating to a new s
     * `configuration()` the scene configuration with viewport_size, palette, buffer_count, and use_clear flag.
     * `will_appear(bool obscured)` called when scene becomes the top scene and will appear.
         * Implement to draw initial content to the clear viewport.
-    * `update(display_list_c &display_list, int ticks)` update the scene, drawing to the provided display list's viewport.
+    * `update(display_list_c& display_list, int ticks)` update the scene, drawing to the provided display list's viewport.
 * `transition_c` - A transition between two scenes, run for push, pop and replace operations.
 
 ### Displaying Graphics

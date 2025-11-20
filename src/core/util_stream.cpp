@@ -32,7 +32,7 @@ ptrdiff_t substream_c::seek(ptrdiff_t pos, seekdir_e way) {
     return tell();
 }
 
-size_t substream_c::read(uint8_t *buf, size_t count) {
+size_t substream_c::read(uint8_t* buf, size_t count) {
     assert(tell() >= 0 && "Substream out of range");
     count = MIN(count, _length - tell());
     if (count > 0) {
@@ -41,7 +41,7 @@ size_t substream_c::read(uint8_t *buf, size_t count) {
     return count;
 }
 
-size_t substream_c::write(const uint8_t *buf, size_t count) {
+size_t substream_c::write(const uint8_t* buf, size_t count) {
     assert(tell() >= 0 && "Substream out of range");
     count = MIN(count, _length - tell());
     if (count > 0) {

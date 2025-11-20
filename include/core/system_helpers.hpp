@@ -51,7 +51,7 @@ namespace toybox {
     }
 
     template<typename T, const int Bytes = sizeof(T)>
-    __forceinline void move_inc_from(void* &src, T &dst) {
+    __forceinline void move_inc_from(void*& src, T& dst) {
         static_assert(Bytes == 1 || Bytes == 2 || Bytes == 4);
 #ifdef __M68000__
         if constexpr (Bytes == 1) {
@@ -148,7 +148,7 @@ namespace toybox {
 #ifdef __M68000__
     struct codegen_s {
         // Buffer must be 16 bytes
-        static void make_trampoline(void *buffer, void *func, bool all_regs) {
+        static void make_trampoline(void* buffer, void* func, bool all_regs) {
             //movem.l d3-d7/a2-a6,-(sp)
             //jsr     [func].l
             //movem.l (sp)+,d3-d7/a2-a6

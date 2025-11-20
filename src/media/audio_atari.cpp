@@ -12,14 +12,14 @@
 using namespace toybox;
 
 
-ymmusic_c::ymmusic_c(const char *path) {
+ymmusic_c::ymmusic_c(const char* path) {
     fstream_c file(path);
-    hard_assert(file.good());
+    hard_assert(file.good() && "Failed to open SNDH file");
     file.seek(0, stream_c::seekdir_e::end);
     size_t size = file.tell();
     file.seek(0, stream_c::seekdir_e::beg);
     
-    _sndh.reset((uint8_t *)_malloc(size));
+    _sndh.reset((uint8_t*)_malloc(size));
     _length = size;
     size_t read = file.read(_sndh.get(), size);
     assert(read == size && "Failed to read complete SNDH file");
@@ -28,7 +28,7 @@ ymmusic_c::ymmusic_c(const char *path) {
     _composer = nullptr;
     _track_count = 1;
     _freq = 50;
-    char *header_str = (char *)(_sndh + 16);
+    char* header_str = (char*)(_sndh + 16);
     while (strncmp(header_str, "HDNS", 4) != 0 && ((uint8_t*)header_str < _sndh + 200)) {
         int len = (int)strlen(header_str);
          if (len > 0) {

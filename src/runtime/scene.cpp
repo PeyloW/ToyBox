@@ -26,7 +26,7 @@ public:
     no_transition_c() : transition_c() {
         _full_restores_left = 2;
     }
-    virtual void will_begin(const scene_c *from, const scene_c *to) override {
+    virtual void will_begin(const scene_c* from, const scene_c* to) override {
         auto to_pal = to->configuration().palette.get();
         if (to_pal) {
             // Copy the configuration palette to the primary palette of each display list
@@ -62,7 +62,7 @@ scene_manager_c& scene_manager_c::shared()
 
 #define DEBUG_NO_SET_SCREEN 0
 
-void scene_manager_c::run(scene_c *rootscene, transition_c *transition) {
+void scene_manager_c::run(scene_c* rootscene, transition_c* transition) {
     push(rootscene, transition);
 
     vbl.reset_tick();
@@ -78,11 +78,11 @@ void scene_manager_c::run(scene_c *rootscene, transition_c *transition) {
         } else {
             debug_cpu_color(DEBUG_CPU_TOP_SCENE_TICK);
             if (_scene_stack.size() > 0) {
-                auto &scene = top_scene();
-                auto &config = scene.configuration();
+                auto& scene = top_scene();
+                auto& config = scene.configuration();
                 // Merge dirty maps here!
                 if (config.use_clear) {
-                    auto &back_viewport = update_clear();
+                    auto& back_viewport = update_clear();
                     back_viewport.with_dirtymap(back_viewport.dirtymap(), [&] {
                         update_scene(scene, ticks);
                     });
@@ -94,7 +94,7 @@ void scene_manager_c::run(scene_c *rootscene, transition_c *transition) {
         }
         debug_cpu_color(DEBUG_CPU_DONE);
         timer_c::with_paused_timers([&] {
-            display_list_c &back = display_list(display_list_e::back);
+            display_list_c& back = display_list(display_list_e::back);
             //sort(back.begin(), back.end());
             machine_c::shared().set_active_display_list(&back);
             swap_display_lists();
@@ -102,8 +102,8 @@ void scene_manager_c::run(scene_c *rootscene, transition_c *transition) {
     }
 }
 
-void scene_manager_c::push(scene_c *scene, transition_c *transition) {
-    scene_c *from = nullptr;
+void scene_manager_c::push(scene_c* scene, transition_c* transition) {
+    scene_c* from = nullptr;
     if (_scene_stack.size() > 0) {
         from = &top_scene();
         from->will_disappear(true);
@@ -112,30 +112,32 @@ void scene_manager_c::push(scene_c *scene, transition_c *transition) {
     begin_transition(transition, from, scene, false);
 }
 
-void scene_manager_c::pop(transition_c *transition, int count) {
-    scene_c *from = nullptr;
+void scene_manager_c::pop(transition_c* transition, int count) {
+    scene_c* from = nullptr;
     while (count-- > 0) {
         from = &top_scene();
         from->will_disappear(false);
         enqueue_delete(from);
         _scene_stack.pop_back();
     }
-    scene_c *to = nullptr;
+    scene_c* to = nullptr;
     if (_scene_stack.size() > 0) {
         to = &top_scene();
     }
-    begin_transition(transition, from, to, true);
+    if (to) {
+        begin_transition(transition, from, to, true);
+    }
 }
 
-void scene_manager_c::replace(scene_c *scene, transition_c *transition) {
-    scene_c *from = &top_scene();
+void scene_manager_c::replace(scene_c* scene, transition_c* transition) {
+    scene_c* from = &top_scene();
     from->will_disappear(false);
     enqueue_delete(from);
     _scene_stack.back() = scene;
     begin_transition(transition, from, scene, false);
 }
 
-display_list_c &scene_manager_c::display_list(display_list_e id) const {
+display_list_c& scene_manager_c::display_list(display_list_e id) const {
     if (id == display_list_e::clear) {
         return (display_list_c&)_display_lists[2];
     } else {
@@ -144,7 +146,7 @@ display_list_c &scene_manager_c::display_list(display_list_e id) const {
     }
 }
 
-void scene_manager_c::configure_display_lists(scene_c::configuration_s& configuration) {
+void scene_manager_c::configure_display_lists(const scene_c::configuration_s& configuration) {
     _display_lists.clear();
     for (int i = 0; i < 3; i++) {
         auto& list = _display_lists.emplace_back();
@@ -165,7 +167,7 @@ void scene_manager_c::swap_display_lists() {
 
 
 viewport_c& scene_manager_c::update_clear() {
-    viewport_c *viewports[3] = {
+    viewport_c* viewports[3] = {
         &_display_lists[0].get(PRIMARY_VIEWPORT).viewport(),
         &_display_lists[1].get(PRIMARY_VIEWPORT).viewport(),
         &_display_lists[2].get(PRIMARY_VIEWPORT).viewport(),
@@ -175,21 +177,23 @@ viewport_c& scene_manager_c::update_clear() {
     viewports[2]->dirtymap()->clear();
     viewports[2]->dirtymap()->clear();
     debug_cpu_color(DEBUG_CPU_PHYS_RESTORE);
-    auto &back_viewport = *viewports[(_active_display_list + 1) & 0x1];
-    auto &clear = *viewports[2];
+    auto& back_viewport = *viewports[(_active_display_list + 1) & 0x1];
+    auto& clear = *viewports[2];
     back_viewport.dirtymap()->restore(back_viewport, clear.image());
     return back_viewport;
 }
 
-void scene_manager_c::update_scene(scene_c &scene, int32_t ticks) {
+void scene_manager_c::update_scene(scene_c& scene, int32_t ticks) {
     debug_cpu_color(DEBUG_CPU_TOP_SCENE_TICK);
-    display_list_c &back = display_list(display_list_e::back);
+    display_list_c& back = display_list(display_list_e::back);
     scene.update(back, ticks);
 }
 
-void scene_manager_c::begin_transition(transition_c *transition, const scene_c *from, scene_c *to, bool obscured) {
+void scene_manager_c::begin_transition(transition_c* transition, const scene_c* from, scene_c* to, bool obscured) {
     if (to) {
-        const auto &config = to->configuration();
+        const auto& config = to->configuration();
+        // TODO: This needs to move to transition eventually.
+        configure_display_lists(config);
         if (config.use_clear) {
             auto& clear = display_list(display_list_e::clear);
             auto& viewport = clear.get(PRIMARY_VIEWPORT).viewport();
@@ -207,10 +211,6 @@ void scene_manager_c::begin_transition(transition_c *transition, const scene_c *
         _transition = new no_transition_c();
     }
     _transition->will_begin(from, to);
-    if (to) {
-        // TODO: This will have to move into transition_c evantually
-        configure_display_lists(to->configuration());
-    }
 }
 
 void scene_manager_c::update_transition(int32_t ticks) {

@@ -22,19 +22,19 @@ namespace toybox {
 #else
     template<arithmetic Type>
     requires (sizeof(Type) == 1)
-    void hton(Type &value) { }
+    void hton(Type& value) { }
 
     template<arithmetic Type>
     requires (sizeof(Type) == 2)
-    __forceinline void hton(Type &value) { value = htons(value); }
+    __forceinline void hton(Type& value) { value = htons(value); }
 
     template<arithmetic Type>
     requires (sizeof(Type) == 4)
-    __forceinline void hton(Type &value) { value = htonl(value); }
-    
+    __forceinline void hton(Type& value) { value = htonl(value); }
+
     void hton_struct(void* ptr, const char* layout);
     template<class_type T>
-    __forceinline void hton(T &value) {
+    __forceinline void hton(T& value) {
         hton_struct(&value, struct_layout<T>::value);
     }
 
@@ -240,7 +240,7 @@ namespace toybox {
             *p = T(forward<Args>(args)...);
             return p;
         } else {
-            return new (static_cast<void *>(p)) T(forward<Args>(args)...);
+            return new (static_cast<void*>(p)) T(forward<Args>(args)...);
         }
     }
     template<class T> __forceinline void destroy_at(T* p) {
@@ -342,7 +342,7 @@ namespace toybox {
     // Base class enforcing no copy constructor or assignment.
     class nocopy_c {
     public:
-        __forceinline bool operator==(const nocopy_c &other) const {
+        __forceinline bool operator==(const nocopy_c& other) const {
             return this == &other;
         }
     protected:
@@ -371,7 +371,7 @@ namespace toybox {
     template<class T1, class T2>
     class pair_c {
     public:
-        constexpr pair_c(const T1 &f, const T2 &s) : first(f), second(s) {}
+        constexpr pair_c(const T1& f, const T2& s) : first(f), second(s) {}
         T1 first;
         T2 second;
     };

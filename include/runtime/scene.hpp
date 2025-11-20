@@ -42,16 +42,16 @@ namespace toybox {
         scene_c();
         virtual ~scene_c() {};
         
-        virtual configuration_s &configuration() const;
+        virtual configuration_s& configuration() const;
         static configuration_s default_configuration;
         
         virtual void will_appear(bool obscured) {};
         virtual void will_disappear(bool obscured) {};
         
-        virtual void update(display_list_c &display_list, int ticks) {};
-        
+        virtual void update(display_list_c& display_list, int ticks) {};
+
     protected:
-        scene_manager_c &manager;
+        scene_manager_c& manager;
     };
     
     /**
@@ -71,7 +71,7 @@ namespace toybox {
         static transition_c* create(color_c through);
     
     protected:
-        scene_manager_c &manager;
+        scene_manager_c& manager;
     };
         
     /**
@@ -92,17 +92,17 @@ namespace toybox {
 
         void run(scene_c* rootscene, transition_c* transition = nullptr);
 
-        __forceinline scene_c &top_scene() const {
+        __forceinline scene_c& top_scene() const {
             return *_scene_stack.back();
         };
         void push(scene_c* scene, transition_c* transition = transition_c::create(color_c()));
         void pop(transition_c* transition  = transition_c::create(color_c()), int count = 1);
         void replace(scene_c* scene, transition_c* transition = transition_c::create(canvas_c::stencil_e::random));
-        
-        timer_c &vbl;
-        timer_c &clock;
-        
-        display_list_c &display_list(display_list_e id) const;
+
+        timer_c& vbl;
+        timer_c& clock;
+
+        display_list_c& display_list(display_list_e id) const;
         
     private:
         scene_manager_c();
@@ -112,12 +112,12 @@ namespace toybox {
         vector_c<scene_c*, 8> _scene_stack;
         vector_c<unique_ptr_c<scene_c>, 8> _deletion_stack;
 
-        void configure_display_lists(scene_c::configuration_s& configuration);
+        void configure_display_lists(const scene_c::configuration_s& configuration);
         
         void swap_display_lists();
 
         inline viewport_c& update_clear();
-        inline void update_scene(scene_c &scene, int32_t ticks);
+        inline void update_scene(scene_c& scene, int32_t ticks);
 
         __forceinline void enqueue_delete(scene_c* scene) {
             _deletion_stack.emplace_back(scene);

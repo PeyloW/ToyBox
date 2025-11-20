@@ -12,7 +12,7 @@ using namespace toybox;
 
 #ifndef __M68000__
 extern "C" {
-    const sound_c *g_active_sound = nullptr;
+    const sound_c* g_active_sound = nullptr;
 }
 #endif
 

@@ -16,14 +16,14 @@
 using namespace toybox;
 
 extern "C" {
-    const palette_c *g_active_palette = nullptr;
+    const palette_c* g_active_palette = nullptr;
     detail::display_config_t g_active_display_config = {0,0,0};
 }
 
 
-machine_c *machine_c::_shared_machine = nullptr;
+machine_c* machine_c::_shared_machine = nullptr;
 
-machine_c &machine_c::shared() {
+machine_c& machine_c::shared() {
     assert(_shared_machine != nullptr && "Shared machine instance not initialized");
     return *_shared_machine;
 }
@@ -34,7 +34,7 @@ machine_c::machine_c() {
     _old_modes[0] = Blitmode(-1);
     Blitmode(0);
     _old_modes[1] = Getrez();
-    Setscreen((void *)-1, (void *)-1, 0);
+    Setscreen((void*)-1, (void*)-1, 0);
     _old_modes[2] = *((uint8_t*)0x484);
     *((uint8_t*)0x484) = 0;
     g_active_palette = new palette_c((uint16_t*)0xffff8240);
@@ -47,14 +47,14 @@ machine_c::machine_c() {
 machine_c::~machine_c() {
 #ifdef __M68000__
     *((uint8_t*)0x484) = (uint8_t)_old_modes[2];
-    Setscreen((void *)-1, (void *)-1, _old_modes[1]);
+    Setscreen((void*)-1, (void*)-1, _old_modes[1]);
     Blitmode(_old_modes[0]);
     Super(_old_super);
 #endif
 }
 
 #ifndef TOYBOX_HOST
-int machine_c::with_machine(int argc, const char * argv[], int (*game)(machine_c &machine)) {
+int machine_c::with_machine(int argc, const char* argv[], int (*game)(machine_c& machine)) {
     assert(_shared_machine == nullptr && "Shared machine already initialized");
     machine_c machine;
     _shared_machine = &machine;
@@ -95,12 +95,12 @@ size_t machine_c::user_memory() const {
 struct mem_chunk {
     long valid;
 #define VAL_ALLOC 0xa11c0abcL
-    struct mem_chunk *next;
+    struct mem_chunk* next;
     unsigned long size;
 };
 #define BORDER_EXTRA ((sizeof(struct mem_chunk) + sizeof(long) + 7) & ~7)
 void machine_c::free_system_memory() {
-    mem_chunk *p = *(mem_chunk **)(0x44e);
+    mem_chunk* p = *(mem_chunk**)(0x44e);
     p->valid = VAL_ALLOC;
     p->next = nullptr;
     p->size = 32000;
@@ -116,7 +116,7 @@ void machine_c::free_system_memory() {}
 
 uint32_t machine_c::get_cookie(uint32_t cookie, uint32_t def_value) const {
 #ifdef __M68000__
-    uint32_t *cookie_jar = *((uint32_t**)0x5A0);
+    uint32_t* cookie_jar = *((uint32_t**)0x5A0);
     if (cookie_jar) {
         while ((cookie_jar[0] != 0)) {
             if (cookie_jar[0] == cookie) {
@@ -131,13 +131,13 @@ uint32_t machine_c::get_cookie(uint32_t cookie, uint32_t def_value) const {
 #endif
 }
 
-static const display_list_c *s_active_display_list = nullptr;
+static const display_list_c* s_active_display_list = nullptr;
 
-const display_list_c *machine_c::active_display_list() const {
+const display_list_c* machine_c::active_display_list() const {
     return s_active_display_list;
 }
 
-void machine_c::set_active_display_list(const display_list_c *display_list) {
+void machine_c::set_active_display_list(const display_list_c* display_list) {
     s_active_display_list = display_list;
     if (display_list) {
         assert(is_sorted(display_list->begin(), display_list->end()) && "Display list must be sorted");
@@ -160,7 +160,7 @@ void machine_c::set_active_display_list(const display_list_c *display_list) {
 }
 
 
-void machine_c::set_active_viewport(const viewport_c *viewport) {
+void machine_c::set_active_viewport(const viewport_c* viewport) {
     timer_c::with_paused_timers([this, viewport] {
         if (viewport) {
             g_active_display_config = viewport->display_config();
@@ -170,7 +170,7 @@ void machine_c::set_active_viewport(const viewport_c *viewport) {
     });
 }
 
-void machine_c::set_active_palette(const palette_c *palette) {
+void machine_c::set_active_palette(const palette_c* palette) {
 #ifdef __M68000__
 #   if TOYBOX_TARGET_ATARI
     copy(palette->begin(), palette->end(), reinterpret_cast<color_c*>(0xffff8240));

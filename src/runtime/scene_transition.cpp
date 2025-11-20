@@ -39,8 +39,8 @@ namespace toybox {
                 _palette = nullptr;
             }
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
-            auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
-            auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
+            auto&phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
+            auto&log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
             phys_viewport.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_viewport, &log_viewport] {
                 phys_viewport.draw_aligned(log_viewport.image(), log_viewport.clip_rect(), log_viewport.clip_rect().origin);
             });
@@ -69,8 +69,8 @@ public:
     
     virtual bool tick(int ticks) override {
         if (_transition_state.full_restores_left > 2) {
-            auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
-            auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
+            auto&phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
+            auto&log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
             auto shade = MIN(canvas_c::STENCIL_FULLY_OPAQUE, _transition_state.shade);
             phys_viewport.with_stencil(canvas_c::stencil(_transition_state.type, shade), [this, &phys_viewport, &log_viewport] {
                 phys_viewport.fill(_through, rect_s(point_s(), phys_viewport.size()));
@@ -116,7 +116,7 @@ public:
         _to_palette = &to_palette;
         for (int i = 0; i <= 16; i++) {
             _palettes.emplace_back();
-            auto &palette = _palettes.back();
+            auto&palette = _palettes.back();
             int shade = i * color_c::MIX_FULLY_OTHER / 16;
             for (int j = 0; j < 16; j++) {
                 palette[j] = from_palette[j].mix(_through, shade);
@@ -124,7 +124,7 @@ public:
         }
         for (int i = 15; i >= 0; i--) {
             _palettes.emplace_back();
-            auto &palette = _palettes.back();
+            auto&palette = _palettes.back();
             int shade = i * color_c::MIX_FULLY_OTHER / 16;
             for (int j = 0; j < 16; j++) {
                 palette[j] = to_palette[j].mix(_through, shade);
@@ -133,12 +133,12 @@ public:
     }
     virtual bool tick(int ticks) override {
         const int count = _count / 2;
-        auto &m = machine_c::shared();
+        auto&m = machine_c::shared();
         if (count < 17) {
             //m.set_active_palette(&_palettes[count]);
         } else if (count < 18) {
-            auto &phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
-            auto &log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
+            auto&phys_viewport = manager.display_list(scene_manager_c::display_list_e::front).get(PRIMARY_VIEWPORT).viewport();
+            auto&log_viewport = manager.display_list(scene_manager_c::display_list_e::back).get(PRIMARY_VIEWPORT).viewport();
             phys_viewport.draw_aligned(log_viewport.image(), point_s());
         } else if (count < 34) {
             //m.set_active_palette(&_palettes[count - 1]);

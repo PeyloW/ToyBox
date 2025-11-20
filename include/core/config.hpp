@@ -44,7 +44,7 @@
 #   ifdef __M68000__
 #       define TOYBOX_DEBUG_DIRTYMAP 0
 #   else
-#       define TOYBOX_DEBUG_DIRTYMAP 1
+#       define TOYBOX_DEBUG_DIRTYMAP 0
 #   endif
 #endif
 
@@ -55,9 +55,9 @@
 #if TOYBOX_RESERVE_A6_GLOBAL
 extern "C" {
 #   ifdef __M68000__
-    register void *g_global_ptr __asm__("a6");
+    register void* g_global_ptr __asm__("a6");
 #   else
-    extern void *g_global_ptr;
+    extern void* g_global_ptr;
 #   endif
 }
 #endif

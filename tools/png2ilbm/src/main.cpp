@@ -17,10 +17,10 @@
 
 using namespace toybox;
 
-static void handle_help(arguments_t &args);
-static void handle_palette(arguments_t &args);
-static void handle_masked(arguments_t &args);
-static void handle_compressed(arguments_t &args);
+static void handle_help(arguments_t& args);
+static void handle_palette(arguments_t& args);
+static void handle_masked(arguments_t& args);
+static void handle_compressed(arguments_t& args);
 
 static bool save_palette = true;
 static bool save_masked = false;
@@ -30,23 +30,23 @@ static image_c::compression_type_e compression = image_c::compression_type_e::no
 
 const arg_handlers_t arg_handlers {
     {"-h",          {"Show this help and exit.", &handle_help}},
-    {"-np",         {"Do not save palette.", [] (arguments_t &) { save_palette = false; }}},
-    {"-m",          {"Save masked.", [] (arguments_t &) { save_masked = true; }}},
-    {"-mi index",   {"Masked index.", [] (arguments_t &args) {
+    {"-np",         {"Do not save palette.", [] (arguments_t&) { save_palette = false; }}},
+    {"-m",          {"Save masked.", [] (arguments_t&) { save_masked = true; }}},
+    {"-mi index",   {"Masked index.", [] (arguments_t& args) {
         masked_idx = atoi(args.front());
         args.pop_front();
     }}},
-    {"-c type",          {"Save compressed.", [] (arguments_t &args) {
+    {"-c type",          {"Save compressed.", [] (arguments_t& args) {
         compression = (image_c::compression_type_e)atoi(args.front());
         args.pop_front();
     }}},
-/*    {"-g x,y",      {"Add grab point.", [] (arguments_t &args) {
+/*   {"-g x,y",      {"Add grab point.", [] (arguments_t& args) {
         auto split = split_string(args.front(), ',');
         grab_point = {(int16_t)atoi(split[0].c_str()), (int16_t)atoi(split[1].c_str())};
     }}},*/
 };
 
-static void handle_help(arguments_t &args) {
+static void handle_help(arguments_t& args) {
     do_print_help("png2ilbm - A utility for converting png images to iff ilbm.\nusage: png2ilbm [options] image.png image.iff", arg_handlers);
     exit(0);
 }
@@ -94,9 +94,9 @@ static int convert_png_to_ilbm(const std::string &png_file, const std::string &i
         exit(-1);
     }
     
-    palette_c *cgpalette = nullptr;
+    palette_c* cgpalette = nullptr;
     if (num_palette > 0 && save_palette) {
-        cgpalette = new palette_c((uint8_t *)palette);
+        cgpalette = new palette_c((uint8_t*)palette);
     }
 
     image_c cgimage((size_s){width, height}, save_masked, cgpalette);
@@ -128,7 +128,7 @@ static int convert_png_to_ilbm(const std::string &png_file, const std::string &i
     return 0;
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     arguments_t args(&argv[1], &argv[argc]);
     if (args.empty()) {
         handle_help(args);

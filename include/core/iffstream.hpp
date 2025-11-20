@@ -21,7 +21,7 @@ namespace toybox {
         constexpr cc4_t() : ulong(0x20202020) {}
 
         // Must be max 4 characters in range 32 to 127 (except '?'), ubytes is padded with ' '.
-        consteval cc4_t(const char *cc4) {
+        consteval cc4_t(const char* cc4) {
             assert(cc4 != nullptr && "CC4 must not be null.");
             for (int i = 0; i < 4; i++) {
                 ubytes[i] = *cc4 == '*' ? '?' : (*cc4 ? *cc4++ : ' ');
@@ -58,7 +58,7 @@ namespace toybox {
 
     template<>
     struct struct_layout<cc4_t> {
-        static constexpr const char * value = "4b";
+        static constexpr const char* value = "4b";
     };
 
     namespace cc4 {
@@ -94,17 +94,17 @@ namespace toybox {
         virtual ptrdiff_t tell() const override __pure;
         virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) override;
 
-        bool first(cc4_t id, iff_chunk_s &chunk_out);
-        bool first(cc4_t id, cc4_t subtype, iff_group_s &group_out);
-        bool next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk_out);
-        bool expand(const iff_chunk_s &chunk, iff_group_s &group_out);
-        
-        bool reset(const iff_chunk_s &chunk);
-        bool skip(const iff_chunk_s &chunk);
+        bool first(cc4_t id, iff_chunk_s& chunk_out);
+        bool first(cc4_t id, cc4_t subtype, iff_group_s& group_out);
+        bool next(const iff_group_s& in_group, cc4_t id, iff_chunk_s& chunk_out);
+        bool expand(const iff_chunk_s& chunk, iff_group_s& group_out);
+
+        bool reset(const iff_chunk_s& chunk);
+        bool skip(const iff_chunk_s& chunk);
         bool align(bool for_write);
-        
-        bool begin(cc4_t id, iff_chunk_s &chunk_out);
-        bool end(iff_chunk_s &chunk);
+
+        bool begin(cc4_t id, iff_chunk_s& chunk_out);
+        bool end(iff_chunk_s& chunk);
         
         using stream_c::read;
         virtual size_t read(uint8_t* buf, size_t count = 1) override;
@@ -115,7 +115,7 @@ namespace toybox {
         
 #ifndef __M68000__
         template<typename T> requires (!same_as<T, uint8_t>)
-        size_t read(T *buf, size_t count = 1) {
+        size_t read(T* buf, size_t count = 1) {
             auto result = read(reinterpret_cast<uint8_t*>(buf), count * sizeof(T));
             if (result) {
                 hton(buf, count);
@@ -124,7 +124,7 @@ namespace toybox {
         }
  
         template<typename T> requires (!same_as<T, uint8_t>)
-        size_t write(const T *buf, size_t count = 1) {
+        size_t write(const T* buf, size_t count = 1) {
             T tmp[count];
             memcpy(tmp, buf, count * sizeof(T));
             hton(&tmp[0], count);
@@ -133,8 +133,8 @@ namespace toybox {
 #endif
 
     private:
-        bool read(iff_group_s &group_out);
-        bool read(iff_chunk_s &chunk_out);
+        bool read(iff_group_s& group_out);
+        bool read(iff_chunk_s& chunk_out);
 
         unique_ptr_c<stream_c> _stream;
     };

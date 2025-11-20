@@ -28,16 +28,16 @@ namespace toybox {
 
         struct detail {
             struct node_s {
-                node_s *next;
+                node_s* next;
                 value_type value;
                 template<class... Args>
-                node_s(node_s *next, Args&&... args) : next(next), value(forward<Args>(args)...) {}
+                node_s(node_s* next, Args&&... args) : next(next), value(forward<Args>(args)...) {}
                 ~node_s() = default;
-                void *operator new(size_t count) {
+                void* operator new(size_t count) {
                     assert(allocator::alloc_size >= count && "Allocation size exceeds allocator capacity");
                     return allocator::allocate();
                 }
-                void operator delete(void *ptr) {
+                void operator delete(void* ptr) {
                     allocator::deallocate(ptr);
                 }
             };
@@ -50,7 +50,7 @@ namespace toybox {
 
                 iterator_s() = delete;
                 iterator_s(const iterator_s& o) = default;
-                iterator_s(node_s *node) : _node(node) {}
+                iterator_s(node_s* node) : _node(node) {}
                 iterator_s(const iterator_s<Type> &other) requires (!same_as<Type, TypeI>) : _node(other._node) {}
 
                 __forceinline reference operator*() const { return _node->value; }
@@ -59,7 +59,7 @@ namespace toybox {
                 __forceinline iterator_s operator++(int) { auto tmp = *this; _node = _node->next; return tmp; }
                 __forceinline bool operator==(const iterator_s& o) const { return _node == o._node; }
 
-                node_s *_node;
+                node_s* _node;
             };
         };
 
@@ -163,7 +163,7 @@ namespace toybox {
          Moves the element after `it` from `other` to after `pos` in this list.
          No copy or move constructors are called. O(1) operation.
          */
-        void splice_after(const_iterator pos, list_c &other, const_iterator it) {
+        void splice_after(const_iterator pos, list_c& other, const_iterator it) {
             assert(owns_node(pos._node) && "Node not owned by this list");
             assert(other.owns_node(it._node) && "Node not owned by other list");
 
@@ -176,7 +176,7 @@ namespace toybox {
          Moves elements in range (first, last) from `other` to after `pos` in this list.
          No copy or move constructors are called. O(n) operation where n is distance from first to last.
          */
-        void splice_after(const_iterator pos, list_c &other, const_iterator first, const_iterator last) {
+        void splice_after(const_iterator pos, list_c& other, const_iterator first, const_iterator last) {
             assert(owns_node(pos._node) && "Node not owned by this list");
             assert(other.owns_node(first._node) && "First iterator not owned by other list");
             assert((last._node == nullptr || other.owns_node(last._node)) && "Last iterator not owned by other list");
@@ -191,11 +191,11 @@ namespace toybox {
             pos._node->next = range_first;            // Link dest to range start
         }
         /// Convenience wrapper for splicing a single element to the front of this list.
-        void splice_front(list_c &other, const_iterator it) {
+        void splice_front(list_c& other, const_iterator it) {
             splice_after(before_begin(), other, it);
         }
         /// Convenience wrapper for splicing a range of elements to the front of this list.
-        void splice_front(list_c &other, const_iterator first, const_iterator last) {
+        void splice_front(list_c& other, const_iterator first, const_iterator last) {
             splice_after(before_begin(), other, first, last);
         }
     private:
@@ -211,7 +211,7 @@ namespace toybox {
             }
         }
 
-        bool owns_node(detail::node_s * node) const __pure {
+        bool owns_node(detail::node_s* node) const __pure {
             using node_s = detail::node_s;
             auto before_head = const_cast<node_s**>(&_head);
             auto n = reinterpret_cast<node_s*>(before_head);
@@ -221,7 +221,7 @@ namespace toybox {
             }
             return false;;
         }
-        detail::node_s *_head;
+        detail::node_s* _head;
     };
     
 }

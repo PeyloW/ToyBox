@@ -14,14 +14,14 @@ using namespace toybox;
 
 tilemap_level_c* make_tilemaplevel();
 
-class tilemap_scene final : public scene_c {
+class tilemap_scene_c final : public scene_c {
 public:
-    tilemap_scene();
+    tilemap_scene_c();
 
     virtual scene_c::configuration_s &configuration() const override;
     virtual void will_appear(bool obscured) override;
     virtual void update(display_list_c& display, int ticks) override;
 
 private:
-    tilemap_level_c &_level;
+    tilemap_level_c& _level;
 };

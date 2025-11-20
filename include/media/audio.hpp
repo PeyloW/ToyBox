@@ -23,7 +23,7 @@ namespace toybox {
     class sound_c final : public asset_c {
         friend class audio_mixer_c;
     public:
-        sound_c(const char *path);
+        sound_c(const char* path);
         virtual ~sound_c() {};
         
         __forceinline type_e asset_type() const override { return sound; }

@@ -43,7 +43,7 @@ viewport_c::viewport_c(size_s viewport_size) :
     canvas_c(_backing_image)
 {
     assert(image().size().width >= 320 && image().size().width <= 336);
-    assert(image().size().height >= _viewport_size.height);
+    assert(image().size().height >= _viewport_size.height && "Image height must fit viewport");
     assert(_viewport_size.contained_by(max_size));
     assert(min_size.contained_by(_viewport_size));
     _clip_rect = rect_s(_offset, size_s(image().size().width, _viewport_size.height));
@@ -53,7 +53,7 @@ viewport_c::viewport_c(size_s viewport_size) :
 #if TOYBOX_DEBUG_DIRTYMAP
         _dirtymap->print_debug("viewport_c::viewport_c()");
 #endif
-    assert(_dirtymap->dirty_bounds().contained_by(_clip_rect));
+    assert(_dirtymap->dirty_bounds().contained_by(_clip_rect) && "Dirty bounds must fit clip rect");
 }
 
 viewport_c::~viewport_c() {

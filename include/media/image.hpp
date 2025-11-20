@@ -41,17 +41,17 @@ namespace toybox {
         };
         
         image_c(const size_s size, bool masked, shared_ptr_c<palette_c> palette);
-        image_c(const char *path, int masked_cidx = MASKED_CIDX);
+        image_c(const char* path, int masked_cidx = MASKED_CIDX);
         virtual ~image_c() {};
 
         __forceinline type_e asset_type() const override { return image; }
 
-        bool save(const char *path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);
+        bool save(const char* path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX);
                 
-        __forceinline void set_palette(const shared_ptr_c<palette_c> &palette) {
+        __forceinline void set_palette(const shared_ptr_c<palette_c>& palette) {
             _palette = palette;
         }
-        __forceinline const shared_ptr_c<palette_c> &palette() const {
+        __forceinline const shared_ptr_c<palette_c>& palette() const {
             return _palette;
         }
         __forceinline size_s size() const { return _size; }
@@ -65,7 +65,7 @@ namespace toybox {
         int imp_get_pixel(point_s at) const;
         shared_ptr_c<palette_c> _palette;
         unique_ptr_c<uint16_t> _bitmap;
-        uint16_t *_maskmap;
+        uint16_t* _maskmap;
         size_s _size;
         uint16_t _line_words;
     };

@@ -90,9 +90,9 @@ namespace toybox {
     };
     
 #ifdef __M68000__
-    static struct blitter_s *pBlitter = (struct blitter_s *)0xffff8a00;
+    static struct blitter_s* pBlitter = (struct blitter_s*)0xffff8a00;
 #else
-    extern struct blitter_s *pBlitter;
+    extern struct blitter_s* pBlitter;
 #endif
     
 #else

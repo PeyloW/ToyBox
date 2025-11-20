@@ -42,7 +42,7 @@ static_assert(sizeof(aiff_common_s) == 18, "aiff_common_t size mismatch");
 namespace toybox {
     template<>
     struct struct_layout<aiff_common_s> {
-        static constexpr const char *value = "1w1l6w";
+        static constexpr const char* value = "1w1l6w";
     };
 }
 
@@ -55,11 +55,11 @@ static_assert(sizeof(aiff_ssnd_data_s) == 8, "ssnd_data_t size mismatch");
 namespace toybox {
     template<>
     struct struct_layout<aiff_ssnd_data_s> {
-        static constexpr const char *value = "2l";
+        static constexpr const char* value = "2l";
     };
 }
 
-sound_c::sound_c(const char *path) :
+sound_c::sound_c(const char* path) :
     _sample(nullptr),
     _length(0),
     _rate(0)
@@ -67,7 +67,7 @@ sound_c::sound_c(const char *path) :
     iffstream_c file(path);
     iff_group_s form;
     if (!file.good() || !file.first(cc4::FORM, ::cc4::AIFF, form)) {
-        hard_assert(0);
+        hard_assert(0 && "Failed to load AIFF file");
         return; // Not a AIFF
     }
     iff_chunk_s chunk;
@@ -89,7 +89,7 @@ sound_c::sound_c(const char *path) :
             }
             assert(data.offset == 0 && "SSND offset must be zero");
             assert(chunk.size - 8 == common.num_sample_frames && "SSND data size must match sample frame count");
-            _sample.reset((int8_t *)_malloc(_length));
+            _sample.reset((int8_t*)_malloc(_length));
             file.read(_sample.get(), _length);
         } else {
 #ifndef __M68000__

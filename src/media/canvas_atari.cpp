@@ -28,16 +28,16 @@ static constexpr uint16_t pBlitter_mask[17] = {
     0x0000
 };
 
-static const canvas_c::stencil_t *pActiveStencil = nullptr;
+static const canvas_c::stencil_t* pActiveStencil = nullptr;
 
-static __forceinline void set_active_stencil(struct blitter_s *blitter, const canvas_c::stencil_t *const stencil) {
+static __forceinline void __set_active_stencil(struct blitter_s* blitter, const canvas_c::stencil_t* const stencil) {
     if (pActiveStencil != stencil) {
-        memcpy((void *)blitter->halftoneRAM, stencil, 32);
+        memcpy((void*)blitter->halftoneRAM, stencil, 32);
         pActiveStencil = stencil;
     }
 }
 
-void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
+void canvas_c::imp_fill(uint8_t color, const rect_s& rect) const {
     uint16_t dummy_src = 0;
     auto blitter = pBlitter;
 
@@ -53,7 +53,7 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
     blitter->dstIncX  = 8;
     blitter->dstIncY = (_image._line_words * 8 - (dst_words_dec_1 * 8));
     const int16_t dst_word_offset = (rect.origin.y * _image._line_words) + (rect.origin.x / 16);
-    uint16_t *dst_bitmap = _image._bitmap + dst_word_offset * 4l;
+    uint16_t* dst_bitmap = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[rect.origin.x & 15];
@@ -71,7 +71,7 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
     
     // Operation flags
     if (_stencil) {
-        set_active_stencil(blitter, _stencil);
+        __set_active_stencil(blitter, _stencil);
         blitter->HOP = blitter_s::hop_e::halftone;
     } else {
         blitter->HOP = blitter_s::hop_e::one;
@@ -98,7 +98,7 @@ void canvas_c::imp_fill(uint8_t color, const rect_s &rect) const {
 
 }
 
-void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw_aligned(const image_c& srcImage, const rect_s& rect, point_s at) const {
     assert((rect.origin.x & 0xf) == 0 && "Rect origin X must be 16-byte aligned");
     assert((rect.size.width & 0xf) == 0 && "Rect width must be 16-byte aligned");
     assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
@@ -141,7 +141,7 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
         blitter->LOP = blitter_s::lop_e::src;
         for (int y = 0; y < countY; y++) {
             blitter->countY = 1;
-            const auto m = ((uint16_t *)_stencil)[y & 0xf];
+            const auto m = ((uint16_t*)_stencil)[y & 0xf];
             blitter->endMask[0] = m;
             blitter->endMask[1] = m;
             blitter->endMask[2] = m;
@@ -155,7 +155,7 @@ void canvas_c::imp_draw_aligned(const image_c &srcImage, const rect_s &rect, poi
     }
 }
 
-void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw(const image_c& srcImage, const rect_s& rect, point_s at) const {
     assert(!rect.size.is_empty() && "Rect size must not be empty");
     assert(rect_s(at, rect.size).contained_by(clip_rect()) && "Destination rect must be within canvas bounds");
     assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
@@ -170,13 +170,13 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
     blitter->srcIncX = 8;
     blitter->srcIncY = ((srcImage._line_words - src_words_dec_1) * 8);
     const int16_t src_word_offset = (rect.origin.y * srcImage._line_words) + (rect.origin.x / 16);
-    uint16_t *src_bitmap  = srcImage._bitmap + src_word_offset * 4l;
+    uint16_t* src_bitmap  = srcImage._bitmap + src_word_offset * 4l;
     
     // Dest
     blitter->dstIncX  = 8;
     blitter->dstIncY = ((_image._line_words - dst_words_dec_1) * 8);
     const uint16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
-    uint16_t *dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
+    uint16_t* dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[at.x & 15];
@@ -227,7 +227,7 @@ void canvas_c::imp_draw(const image_c &srcImage, const rect_s &rect, point_s at)
     } while_dbra(i);
 }
 
-void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw_masked(const image_c& srcImage, const rect_s& rect, point_s at) const {
     assert(!rect.size.is_empty() && "Rect size must not be empty");
     assert(rect_s(at, rect.size).contained_by(clip_rect()) && "Destination rect must be within canvas bounds");
     assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
@@ -242,13 +242,13 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     blitter->srcIncX = 2;
     blitter->srcIncY = ((srcImage._line_words - src_words_dec_1) * 2);
     const int16_t src_word_offset = (rect.origin.y * srcImage._line_words) + (rect.origin.x / 16);
-    uint16_t *src_maskmap  = srcImage._maskmap + src_word_offset;
+    uint16_t* src_maskmap  = srcImage._maskmap + src_word_offset;
 
     // Dest
     blitter->dstIncX  = 8;
     blitter->dstIncY = (_image._line_words * 8 - (dst_words_dec_1 * 8));
     const int16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
-    uint16_t *dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
+    uint16_t* dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[at.x & 15];
@@ -300,7 +300,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     // Update source
     blitter->srcIncX *= 4;
     blitter->srcIncY *= 4;
-    uint16_t *src_bitmap = srcImage._bitmap + src_word_offset * 4;
+    uint16_t* src_bitmap = srcImage._bitmap + src_word_offset * 4;
     
     // Update dest
     dst_bitmap -= 4;
@@ -321,7 +321,7 @@ void canvas_c::imp_draw_masked(const image_c &srcImage, const rect_s &rect, poin
     } while_dbra(i);
 }
 
-void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s at, uint16_t color) const {
+void canvas_c::imp_draw_color(const image_c& srcImage, const rect_s& rect, point_s at, uint16_t color) const {
     assert(!rect.size.is_empty() && "Rect size must not be empty");
     assert(rect_s(at, rect.size).contained_by(clip_rect()) && "Destination rect must be within canvas bounds");
     assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");
@@ -336,13 +336,13 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
     blitter->srcIncX = 2;
     blitter->srcIncY = ((srcImage._line_words - src_words_dec_1) * 2);
     const int16_t src_word_offset = (rect.origin.y * srcImage._line_words) + (rect.origin.x / 16);
-    uint16_t *src_maskmap  = srcImage._maskmap + src_word_offset;
+    uint16_t* src_maskmap  = srcImage._maskmap + src_word_offset;
     
     // Dest
     blitter->dstIncX  = 8;
     blitter->dstIncY = (_image._line_words * 8 - (dst_words_dec_1 * 8));
     const int16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
-    uint16_t *dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
+    uint16_t* dst_bitmap  = _image._bitmap + dst_word_offset * 4l;
 
     // Mask
     uint16_t end_mask_0 = pBlitter_mask[at.x & 15];
@@ -397,7 +397,7 @@ void canvas_c::imp_draw_color(const image_c &srcImage, const rect_s &rect, point
     } while_dbra(i);
 }
 
-void canvas_c::imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s at) const {
+void canvas_c::imp_draw_rect_SLOW(const image_c& srcImage, const rect_s& rect, point_s at) const {
     assert(!rect.size.is_empty() && "Rect size must not be empty");
     assert(rect_s(at, rect.size).contained_by(clip_rect()) && "Destination rect must be within canvas bounds");
     assert(rect.contained_by(srcImage.size()) && "Source rect must be within source image bounds");

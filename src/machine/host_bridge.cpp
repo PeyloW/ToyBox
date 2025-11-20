@@ -19,13 +19,13 @@ extern "C" {
     extern void g_update_joystick(controller_c::direcrions_e directions, bool fire);
 }
 
-static host_bridge_c *s_bridge = nullptr;
+static host_bridge_c* s_bridge = nullptr;
 
 host_bridge_c& host_bridge_c::shared() {
     assert(s_bridge && "Host bridge not initialized");
     return *s_bridge;
 }
-void host_bridge_c::set_shared(host_bridge_c *bridge) {
+void host_bridge_c::set_shared(host_bridge_c* bridge) {
     s_bridge = bridge;
 }
 

@@ -131,7 +131,7 @@ void canvas_c::make_stencil(stencil_t stencil, stencil_e type, int shade) {
     }
 }
 
-const canvas_c::stencil_t *const canvas_c::stencil(stencil_e type, int shade) {
+const canvas_c::stencil_t* const canvas_c::stencil(stencil_e type, int shade) {
     assert(shade >= canvas_c::STENCIL_FULLY_TRANSPARENT && "Shade must be at least STENCIL_FULLY_TRANSPARENT");
     assert(shade <= canvas_c::STENCIL_FULLY_OPAQUE && "Shade must not exceed STENCIL_FULLY_OPAQUE");
     assert((int)type < (int)stencil_e::random && "Stencil type must be less than random");

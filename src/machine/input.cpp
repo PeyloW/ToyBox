@@ -15,8 +15,8 @@ uint8_t g_mouse_buttons;
 static button_state_e g_mouse_button_states[2];
 point_s g_mouse_position;
 
-static uint8_t g_prev_joysticks[2] = { 0 };
 volatile uint8_t g_joysticks[2] = { 0 };
+static button_state_e g_joystick_button_states[2] = { button_state_e::released };
 
 extern "C" {
 #ifndef __M68000__
@@ -32,16 +32,16 @@ extern "C" {
 #endif
 }
 
-mouse_c &mouse_c::shared() {
+mouse_c& mouse_c::shared() {
     static mouse_c s_shared;
     return s_shared;
 }
 
-const rect_s &mouse_c::limits() const {
+const rect_s& mouse_c::limits() const {
     return _limits;
 }
 
-void mouse_c::set_limits(const rect_s &limits) {
+void mouse_c::set_limits(const rect_s& limits) {
     _limits = limits;
     g_mouse_position = point_s(
         limits.origin.x + _limits.size.width / 2,
@@ -49,7 +49,7 @@ void mouse_c::set_limits(const rect_s &limits) {
     );
 }
 
-static void update_state() {
+static void update_mouse_state() {
     int button;
     do_dbra(button, 1) {
         if (g_mouse_buttons & (1 << button)) {
@@ -70,7 +70,7 @@ bool mouse_c::is_pressed(button_e button) const {
 button_state_e mouse_c::state(button_e button) const {
     auto tick = timer_c::shared(timer_c::timer_e::vbl).tick();
     if (tick > _update_tick) {
-        update_state();
+        update_mouse_state();
         _update_tick = tick;
     }
     return g_mouse_button_states[(int)button];
@@ -96,9 +96,28 @@ controller_c::direcrions_e controller_c::directions() const {
     return (direcrions_e)(g_joysticks[(int)_port] & 0xf);
 }
 
+static void update_joystick_state() {
+    int joystick;
+    do_dbra(joystick, 1) {
+        const auto& joy = controller_c::shared((controller_c::port_e)joystick);
+        if (joy.is_pressed(controller_c::fire)) {
+            g_joystick_button_states[joystick] = button_state_e::pressed;
+        } else if (g_joystick_button_states[joystick] == button_state_e::pressed) {
+            g_joystick_button_states[joystick] = button_state_e::clicked;
+        } else {
+            g_joystick_button_states[joystick] = button_state_e::released;
+        }
+    } while_dbra(joystick);
+}
+
 bool controller_c::is_pressed(button_e button) const {
     return (g_joysticks[(int)_port] & (uint8_t)button) != 0;
 }
 button_state_e controller_c::state(button_e button) const {
-    return button_state_e::released;
+    auto tick = timer_c::shared(timer_c::timer_e::vbl).tick();
+    if (tick > _update_tick) {
+        update_joystick_state();
+        _update_tick = tick;
+    }
+    return g_joystick_button_states[(int)_port];
 }

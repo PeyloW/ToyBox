@@ -20,7 +20,7 @@ public:
     virtual void update(display_list_c& display, int ticks) override;
 
 private:
-    mouse_c &_mouse;
-    tileset_c &_sprites;
+    mouse_c& _mouse;
+    tileset_c& _sprites;
     point_s _pos[64];
 };

@@ -20,7 +20,7 @@ struct  timer_func_s {
 uint8_t freq;
 uint8_t cnt;
 timer_c::func_a_t func;
-void *context;
+void* context;
 };
 
 #define TIMER_FUNC_MAX_CNT 16
@@ -36,8 +36,8 @@ volatile uint32_t g_clock_tick = 0;
 
 extern "C" {
 #ifndef __M68000__
-    static void g_do_timer(timer_func_list_c &timer_funcs, int freq) {
-        for (auto &timer_func : timer_funcs) {
+    static void g_do_timer(timer_func_list_c& timer_funcs, int freq) {
+        for (auto& timer_func : timer_funcs) {
             bool trigger = false;
             int cnt = (int)timer_func.cnt - timer_func.freq;
             if (cnt <= 0) {
@@ -63,7 +63,7 @@ extern "C" {
 #endif
 }
 
-timer_c &timer_c::shared(timer_e timer) {
+timer_c& timer_c::shared(timer_e timer) {
     switch (timer) {
         case timer_e::vbl: {
             static timer_c s_timer_vbl(timer_e::vbl);
@@ -89,22 +89,22 @@ void timer_c::remove_func(const func_t func) {
     remove_func((func_a_t)func, nullptr);
 }
 
-void timer_c::add_func(const func_a_t func, void *context, uint8_t freq) {
+void timer_c::add_func(const func_a_t func, void* context, uint8_t freq) {
     if (freq == 0) {
         freq = base_freq();
     }
     with_paused_timers([this, func, context, freq] {
-        auto &functions = _timer == timer_e::vbl ? g_vbl_functions : g_clock_functions;
+        auto&functions = _timer == timer_e::vbl ? g_vbl_functions : g_clock_functions;
         functions.push_front((timer_func_s){freq, base_freq(), func, context});
     });
 }
 
-void timer_c::remove_func(const func_a_t func, const void *context) {
+void timer_c::remove_func(const func_a_t func, const void* context) {
     with_paused_timers([this, func, context] {
-        auto &functions = _timer == timer_e::vbl ? g_vbl_functions : g_clock_functions;
+        auto&functions = _timer == timer_e::vbl ? g_vbl_functions : g_clock_functions;
         auto prev = functions.before_begin();
         auto curr = functions.begin();
-        auto pred = [&func, &context](const timer_func_s &f) __forceinline_lambda {
+        auto pred = [&func, &context](const timer_func_s& f) __forceinline_lambda {
             return f.func == func && f.context == context;
         };
         while (curr != functions.end()) {

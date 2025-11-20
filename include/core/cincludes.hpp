@@ -90,7 +90,7 @@ extern "C" {
 
 #ifndef TOYBOX_HOST
 // Required for inplace new
-extern void* operator new (size_t count, void *p);
+extern void* operator new (size_t count, void* p);
 #else
 #include <new>
 #endif

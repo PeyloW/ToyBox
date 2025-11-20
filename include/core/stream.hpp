@@ -49,14 +49,14 @@ namespace toybox {
         __forceinline char fill() const { return _fill; }
         char fill(char d) { int t = _fill; _fill = d; return t; }
 
-        stream_c &operator<<(manipulator_f m);
-        stream_c &operator<<(const char* str);
-        stream_c &operator<<(char c);
-        stream_c &operator<<(unsigned char c);
-        stream_c &operator<<(int16_t i);
-        stream_c &operator<<(uint16_t i);
-        stream_c &operator<<(int32_t i);
-        stream_c &operator<<(uint32_t i);
+        stream_c& operator<<(manipulator_f m);
+        stream_c& operator<<(const char* str);
+        stream_c& operator<<(char c);
+        stream_c& operator<<(unsigned char c);
+        stream_c& operator<<(int16_t i);
+        stream_c& operator<<(uint16_t i);
+        stream_c& operator<<(int32_t i);
+        stream_c& operator<<(uint32_t i);
 
     protected:
         __forceinline bool assert_on_error() const __pure { return _assert_on_error; }
@@ -75,9 +75,9 @@ namespace toybox {
 
     namespace detail {
         struct setw_s { int w; };
-        static inline stream_c& operator<<(stream_c &s, const setw_s &m) { s.width(m.w); return s; }
+        static inline stream_c& operator<<(stream_c& s, const setw_s& m) { s.width(m.w); return s; }
         struct setfill_s { char c; };
-        static inline stream_c& operator<<(stream_c &s, const setfill_s &m) { s.fill(m.c); return s; }
+        static inline stream_c& operator<<(stream_c& s, const setfill_s& m) { s.fill(m.c); return s; }
     }
 
     static __forceinline constexpr detail::setw_s setw(int w) { return (detail::setw_s){ w }; };

@@ -260,7 +260,7 @@ namespace toybox {
             return insert(begin() + at, forward<value_type>(value));
         }
         template<class... Args>
-        iterator emplace(Type *pos, Args&&... args) {
+        iterator emplace(Type* pos, Args&&... args) {
             this->__ensure_capacity(_size + 1, _size);
             assert(pos >= begin() && pos <= end() && "Invalid insert position");
             iterator ins = (iterator)pos;

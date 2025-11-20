@@ -31,8 +31,8 @@ namespace toybox {
             __forceinline T* operator+(int32_t i) const __pure  { return _ptr + i; }
             
             __forceinline explicit operator bool() const __pure  { return _ptr != nullptr; }
-            __forceinline bool operator==(const basic_ptr_c &o) const __pure { return _ptr == o._ptr; }
-            __forceinline bool operator==(T *o) const __pure { return _ptr == o; }
+            __forceinline bool operator==(const basic_ptr_c& o) const __pure { return _ptr == o._ptr; }
+            __forceinline bool operator==(T* o) const __pure { return _ptr == o; }
 
         protected:
             T* _ptr;
@@ -48,7 +48,7 @@ namespace toybox {
         unique_ptr_c(T* ptr = nullptr) : detail::basic_ptr_c<T>(ptr) {}
         ~unique_ptr_c() { cleanup(); }
 
-        unique_ptr_c(unique_ptr_c &&o) {
+        unique_ptr_c(unique_ptr_c&& o) {
             if (this->_ptr != o._ptr) cleanup();
             this->_ptr = o._ptr;
             o._ptr = nullptr;
@@ -73,11 +73,11 @@ namespace toybox {
         struct  shared_count_t {
             shared_count_t() : count(1) {}
             uint16_t count;
-            void *operator new(size_t count) {
+            void* operator new(size_t count) {
                 assert(allocator::alloc_size >= count && "Allocation size exceeds allocator capacity");
                 return allocator::allocate();
             }
-            void operator delete(void *ptr) {
+            void operator delete(void* ptr) {
                 allocator::deallocate(ptr);
             }
             using allocator = pool_allocator_c<shared_count_t, 64>;
@@ -89,20 +89,20 @@ namespace toybox {
     public:
         shared_ptr_c(T* ptr = nullptr) : detail::basic_ptr_c<T>(ptr), _count(ptr ? new detail::shared_count_t() : nullptr) {}
         ~shared_ptr_c() { cleanup(); }
-        shared_ptr_c(const shared_ptr_c &o) : detail::basic_ptr_c<T>(o._ptr), _count(nullptr) {
+        shared_ptr_c(const shared_ptr_c& o) : detail::basic_ptr_c<T>(o._ptr), _count(nullptr) {
             take_count(o._count);
         }
-        shared_ptr_c(shared_ptr_c &&o) : detail::basic_ptr_c<T>(o._ptr), _count(o._count) {
+        shared_ptr_c(shared_ptr_c&& o) : detail::basic_ptr_c<T>(o._ptr), _count(o._count) {
             o._ptr = nullptr;
             o._count = nullptr;
         }
-        shared_ptr_c& operator=(const shared_ptr_c &o) {
+        shared_ptr_c& operator=(const shared_ptr_c& o) {
             if (this->_ptr != o._ptr) cleanup();
             this->_ptr = o._ptr;
             take_count(o._count);
             return *this;
         }
-        shared_ptr_c& operator=(shared_ptr_c &&o) {
+        shared_ptr_c& operator=(shared_ptr_c&& o) {
             if (this->_ptr != o._ptr) cleanup();
             this->_ptr = o._ptr;
             take_count(o._count);

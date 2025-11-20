@@ -23,7 +23,7 @@ namespace toybox {
             constexpr remap_table_c() { for (int i = -1; i < 16; i++) _table[i + 1] = i; }
             template<int Count>
             constexpr remap_table_c(const pair_c<int, int> (&maps)[Count]) : remap_table_c() {
-                for (const auto &map : maps) {
+                for (const auto& map : maps) {
                     assert(map.first >= -1 && map.first <16);
                     assert(map.second >= -1 && map.second <16);
                     _table[map.first + 1] = map.second;
@@ -54,15 +54,15 @@ namespace toybox {
             right
         };
         
-        canvas_c(image_c &image);
+        canvas_c(image_c& image);
         ~canvas_c() = default;
 
-        __forceinline image_c &image() const { return _image; }
+        __forceinline image_c& image() const { return _image; }
         __forceinline size_s size() const { return _image.size(); }
         
         static const stencil_t* const stencil(stencil_e type, int shade);
         
-        void remap_colors(const remap_table_c &table,  const rect_s &rect) const;
+        void remap_colors(const remap_table_c& table,  const rect_s& rect) const;
         
         static void make_stencil(stencil_t stencil, stencil_e type, int shade);
         
@@ -92,37 +92,37 @@ namespace toybox {
             _dirtymap = old_dirtymap;
         }
         
-        void fill(uint8_t ci, const rect_s &rect);
-        
-        void draw_aligned(const image_c &src, point_s at);
-        void draw_aligned(const image_c &src, const rect_s &rect, point_s at);
-        void draw_aligned(const tileset_c &src, int idx, point_s at);
-        void draw_aligned(const tileset_c &src, point_s tile, point_s at);
-        void draw(const image_c &src, point_s at, int color = image_c::MASKED_CIDX);
-        void draw(const image_c &src, const rect_s &rect, point_s at, int color = image_c::MASKED_CIDX);
-        void draw(const tileset_c &src, int idx, point_s at, int color = image_c::MASKED_CIDX);
-        void draw(const tileset_c &src, point_s tile, point_s at, int color = image_c::MASKED_CIDX);
-        
-        void draw_3_patch(const image_c &src, int16_t cap, const rect_s &in);
-        void draw_3_patch(const image_c &src, const rect_s &rect, int16_t cap, const rect_s &in);
-        
-        size_s draw(const font_c &font, const char* text, point_s at, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX);
-        size_s draw(const font_c &font, const char* text, const rect_s &in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX);
+        void fill(uint8_t ci, const rect_s& rect);
+
+        void draw_aligned(const image_c& src, point_s at);
+        void draw_aligned(const image_c& src, const rect_s& rect, point_s at);
+        void draw_aligned(const tileset_c& src, int idx, point_s at);
+        void draw_aligned(const tileset_c& src, point_s tile, point_s at);
+        void draw(const image_c& src, point_s at, int color = image_c::MASKED_CIDX);
+        void draw(const image_c& src, const rect_s& rect, point_s at, int color = image_c::MASKED_CIDX);
+        void draw(const tileset_c& src, int idx, point_s at, int color = image_c::MASKED_CIDX);
+        void draw(const tileset_c& src, point_s tile, point_s at, int color = image_c::MASKED_CIDX);
+
+        void draw_3_patch(const image_c& src, int16_t cap, const rect_s& in);
+        void draw_3_patch(const image_c& src, const rect_s& rect, int16_t cap, const rect_s& in);
+
+        size_s draw(const font_c& font, const char* text, point_s at, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX);
+        size_s draw(const font_c& font, const char* text, const rect_s& in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX);
 
     protected:
-        image_c &_image;
+        image_c& _image;
         dirtymap_c* _dirtymap = nullptr;
         const stencil_t* _stencil = nullptr;
         rect_s _clip_rect;
         bool _clipping = true;
         
-        void imp_fill(uint8_t ci, const rect_s &rect) const;
-        void imp_draw_aligned(const image_c &srcImage, const rect_s &rect, point_s point) const;
-        void imp_draw(const image_c &srcImage, const rect_s &rect, point_s point) const;
-        void imp_draw_masked(const image_c &srcImage, const rect_s &rect, point_s point) const;
-        void imp_draw_color(const image_c &srcImage, const rect_s &rect, point_s point, uint16_t color) const;
+        void imp_fill(uint8_t ci, const rect_s& rect) const;
+        void imp_draw_aligned(const image_c& srcImage, const rect_s& rect, point_s point) const;
+        void imp_draw(const image_c& srcImage, const rect_s& rect, point_s point) const;
+        void imp_draw_masked(const image_c& srcImage, const rect_s& rect, point_s point) const;
+        void imp_draw_color(const image_c& srcImage, const rect_s& rect, point_s point, uint16_t color) const;
         
-        void imp_draw_rect_SLOW(const image_c &srcImage, const rect_s &rect, point_s point) const;
+        void imp_draw_rect_SLOW(const image_c& srcImage, const rect_s& rect, point_s point) const;
         
     };
     

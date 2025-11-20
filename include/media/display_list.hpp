@@ -30,7 +30,7 @@ namespace toybox {
     struct display_list_entry_s {
         int id;
         int row;
-        display_item_c &item;
+        display_item_c& item;
         __forceinline viewport_c& viewport() const {
             assert(item.display_type() == display_item_c::viewport && "Display item is not a viewport");
             return (viewport_c&)item;
@@ -39,7 +39,7 @@ namespace toybox {
             assert(item.display_type() == display_item_c::palette && "Display item is not a palette");
             return (palette_c&)item;
         }
-        __forceinline bool operator<(const display_list_entry_s &rhs) const {
+        __forceinline bool operator<(const display_list_entry_s& rhs) const {
             return row < rhs.row;
         }
     };

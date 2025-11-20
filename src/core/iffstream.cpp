@@ -25,13 +25,13 @@ const char* cc4_t::cstring() const {
     return buf;
 }
 
-iffstream_c::iffstream_c(stream_c *stream) :
+iffstream_c::iffstream_c(stream_c* stream) :
     stream_c(), _stream(stream)
 {
     assert(stream && "Stream must not be null");
 }
 
-iffstream_c::iffstream_c(const char *path, fstream_c::openmode_e mode) :
+iffstream_c::iffstream_c(const char* path, fstream_c::openmode_e mode) :
     stream_c(), _stream(new fstream_c(path, mode))
 {}
 
@@ -44,7 +44,7 @@ bool iffstream_c::good() const { return _stream->good(); }
 ptrdiff_t iffstream_c::tell() const { return _stream->tell(); }
 ptrdiff_t iffstream_c::seek(ptrdiff_t pos, seekdir_e way) { return _stream->seek(pos, way); }
 
-bool iffstream_c::first(cc4_t id, iff_chunk_s &chunk_out) {
+bool iffstream_c::first(cc4_t id, iff_chunk_s& chunk_out) {
     bool result = false;
     if (seek(0, seekdir_e::beg) == 0) {
         if (read(chunk_out)) {
@@ -57,7 +57,7 @@ bool iffstream_c::first(cc4_t id, iff_chunk_s &chunk_out) {
     return result;
 }
 
-bool iffstream_c::first(cc4_t id, cc4_t subtype, iff_group_s &group_out) {
+bool iffstream_c::first(cc4_t id, cc4_t subtype, iff_group_s& group_out) {
     bool result = false;
     if (seek(0, seekdir_e::beg) == 0) {
         if (read(group_out)) {
@@ -70,7 +70,7 @@ bool iffstream_c::first(cc4_t id, cc4_t subtype, iff_group_s &group_out) {
     return result;
 }
 
-bool iffstream_c::next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk_out) {
+bool iffstream_c::next(const iff_group_s& in_group, cc4_t id, iff_chunk_s& chunk_out) {
     // Hard assert handled by called functions.
     const long end = in_group.offset + sizeof(uint32_t) * 2 + in_group.size;
     long pos = tell();
@@ -87,7 +87,7 @@ bool iffstream_c::next(const iff_group_s &in_group, cc4_t id, iff_chunk_s &chunk
 }
 
 
-bool iffstream_c::expand(const iff_chunk_s &chunk, iff_group_s &group_out) {
+bool iffstream_c::expand(const iff_chunk_s& chunk, iff_group_s& group_out) {
     // Hard assert handled by called functions.
     group_out.offset = chunk.offset;
     group_out.id = chunk.id;
@@ -99,11 +99,11 @@ bool iffstream_c::expand(const iff_chunk_s &chunk, iff_group_s &group_out) {
 }
 
 
-bool iffstream_c::reset(const iff_chunk_s &chunk) {
+bool iffstream_c::reset(const iff_chunk_s& chunk) {
     return seek(chunk.offset + sizeof(uint32_t) * 2, seekdir_e::beg) >= 0;
 }
 
-bool iffstream_c::skip(const iff_chunk_s &chunk) {
+bool iffstream_c::skip(const iff_chunk_s& chunk) {
     bool result = false;
     long end = chunk.offset + sizeof(uint32_t) * 2 + chunk.size;
     if ((result = seek(end, seekdir_e::beg) >= 0)) {
@@ -126,7 +126,7 @@ done:
     return result;
 }
 
-bool iffstream_c::begin(cc4_t id, iff_chunk_s &chunk_out) {
+bool iffstream_c::begin(cc4_t id, iff_chunk_s& chunk_out) {
     bool result = false;
     if (align(true)) {
         chunk_out.offset = tell();
@@ -139,7 +139,7 @@ bool iffstream_c::begin(cc4_t id, iff_chunk_s &chunk_out) {
     return result;
 }
 
-bool iffstream_c::end(iff_chunk_s &chunk) {
+bool iffstream_c::end(iff_chunk_s& chunk) {
     bool result = false;
     long pos = tell();
     if (pos >= 0) {
@@ -154,7 +154,7 @@ bool iffstream_c::end(iff_chunk_s &chunk) {
     return result;
 }
 
-bool iffstream_c::read(iff_group_s &group_out) {
+bool iffstream_c::read(iff_group_s& group_out) {
     bool result = false;
     if (read(static_cast<iff_chunk_s&>(group_out))) {
         result = read(&group_out.subtype);
@@ -162,7 +162,7 @@ bool iffstream_c::read(iff_group_s &group_out) {
     return result;
 }
 
-bool iffstream_c::read(iff_chunk_s &chunk_out) {
+bool iffstream_c::read(iff_chunk_s& chunk_out) {
     bool result = align(false);
     if (result) {
         chunk_out.offset = tell();

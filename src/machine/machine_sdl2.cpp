@@ -21,7 +21,7 @@ using namespace toybox;
 
 class sdl2_host_bridge final : public host_bridge_c {
 public:
-    sdl2_host_bridge(machine_c &machine) : _machine(machine) {
+    sdl2_host_bridge(machine_c& machine) : _machine(machine) {
         const auto screen_size = machine.screen_size();
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER);
         _window = SDL_CreateWindow("ToyBox", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_size.width * 2, screen_size.height * 2, SDL_WINDOW_SHOWN);
@@ -69,7 +69,7 @@ public:
         _timer_mutex.unlock();
     }
 
-    virtual void play(const sound_c &sound) override {
+    virtual void play(const sound_c& sound) override {
         // Get the audio sample data, length, and sample rate
         const int8_t* sample_data = sound.sample();
         uint32_t sample_length = sound.length();
@@ -86,12 +86,12 @@ public:
         SDL_QueueAudio(_device_id, sample_data, sample_length);
     }
 
-    void draw_display_list(const display_list_c *display) {
+    void draw_display_list(const display_list_c* display) {
         std::lock_guard<std::recursive_mutex> lock(_timer_mutex);
 
         
-        const viewport_c *active_viewport = nullptr;
-        const palette_c *active_palette = nullptr;
+        const viewport_c* active_viewport = nullptr;
+        const palette_c* active_palette = nullptr;
         for (const auto& entry : *display) {
             switch (entry.item.display_type()) {
                 case display_item_c::viewport:
@@ -101,7 +101,7 @@ public:
                     active_palette = &entry.palette();
                     break;
                 default:
-                    hard_assert(false);
+                    hard_assert(false && "Unsupported pixel format");
                     break;
             }
         }
@@ -139,10 +139,10 @@ public:
                 }
             }
         }
-        void *pixels;
+        void* pixels;
         int pitch;
         SDL_LockTexture(_texture, nullptr, &pixels, &pitch);
-        hard_assert(pitch / 4 == screen_size.width);
+        hard_assert(pitch / 4 == screen_size.width && "SDL pitch mismatch");
         memcpy(pixels, buffer, pitch * screen_size.height);
         SDL_UnlockTexture(_texture);
     }
@@ -163,23 +163,23 @@ public:
         static std::atomic<bool> s_should_quit{false};
         static int s_status = 0;
         struct Payload {
-            int (*game_func)(machine_c &);
-            machine_c *machine_inst;
+            int (*game_func)(machine_c&);
+            machine_c* machine_inst;
         };
         Payload payload{f, &_machine};
 
         _thread = SDL_CreateThread(
-            [](void *data) -> int {
-                auto *p = static_cast<Payload *>(data);
+            [](void* data) -> int {
+                auto* p = static_cast<Payload*>(data);
                 s_status = p->game_func(*p->machine_inst);
                 s_should_quit.store(true);
                 return s_status;
             },
             "GameThread",
-            static_cast<void *>(&payload)
+            static_cast<void*>(&payload)
         );
 
-        timer_c &vbl = timer_c::shared(timer_c::timer_e::vbl);
+        timer_c& vbl = timer_c::shared(timer_c::timer_e::vbl);
         _vbl_timer = SDL_AddTimer(1000 / vbl.base_freq(), vbl_cb, this);
         _clock_timer = SDL_AddTimer(5, clock_cb, this);
         controller_c::direcrions_e joy_directions = controller_c::none;
@@ -187,7 +187,7 @@ public:
         
         while (!s_should_quit.load()) {
             SDL_Event event;
-            const display_list_c *previous_display_list = nullptr;
+            const display_list_c* previous_display_list = nullptr;
             while (SDL_PollEvent(&event)) {
                 bool update_joy = false;
                 switch (event.type) {
@@ -272,23 +272,23 @@ public:
     }
     
 private:
-    SDL_Window *_window = nullptr;
-    SDL_Renderer *_renderer = nullptr;
-    SDL_Texture *_texture = nullptr;
-    SDL_Thread *_thread = nullptr;
+    SDL_Window* _window = nullptr;
+    SDL_Renderer* _renderer = nullptr;
+    SDL_Texture* _texture = nullptr;
+    SDL_Thread* _thread = nullptr;
     SDL_AudioDeviceID _device_id;
-    SDL_GameController *_controller = nullptr;
-    machine_c &_machine;
+    SDL_GameController* _controller = nullptr;
+    machine_c& _machine;
     std::recursive_mutex _timer_mutex;
     Uint32 _vbl_timer = 0;
     Uint32 _clock_timer = 0;
 
-    static Uint32 vbl_cb(Uint32 interval, void *param) {
+    static Uint32 vbl_cb(Uint32 interval, void* param) {
         static Uint64 last_tick = 0;
         Uint64 tick = SDL_GetTicks64();
-        static_cast<sdl2_host_bridge *>(param)->vbl_interupt();
+        static_cast<sdl2_host_bridge*>(param)->vbl_interupt();
         
-        auto &vbl = timer_c::shared(timer_c::timer_e::vbl);
+        auto& vbl = timer_c::shared(timer_c::timer_e::vbl);
         const Uint64 ideal_interval = (1000ULL * vbl.tick()) / vbl.base_freq();
         const Uint64 elapsed = tick - last_tick;
         last_tick = tick;
@@ -297,16 +297,16 @@ private:
         
         return interval;
     }
-    static Uint32 clock_cb(Uint32 interval, void *param) {
-        static_cast<sdl2_host_bridge *>(param)->clock_interupt();
+    static Uint32 clock_cb(Uint32 interval, void* param) {
+        static_cast<sdl2_host_bridge*>(param)->clock_interupt();
         return interval;
     }
 };
 
-int machine_c::with_machine(int argc, const char * argv[], machine_f f) {
+int machine_c::with_machine(int argc, const char* argv[], machine_f f) {
     assert(_shared_machine == nullptr && "Shared machine already initialized");
-    char *dir = dirname((char *)argv[0]);
-    hard_assert(chdir(dir) == 0);
+    char* dir = dirname((char*)argv[0]);
+    hard_assert(chdir(dir) == 0 && "Failed to change directory");
     
     machine_c machine;
     _shared_machine = &machine;

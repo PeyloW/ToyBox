@@ -50,11 +50,11 @@ static void init_lookup_table_if_needed() {
     }
 }
 
-__forceinline static uint8_t __line_bytes(size_s tilespace_size) {
+static __forceinline uint8_t __line_bytes(size_s tilespace_size) {
     return (tilespace_size.width + 8) / 8;
 }
 
-__forceinline static size_s __tilespace_size(size_s size) {
+static __forceinline size_s __tilespace_size(size_s size) {
     return size_s(
         (size.width + dirtymap_c::tile_size.width - 1) / dirtymap_c::tile_size.width,
         (size.height + dirtymap_c::tile_size.height - 1) / dirtymap_c::tile_size.height
@@ -84,7 +84,7 @@ dirtymap_c::dirtymap_c(const size_s size) :
 }
 
 template<dirtymap_c::mark_type_e mark_type>
-void dirtymap_c::mark(const rect_s &rect) {
+void dirtymap_c::mark(const rect_s& rect) {
     if constexpr (mark_type == mark_type_e::mask) {
         assert((rect.origin.x & 0xf) == 0 && (rect.origin.y & 0xf) == 0);
         assert((rect.size.width & 0xf) == 0 && (rect.size.width & 0xf) == 0);
@@ -131,7 +131,7 @@ void dirtymap_c::mark(const rect_s &rect) {
     assert(end_bit < 8 && "End bit must be less than 8");
     
     _is_dirty = true;
-    uint8_t *data = _data + (start_byte + _line_bytes * y1);
+    uint8_t* data = _data + (start_byte + _line_bytes * y1);
     uint8_t first_byte_mask = s_first_byte_masks[start_bit];
     uint8_t last_byte_mask = s_last_byte_masks[end_bit];
     if constexpr (mark_type == mark_type_e::clean) {
@@ -196,17 +196,17 @@ void dirtymap_c::mark(const rect_s &rect) {
         }
     }
 }
-template void dirtymap_c::mark<dirtymap_c::mark_type_e::dirty>(const rect_s &rect);
-template void dirtymap_c::mark<dirtymap_c::mark_type_e::clean>(const rect_s &rect);
-template void dirtymap_c::mark<dirtymap_c::mark_type_e::mask>(const rect_s &rect);
+template void dirtymap_c::mark<dirtymap_c::mark_type_e::dirty>(const rect_s& rect);
+template void dirtymap_c::mark<dirtymap_c::mark_type_e::clean>(const rect_s& rect);
+template void dirtymap_c::mark<dirtymap_c::mark_type_e::mask>(const rect_s& rect);
 
-void dirtymap_c::merge(const dirtymap_c &dirtymap) {
+void dirtymap_c::merge(const dirtymap_c& dirtymap) {
     assert(_tilespace_size.width == dirtymap._tilespace_size.width);   // Widths must match
     assert(_tilespace_size.height >= dirtymap._tilespace_size.height); // Other height may be smaller
     if (!dirtymap.is_dirty()) return;
     _is_dirty = true;
-    uint32_t *l_dest = (uint32_t*)_data;
-    const uint32_t *l_source = (uint32_t*)dirtymap._data;
+    uint32_t* l_dest = (uint32_t*)_data;
+    const uint32_t* l_source = (uint32_t*)dirtymap._data;
     int16_t i;
     const int16_t long_count = (dirtymap._line_bytes * dirtymap._tilespace_size.height + 3) / 4;
     while_dbra_count(i, long_count) {
@@ -219,13 +219,14 @@ void dirtymap_c::merge(const dirtymap_c &dirtymap) {
     };
 }
 
-void dirtymap_c::restore(canvas_c &canvas, const image_c &clean_image) {
+void dirtymap_c::restore(canvas_c& canvas, const image_c& clean_image) {
     // No check for dirty here, rely on restore(func) to handle this.
-    auto &image = canvas.image();
+    auto& image = canvas.image();
     assert(image.size() == clean_image.size() && "Canvas and clean image sizes must match");
-    assert(size() == clean_image.size() && "Dirtymap size must match image size");
-    assert((image.size().width % tile_size.width) == 0 && "Image width must be a multiple of tile width");
-    assert((image.size().height % tile_size.height) == 0 && "Image height must be a multiple of tile height");
+    assert(size().width == clean_image.size().width && "Dirtymap size must match image size");
+    assert(size().height <= clean_image.size().height && "Dirtymap size must match image size");
+    assert((size().width % tile_size.width) == 0 && "Image width must be a multiple of tile width");
+    assert((size().height % tile_size.height) == 0 && "Image height must be a multiple of tile height");
     const_cast<canvas_c&>(canvas).with_clipping(false, [&] {
         canvas.with_dirtymap(nullptr, [&] {
             auto draw = [&](const rect_s& rect) {
@@ -261,7 +262,7 @@ void dirtymap_c::restore(function_c<void(const rect_s&)>& func) {
                     return height * tile_size.height;
                 }();
                 auto bitrunlist = lookup_table[(int16_t)byte];
-                int16_t *bitrun = (int16_t*)bitrunlist->bit_runs;
+                int16_t* bitrun = (int16_t*)bitrunlist->bit_runs;
                 int r;
                 while_dbra_count(r, bitrunlist->num_runs) {
                     rect_s rect;
@@ -310,7 +311,7 @@ rect_s dirtymap_c::dirty_bounds() const {
     }
 }
 
-void dirtymap_c::print_debug(const char *name) const {
+void dirtymap_c::print_debug(const char* name) const {
     printf("Dirtymap %d columns is %s [%s]\n", _tilespace_size.width, _is_dirty ? "dirty" : "clean", name);
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \

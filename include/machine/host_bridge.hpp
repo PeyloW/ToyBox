@@ -28,7 +28,7 @@ namespace toybox {
     class host_bridge_c : nocopy_c {
     public:
         static host_bridge_c& shared();
-        static void set_shared(host_bridge_c *bridge);
+        static void set_shared(host_bridge_c* bridge);
 
         // Host must call on a 50/60Hz interval
         void vbl_interupt();
@@ -48,7 +48,7 @@ namespace toybox {
         virtual void resume_timers() = 0;
 
         // Host should provide a play function
-        virtual void play(const sound_c &sound) {};
+        virtual void play(const sound_c& sound) {};
         
         int get_pixel(const image_c& image, point_s at, bool clipping = true) const;
         

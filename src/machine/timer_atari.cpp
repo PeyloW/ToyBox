@@ -29,15 +29,15 @@ timer_c::timer_c(timer_e timer) : _timer(timer) {
         switch (timer) {
             case timer_e::vbl:
 #ifdef __M68000__
-                g_system_vbl_interupt = *((func_t *)0x0070);
-                *((func_t *)0x0070) = &g_vbl_interupt;
+                g_system_vbl_interupt = *((func_t*)0x0070);
+                *((func_t*)0x0070) = &g_vbl_interupt;
                 g_system_vbl_freq = *(uint8_t*)0xffff820a == 0 ? 60 : 50;
 #endif
                 break;
             case timer_e::clock:
 #ifdef __M68000__
-                g_system_clock_interupt = *((func_t *)0x0114);
-                *((func_t *)0x0114) = &g_clock_interupt;
+                g_system_clock_interupt = *((func_t*)0x0114);
+                *((func_t*)0x0114) = &g_clock_interupt;
 #endif
                 break;
         }
@@ -51,12 +51,12 @@ timer_c::~timer_c() {
         switch (_timer) {
             case timer_e::vbl:
 #ifdef __M68000__
-                *((func_t *)0x0070) = g_system_vbl_interupt;
+                *((func_t*)0x0070) = g_system_vbl_interupt;
 #endif
                 break;
             case timer_e::clock:
 #ifdef __M68000__
-                *((func_t *)0x0114) = g_system_clock_interupt;
+                *((func_t*)0x0114) = g_system_clock_interupt;
 #endif
                 break;
         }

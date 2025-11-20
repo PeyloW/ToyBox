@@ -10,11 +10,11 @@
 
 using namespace toybox;
 
-canvas_c::canvas_c(image_c &image) :
+canvas_c::canvas_c(image_c& image) :
     _image(image), _clip_rect(point_s(), image.size())
 {}
 
-void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) const {
+void canvas_c::remap_colors(const remap_table_c& table, const rect_s& rect) const {
     assert(rect.contained_by(_image.size()) && "Rect must be contained within image bounds");
     for (int16_t y = rect.origin.y; y < rect.origin.y + rect.size.height; y++) {
         for (int16_t x = rect.origin.x; x < rect.origin.x + rect.size.width; x++) {
@@ -28,9 +28,9 @@ void canvas_c::remap_colors(const remap_table_c &table, const rect_s &rect) cons
     }
 }
 
-using with_clipped_rect_f = void(*)(const rect_s &rect, point_s at);
+using with_clipped_rect_f = void(*)(const rect_s& rect, point_s at);
 template<typename WithClipped>
-static __forceinline bool with_clipped_rect(canvas_c *canvas, const rect_s &rect, point_s at, WithClipped func) {
+static __forceinline bool __with_clipped_rect(canvas_c* canvas, const rect_s& rect, point_s at, WithClipped func) {
     //assert(canvas._clipping);
     rect_s r = rect;
     if (r.clip_to(canvas->clip_rect(), at)) {
@@ -42,11 +42,11 @@ static __forceinline bool with_clipped_rect(canvas_c *canvas, const rect_s &rect
     return false;
 }
 
-void canvas_c::fill(uint8_t ci, const rect_s &rect) {
+void canvas_c::fill(uint8_t ci, const rect_s& rect) {
     assert(_image._maskmap == nullptr && "Image must not have a maskmap");
     assert(rect.contained_by(_clip_rect) && "Rect must be contained within canvas bounds");
     if (_clipping) {
-        if (with_clipped_rect(this, rect, rect.origin, [&] (const rect_s &rect, point_s at) {
+        if (__with_clipped_rect(this, rect, rect.origin, [&] (const rect_s& rect, point_s at) {
             fill(ci, rect);
         })) {
             return;
@@ -58,7 +58,7 @@ void canvas_c::fill(uint8_t ci, const rect_s &rect) {
     imp_fill(ci, rect);
 }
 
-void canvas_c::draw_aligned(const image_c &src, point_s at) {
+void canvas_c::draw_aligned(const image_c& src, point_s at) {
     assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
     assert((src._size.width & 0xf) == 0 && "Source width must be 16-byte aligned");
     assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
@@ -67,14 +67,14 @@ void canvas_c::draw_aligned(const image_c &src, point_s at) {
     draw_aligned(src, rect, at);
 }
 
-void canvas_c::draw_aligned(const image_c &src, const rect_s &rect, point_s at) {
+void canvas_c::draw_aligned(const image_c& src, const rect_s& rect, point_s at) {
     assert((at.x & 0xf) == 0 && "Destination X must be 16-byte aligned");
     assert((rect.origin.x &0xf) == 0 && "Rect origin X must be 16-byte aligned");
     assert((rect.size.width & 0xf) == 0 && "Rect width must be 16-byte aligned");
     assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
     assert(src._maskmap == nullptr && "Source image must not have a maskmap");
     if (_clipping) {
-        if (with_clipped_rect(this, rect, at, [&] (const rect_s &rect, point_s at) {
+        if (__with_clipped_rect(this, rect, at, [&] (const rect_s& rect, point_s at) {
             draw_aligned(src, rect, at);
         })) {
             return;
@@ -87,25 +87,25 @@ void canvas_c::draw_aligned(const image_c &src, const rect_s &rect, point_s at) 
     imp_draw_aligned(src, rect, at);
 }
 
-void canvas_c::draw_aligned(const tileset_c &src, int idx, point_s at) {
+void canvas_c::draw_aligned(const tileset_c& src, int idx, point_s at) {
     draw_aligned(*src.image(), src[idx], at);
 }
 
-void canvas_c::draw_aligned(const tileset_c &src, point_s tile, point_s at) {
+void canvas_c::draw_aligned(const tileset_c& src, point_s tile, point_s at) {
     draw_aligned(*src.image(), src[tile], at);
 }
 
-void canvas_c::draw(const image_c &src, point_s at, const int color) {
-    assert(_image._maskmap == nullptr);
+void canvas_c::draw(const image_c& src, point_s at, const int color) {
+    assert(_image._maskmap == nullptr && "Canvas must not have maskmap");
     rect_s rect(point_s(), src.size());
     draw(src, rect, at, color);
 }
 
-void canvas_c::draw(const image_c &src, const rect_s &rect, point_s at, const int color) {
+void canvas_c::draw(const image_c& src, const rect_s& rect, point_s at, const int color) {
     assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
     assert(rect.contained_by(size()) && "Rect must be contained within canvas bounds");
     if (_clipping) {
-        if (with_clipped_rect(this, rect, at, [&] (const rect_s &rect, point_s at) {
+        if (__with_clipped_rect(this, rect, at, [&] (const rect_s& rect, point_s at) {
             draw(src, rect, at, color);
         })) {
             return;
@@ -127,20 +127,20 @@ void canvas_c::draw(const image_c &src, const rect_s &rect, point_s at, const in
     }
 }
 
-void canvas_c::draw(const tileset_c &src, int idx, point_s at, const int color) {
+void canvas_c::draw(const tileset_c& src, int idx, point_s at, const int color) {
     draw(*src.image(), src[idx], at, color);
 }
 
-void canvas_c::draw(const tileset_c &src, point_s tile, point_s at, int color) {
+void canvas_c::draw(const tileset_c& src, point_s tile, point_s at, int color) {
     draw(*src.image(), src[tile], at, color);
 }
 
-void canvas_c::draw_3_patch(const image_c &src, int16_t cap, const rect_s &in) {
+void canvas_c::draw_3_patch(const image_c& src, int16_t cap, const rect_s& in) {
     rect_s rect(point_s(), src.size());
     draw_3_patch(src, rect, cap, in);
 }
 
-void canvas_c::draw_3_patch(const image_c &src, const rect_s &rect, int16_t cap, const rect_s &in) {
+void canvas_c::draw_3_patch(const image_c& src, const rect_s& rect, int16_t cap, const rect_s& in) {
     assert(in.size.width >= cap * 2 && "Input rect width must be at least twice the cap size");
     assert(rect.size.width > cap * 2 && "Source rect width must be greater than twice the cap size");
     assert(rect.size.height == in.size.height && "Source and input rect heights must match");
@@ -172,7 +172,7 @@ void canvas_c::draw_3_patch(const image_c &src, const rect_s &rect, int16_t cap,
     });
 }
 
-size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignment_e alignment, int color) {
+size_s canvas_c::draw(const font_c& font, const char* text, point_s at, alignment_e alignment, int color) {
     int len = (int)strlen(text);
     size_s size = font.char_rect(' ').size;
     size.width = 0;
@@ -197,7 +197,7 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignmen
     }
     const_cast<canvas_c*>(this)->with_dirtymap(nullptr, [&] {
         do_dbra(i, len - 1) {
-            const rect_s &rect = font.char_rect(text[i]);
+            const rect_s& rect = font.char_rect(text[i]);
             at.x -= rect.size.width;
             draw(*font.image(), rect, at, color);
         } while_dbra(i);
@@ -208,9 +208,9 @@ size_s canvas_c::draw(const font_c &font, const char *text, point_s at, alignmen
 #define MAX_LINES 8
 static char draw_text_buffer[80 * MAX_LINES];
 
-size_s canvas_c::draw(const font_c &font, const char *text, const rect_s &in, uint16_t line_spacing, alignment_e alignment, int color) {
+size_s canvas_c::draw(const font_c& font, const char* text, const rect_s& in, uint16_t line_spacing, alignment_e alignment, int color) {
     strcpy(draw_text_buffer, text);
-    vector_c<const char *, 12> lines;
+    vector_c<const char*, 12> lines;
 
     uint16_t line_width = 0;
     int start = 0;
@@ -252,7 +252,7 @@ size_s canvas_c::draw(const font_c &font, const char *text, const rect_s &in, ui
     }
     size_s max_size = {0,0};
     bool first = true;
-    for (auto &line : lines) {
+    for (auto&line : lines) {
         const auto size = draw(font, line, at, alignment, color);
         at.y += size.height + line_spacing;
         max_size.width = MAX(max_size.width, size.width);
