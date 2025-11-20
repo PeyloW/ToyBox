@@ -95,35 +95,47 @@ namespace toybox {
             if (max_y() > rect.max_y()) return false;
             return true;
         }
-        // TODO: This is non-obvious API and should be redone
-        bool clip_to(const size_s size, point_s &at) {
+        /// Clip this rect to the bounds of clip_bounds, adjusting at accordingly.
+        /// Returns true if the rect was completely clipped (size became <= 0).
+        bool clip_to(const base_rect_s& clip_bounds, point_s &at) {
             bool did_clip = false;
-            if (at.x < 0) {
-                this->size.width += at.x;
+
+            // Clip left edge
+            if (at.x < clip_bounds.origin.x) {
+                const auto delta = clip_bounds.origin.x - at.x;
+                this->size.width -= delta;
                 if (this->size.width <= 0) return true;
-                this->origin.x -= at.x;
-                at.x = 0;
+                this->origin.x += delta;
+                at.x = clip_bounds.origin.x;
                 did_clip = true;
             }
-            if (at.y < 0) {
-                this->size.height += at.y;
+
+            // Clip top edge
+            if (at.y < clip_bounds.origin.y) {
+                const auto delta = clip_bounds.origin.y - at.y;
+                this->size.height -= delta;
                 if (this->size.height <= 0) return true;
-                this->origin.y -= at.y;
-                at.y = 0;
+                this->origin.y += delta;
+                at.y = clip_bounds.origin.y;
                 did_clip = true;
             }
-            const auto dx = size.width - (at.x + this->size.width);
-            if (dx < 0) {
-                this->size.width += dx;
+
+            // Clip right edge
+            const auto right_overshoot = (at.x + this->size.width) - (clip_bounds.origin.x + clip_bounds.size.width);
+            if (right_overshoot > 0) {
+                this->size.width -= right_overshoot;
                 if (this->size.width <= 0) return true;
                 did_clip = true;
             }
-            const auto dy = size.height - (at.y + this->size.height);
-            if (dy < 0) {
-                this->size.height += dy;
+
+            // Clip bottom edge
+            const auto bottom_overshoot = (at.y + this->size.height) - (clip_bounds.origin.y + clip_bounds.size.height);
+            if (bottom_overshoot > 0) {
+                this->size.height -= bottom_overshoot;
                 if (this->size.height <= 0) return true;
                 did_clip = true;
             }
+
             return did_clip;
         }
     };

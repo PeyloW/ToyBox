@@ -33,7 +33,7 @@ template<typename WithClipped>
 static __forceinline bool with_clipped_rect(canvas_c *canvas, const rect_s &rect, point_s at, WithClipped func) {
     //assert(canvas._clipping);
     rect_s r = rect;
-    if (r.clip_to(canvas->image().size(), at)) {
+    if (r.clip_to(canvas->clip_rect(), at)) {
         if (!r.size.is_empty()) {
             canvas->with_clipping(false, [&] { func(r, at); });
         }
