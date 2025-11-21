@@ -29,13 +29,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A61D9EA42EC80AF300F0A182 /* Exceptions for "png2ilbm" folder in "toybox_index" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				src/main.cpp,
-			);
-			target = A68D49DD2EA1343F00174946 /* toybox_index */;
-		};
 		A627180E2EC12B6800F365D7 /* Exceptions for "tests" folder in "toybox_index" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -100,13 +93,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A61D9E932EC8098400F0A182 /* png2ilbm */ = {
+		A6147D252ED12B700095EAD9 /* tools */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A61D9EA42EC80AF300F0A182 /* Exceptions for "png2ilbm" folder in "toybox_index" target */,
-			);
-			name = png2ilbm;
-			path = ../../tools/png2ilbm;
+			name = tools;
+			path = ../../tools;
 			sourceTree = SOURCE_ROOT;
 		};
 		A68D499C2EA132E700174946 /* include */ = {
@@ -166,7 +156,7 @@
 				A68D499D2EA132E700174946 /* LICENSE.txt */,
 				A68D49A02EA132E700174946 /* README.md */,
 				A68D4FC22EA1EA2900174946 /* ROADMAP.md */,
-				A61D9E932EC8098400F0A182 /* png2ilbm */,
+				A6147D252ED12B700095EAD9 /* tools */,
 				A68D49DF2EA1343F00174946 /* Products */,
 			);
 			sourceTree = "<group>";

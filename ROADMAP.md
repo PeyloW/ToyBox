@@ -44,14 +44,14 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [ ] Update existing transitions
 - [-] `tilemap_c` for defining a tiled display from 16x16 blocks
     - [x] Source from `tileset_c` and solid color
-        - [ ] Optimized batch drawing primitives for repeated 16x16 blocks
-    - [-] General tile types; empty, solid, climbable, hurts, etc.
+        - x Optimized batch drawing primitives for repeated 16x16 blocks
+    - [x] General tile types; empty, solid, climbable, hurts, etc.
     - [ ] Subtilemap splicing with dirty tracking
     - [ ] Tilemap file format loading (Blocked on Editor)
-- [-] `entity_c` for defining basic game AI
-    - [ ] User controllable entity
-    - [ ] Collision detection with tiles
-    - [ ] Collision detection with other entities
+- [x] `entity_c` for defining basic game AI
+    - [x] User controllable entity
+    - [x] Collision detection with tiles
+    - [x] Collision detection with other entities
     - [ ] Optimize AI and rendering for visible entities only
 - [ ] Implement `audio_mixer_c`
     - [ ] Four channels of mixed audio
@@ -72,8 +72,8 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [x] Tilemap based scene
     - [x] Basic entities
         - [x] Player controlled with joystick
-        - [ ] Wall collision for the player
-        - [ ] Boxes can be pushed around  
+        - [x] Wall collision for the player
+        - [x] Boxes can be pushed around  
     - [x] Hardware scroll horizontally a little bit
 
 ### v3.0 - A complete general purpose game engine

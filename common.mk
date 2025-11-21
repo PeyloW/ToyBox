@@ -1,10 +1,32 @@
 # Common variables and rules for both toybox and game Makefiles
 
-LIBCMINI?=../libcmini-0.54
+# Function: find-dir-upwards
+# Searches parent directories for target directory
+define find-dir-upwards
+$(strip $(shell \
+  dir="$(CURDIR)"; \
+  for i in 1 2 3 4 5 6 7 8 9 10; do \
+    if [ -d "$$dir/$(1)" ]; then \
+      echo "$$dir/$(1)"; \
+      break; \
+    fi; \
+    [ "$$dir" = "/" ] && break; \
+    dir=$$(dirname "$$dir"); \
+  done \
+))
+endef
+
+# Auto-discover LIBCMINI by walking up directory tree
+LIBCMINI_AUTO := $(call find-dir-upwards,libcmini-0.54)
+LIBCMINI ?= $(if $(LIBCMINI_AUTO),$(LIBCMINI_AUTO),../libcmini-0.54)
+
+# Auto-discover TOYBOX by walking up directory tree
+TOYBOX_AUTO := $(call find-dir-upwards,toybox)
+TOYBOX ?= $(if $(TOYBOX_AUTO),$(TOYBOX_AUTO),../toybox)
+
 LIBCMINIINC=$(LIBCMINI)/include
 LIBCMINILIB=$(LIBCMINI)/build/mshort/mfastcall
 LIBCMINIOBJ=$(LIBCMINILIB)/objs
-TOYBOX?=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
 FLAGS=-DTOYBOX_TARGET_ATARI=2

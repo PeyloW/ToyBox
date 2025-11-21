@@ -1,6 +1,3 @@
-LIBCMINI?=../../libcmini-0.54
-TOYBOX=../../
-
 include ../../common.mk
 
 PRODUCT=png2ilbm
