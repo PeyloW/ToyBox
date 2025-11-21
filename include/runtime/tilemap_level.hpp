@@ -37,13 +37,21 @@ namespace toybox {
             return *_viewport;
         };
 
-        bool collides_with_level(fcrect_s& rect);
-        bool collides_with_entity(fcrect_s& rect, uint8_t in_group, int& indexOut);
+        bool collides_with_level(int inded) const;
+        bool collides_with_level(const frect_s& rect) const;
+        bool collides_with_entity(int index, uint8_t in_group, int* index_out) const;
+        bool collides_with_entity(const frect_s& rect, uint8_t in_group, int* index_out) const;
 
         vector_c<action_f, 0>& actions() { return _actions; };
-        vector_c<entity_type_def_s, 0>& entity_type_defs() { return _entity_type_defs; };
-        vector_c<entity_s, 0>& all_entities() { return _all_entities; }
+        const vector_c<action_f, 0>& actions() const { return _actions; };
         
+        vector_c<entity_type_def_s, 0>& entity_type_defs() { return _entity_type_defs; };
+        const vector_c<entity_type_def_s, 0>& entity_type_defs() const { return _entity_type_defs; };
+
+        void update_entity_indexes();
+        vector_c<entity_s, 0>& all_entities() { return _all_entities; }
+        const vector_c<entity_s, 0>& all_entities() const { return _all_entities; }
+
         const rect_s&visible_bounds() const { return _visible_bounds; };
         void set_visible_bounds(const rect_s& bounds);
         

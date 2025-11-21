@@ -41,7 +41,7 @@ static_assert(sizeof(tlmp_header_s) == 12);
  */
 
 tilemap_level_c::tilemap_level_c(rect_s bounds, tileset_c* tileset) : tilemap_c(bounds), _tileset(tileset) {
-    // TODO: Is this correct? This requires bounds to be {0,0} for the level tilemap.
+    assert(bounds.origin == point_s() && "Bounds origin must be {0,0}.");
     // And we should probably only dirty the visible region is the level is larger than the display size.
     // Size here is depending on the size of the viewport to draw in later. Is max screen size good enough?
     _tiles_dirtymap = dirtymap_c::create(bounds.size);
@@ -62,14 +62,31 @@ tilemap_level_c::~tilemap_level_c() {
     assert(0 && "Why?");
 }
 
+void tilemap_level_c::update_entity_indexes() {
+    assert(_all_entities.size() <= 255 && "Too many entities");
+    for (int i = 0; i < _all_entities.size(); ++i) {
+        _all_entities[i].index = (uint8_t)i;
+    }
+}
+
+static bool verify_entity_indexes(const tilemap_level_c& level) {
+    const auto& entities = level.all_entities();
+    for (int i = 0; i < entities.size(); ++i) {
+        if (entities[i].index != i) return false;
+    }
+    return true;
+}
+
 void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
     _viewport = &viewport;
     // Update the AI for the level world, and entities
     // NOTE: How to handle AI if dropping frames?
     debug_cpu_color(0x010);
     update_level();
+    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
     debug_cpu_color(0x020);
     update_actions();
+    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
     // AI may update tiles, so we need to dirty viewports to redraw them
     debug_cpu_color(0x030);
 #if TOYBOX_DEBUG_DIRTYMAP
@@ -86,9 +103,11 @@ void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
     // Draw all the tiles, both updates, and previously dirtied by drawing sprites
     debug_cpu_color(0x040);
     draw_tiles();
+    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
     // And lastly draw all the sprites needed
     debug_cpu_color(0x050);
     draw_entities();
+    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
     _viewport = nullptr;
 }
 
@@ -168,8 +187,8 @@ void tilemap_level_c::draw_entities() {
             const auto& ent_def = _entity_type_defs[entity.type];
             if (ent_def.frame_defs.size() > 0) {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
-                const point_s center = static_cast<point_s>(entity.position.center);
-                const point_s at = center + frame_def.offset;
+                const point_s origin = static_cast<point_s>(entity.position.origin);
+                const point_s at = origin + frame_def.offset;
                 debug_cpu_color(0x053);
                 viewport.draw(*ent_def.tileset, frame_def.index, at);
                 debug_cpu_color(0x050);
@@ -185,15 +204,62 @@ void tilemap_level_c::mark_tiles_dirtymap(rect_s rect) {
     _tiles_dirtymap->mark(rect);
 }
 
-bool tilemap_level_c::collides_with_level(fcrect_s& rect) {
-    // TODO: Check if center rect collides with tiles
+bool tilemap_level_c::collides_with_level(int index) const {
+    assert(index >= 0 && index < _all_entities.size() && "Entity index out of bounds");
+    const auto& entity = _all_entities[index];
+    return collides_with_level(entity.position);
+}
+
+bool tilemap_level_c::collides_with_level(const frect_s& rect) const {
+    const auto pixel_rect = static_cast<rect_s>(rect);
+    assert(pixel_rect.contained_by(_visible_bounds) && "Rect must be in visible bounds");
+    // Tile coordinate bounds
+    const auto tile_x_min = pixel_rect.origin.x >> 4;
+    const auto tile_y_min = pixel_rect.origin.y >> 4;
+    const auto tile_x_max = pixel_rect.max_x() >> 4;
+    const auto tile_y_max = pixel_rect.max_y() >> 4;
+    // Check each tile in the rect's coverage area
+    for (int16_t y = tile_y_min; y <= tile_y_max; ++y) {
+        for (int16_t x = tile_x_min; x <= tile_x_max; ++x) {
+            const auto& tile = (*this)[x, y];
+            if (tile.type >= tile_s::type_e::platform) {
+                return true;
+            }
+        }
+    }
     return false;
 }
 
-bool tilemap_level_c::collides_with_entity(fcrect_s& rect, uint8_t in_group, int& indexOut) {
-    // TODO: Check if center rect collides with any entity in a group.
-    // When checking for collision between entities center rect is treated as a circle of `width` diameter.
-    // On collision the index of the entity colided with is returned
+bool tilemap_level_c::collides_with_entity(int index, uint8_t in_group, int* index_out) const {
+    assert(index >= 0 && index < _all_entities.size() && "Entity index out of bounds");
+    assert(index_out != nullptr && "index_out must not be null");
+    const auto& source_position = _all_entities[index].position;
+    // Iterate through all entities and check for collisions with matching group
+    for (int idx = 0; idx < _all_entities.size(); ++idx) {
+        if (idx == index) continue; // Skip self
+        const auto& entity = _all_entities[idx];
+        if (entity.group != in_group) continue;
+        if (entity.flags & entity_s::flag_hidden) continue;
+        if (source_position.intersects(entity.position)) {
+            *index_out = idx;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool tilemap_level_c::collides_with_entity(const frect_s& rect, uint8_t in_group, int* index_out) const {
+    assert(index_out != nullptr && "index_out must not be null");
+    // Iterate through all entities and check for collisions with matching group
+    for (int idx = 0; idx < _all_entities.size(); ++idx) {
+        const auto& entity = _all_entities[idx];
+        if (entity.group != in_group) continue;
+        if (entity.flags & entity_s::flag_hidden) continue;
+        if (rect.intersects(entity.position)) {
+            *index_out = idx;
+            return true;
+        }
+    }
     return false;
 }
 

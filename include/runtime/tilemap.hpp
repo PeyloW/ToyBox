@@ -16,9 +16,9 @@ namespace toybox {
     struct tile_s {
         enum class type_e : uint8_t {
             none     = 0,
-            solid    = 1,
+            water    = 1,
             platform = 2,
-            water    = 3,
+            solid    = 3,
         };
         using enum type_e;
 

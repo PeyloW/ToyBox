@@ -129,7 +129,7 @@ ToyBox provides a tilemap system for creating tile-based game worlds with entiti
     * Handles dirty region tracking for tile updates.
 * `entity_s` - A game entity structure for sprites, enemies, items, etc.
     * Type, group, action index, frame index, flags (e.g., hidden).
-    * Position as fixed-point rectangle (`fcrect_s`).
+    * Position as fixed-point rectangle (`frect_s`).
     * Custom data storage for entity-specific and action-specific data.
 * `action_f` - Function type for AI actions: `void(*)(tilemap_level_c&, entity_s&)`.
     * Actions are registered in the level's action vector.

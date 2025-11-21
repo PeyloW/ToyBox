@@ -27,19 +27,46 @@ enum player_frame_index {
     UP, DOWN, LEFT, RIGHT
 };
 
+static bool move_entity_if_possible(tilemap_level_c& level, entity_s& entity, fpoint_s delta) {
+    // Move entity, if not posissible we adjust back on exit
+    entity.position.origin = entity.position.origin + delta;
+    // Collision with level is always fail
+    if (!level.collides_with_level(entity.index)) {
+        int box_index;
+        if (!level.collides_with_entity(entity.index, BOX, &box_index)) {
+            return true;
+        } else if (entity.type == PLAYER) {
+            // Colliding with a box is fine, if we are the player and box can be moved
+            if (move_entity_if_possible(level, level.all_entities()[box_index], delta)) {
+                return true;
+            }
+        }
+    }
+    entity.position.origin = entity.position.origin - delta;
+    return false;
+}
+
 static void player_control(tilemap_level_c& level, entity_s& entity) {
     auto dir = controller_c::shared().directions();
+    fpoint_s delta(0,0);
     if ((dir & controller_c::up) == true) {
-        entity.position.center.y -= 1;
+        delta.y -= 1;
+        entity.frame_index = UP;
     } else if ((dir & controller_c::down) == true) {
-        entity.position.center.y += 1;
+        delta.y += 1;
+        entity.frame_index = DOWN;
     }
     if ((dir & controller_c::left) == true) {
-        entity.position.center.x -= 1;
+        delta.x -= 1;
+        entity.frame_index = LEFT;
     } else if ((dir & controller_c::right) == true) {
-        entity.position.center.x += 1;
+        delta.x += 1;
+        entity.frame_index = RIGHT;
     }
-    point_s offset((int16_t)entity.position.center.x - 160, 0);
+    if (delta != fpoint_s()) {
+        move_entity_if_possible(level, entity, delta);
+    }
+    point_s offset((int16_t)entity.position.origin.x - 160 + 8, 0);
     level.active_viewport().set_offset(offset);
 }
 
@@ -68,20 +95,20 @@ tilemap_level_c* make_tilemaplevel() {
     // Setup entity type defs:
     auto& player = level.entity_type_defs().emplace_back();
     player.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    player.frame_defs.push_back({ 2, {-8, -8} }); // Up
-    player.frame_defs.push_back({ 1, {-8, -8} }); // Down
-    player.frame_defs.push_back({ 4, {-8, -8} }); // Left
-    player.frame_defs.push_back({ 3, {-8, -8} }); // Right
+    player.frame_defs.push_back({ 2, {-2,-2} }); // Up
+    player.frame_defs.push_back({ 1, {-2,-2} }); // Down
+    player.frame_defs.push_back({ 4, {-2,-2} }); // Left
+    player.frame_defs.push_back({ 3, {-2,-2} }); // Right
     auto& box = level.entity_type_defs().emplace_back();
     box.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    box.frame_defs.push_back({ 5, {-8, -8} });
+    box.frame_defs.push_back({ 5, {0, 0} });
 
     for (int y = 0; y < size.height; ++y) {
         const char* line = recipe[y];
         for (int x = 0; x < size.width; x++) {
             auto& tile = level[x,y];
-            auto center = [&]() {
-                return fpoint_s(x * 16 + 8, y * 16 + 8);
+            auto origin = [&]() {
+                return fpoint_s(x * 16, y * 16);
             };
             switch (line[x]) {
                 case ' ':
@@ -104,14 +131,14 @@ tilemap_level_c* make_tilemaplevel() {
                         .type=PLAYER, .group=PLAYER,
                         .action = 1,
                         .frame_index = DOWN,
-                        .position=fcrect_s{ center(), {16,16} }
+                        .position=frect_s{ origin() + fpoint_s(2,2), {12,12} }
                     });
                     break;
                 case '$':
                     tile.index = FLOOR;
                     level.all_entities().emplace_back((entity_s){
                         .type=BOX, .group=BOX,
-                        .position=fcrect_s{ center(), {16,16} }
+                        .position=frect_s{ origin(), {16,16} }
                     });
                     break;
                 default:
@@ -119,6 +146,7 @@ tilemap_level_c* make_tilemaplevel() {
             }
         }
     }
+    level.update_entity_indexes();
     
     return level_ptr;
 }

@@ -18,58 +18,62 @@ namespace toybox {
     template<typename T>
     concept optionset_type = enum_type<T> && is_optionset<T>::value;
 
-    __forceinline constexpr bool operator==(optionset_type auto a, bool b) {
-        using T = decltype(a);
+    template<typename T>
+    __forceinline constexpr auto operator==(T a, bool b) -> enable_if<optionset_type<T>, bool>::type {
         using U = __underlying_type(T);
         return ((U)a != 0) == b;
     }
 
-    __forceinline constexpr bool operator==(bool a, optionset_type auto b) {
-        using T = decltype(b);
+    template<typename T>
+    __forceinline constexpr auto operator==(bool a, T b) -> enable_if<optionset_type<T>, bool>::type {
         using U = __underlying_type(T);
         return ((U)b != 0) == a;
     }
 
-    __forceinline constexpr auto operator|(optionset_type auto a, optionset_type auto b) -> decltype(a) {
-        using T = decltype(a);
+    template<optionset_type T>
+    __forceinline constexpr auto operator|(T a, T b) {
         using U = __underlying_type(T);
         return (T)((U)a | (U)b);
     }
 
-    __forceinline constexpr auto operator+(optionset_type auto a, optionset_type auto b) -> decltype(a) {
-        using T = decltype(a);
+    template<optionset_type T>
+    __forceinline constexpr auto operator+(T a, T b) {
         using U = __underlying_type(T);
         return (T)((U)a | (U)b);
     }
 
-    __forceinline constexpr auto operator&(optionset_type auto a, optionset_type auto b) -> decltype(a) {
-        using T = decltype(a);
+    template<optionset_type T>
+    __forceinline constexpr auto operator&(T a, T b) {
         using U = __underlying_type(T);
         return (T)((U)a & (U)b);
     }
 
-    __forceinline constexpr auto operator-(optionset_type auto a, optionset_type auto b) -> decltype(a) {
-        using T = decltype(a);
+    template<optionset_type T>
+    __forceinline constexpr auto operator-(T a, T b) {
         using U = __underlying_type(T);
         return (T)((U)a & ~(U)b);
     }
 
-    constexpr auto operator|=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
+    template<optionset_type T>
+    constexpr T& operator|=(T& a, T b) {
         a = a | b;
         return a;
     }
 
-    constexpr auto operator+=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
+    template<optionset_type T>
+    constexpr T& operator+=(T& a, T b) {
         a = a + b;
         return a;
     }
 
-    constexpr auto operator&=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
+    template<optionset_type T>
+    constexpr T& operator&=(T& a, T b) {
         a = a & b;
         return a;
     }
 
-    constexpr auto operator-=(optionset_type auto& a, optionset_type auto b) -> decltype(a)& {
+    template<optionset_type T>
+    constexpr T& operator-=(T& a, T b) {
         a = a - b;
         return a;
     }

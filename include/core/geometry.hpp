@@ -18,7 +18,7 @@ namespace toybox {
     template<typename Type>
     struct base_point_s {
         constexpr base_point_s() : x(0), y(0) {}
-        constexpr base_point_s(int16_t x, int16_t y) : x(x), y(y) {}
+        constexpr base_point_s(Type x, Type y) : x(x), y(y) {}
         Type x, y;
         constexpr bool operator==(const base_point_s& p) const {
             return x == p.x && y == p.y;
@@ -39,7 +39,7 @@ namespace toybox {
     struct base_size_s {
         using point_s = base_point_s<Type>;
         constexpr base_size_s() : width(0), height(0) {}
-        constexpr base_size_s(int16_t w, int16_t h) : width(w), height(h) {}
+        constexpr base_size_s(Type w, Type h) : width(w), height(h) {}
         Type width, height;
         constexpr bool operator==(const base_size_s s) const {
             return width == s.width && height == s.height;
@@ -66,12 +66,12 @@ namespace toybox {
         constexpr base_rect_s() : origin(), size() {}
         constexpr base_rect_s(const size_s& s) : origin(), size(s) {}
         constexpr base_rect_s(const point_s& o, const size_s& s) : origin(o), size(s) {}
-        constexpr base_rect_s(int16_t x, int16_t y, int16_t w, int16_t h) : origin(x, y), size(w, h) {}
+        constexpr base_rect_s(Type x, Type y, Type w, Type h) : origin(x, y), size(w, h) {}
 
         point_s origin;
         size_s size;
-        __forceinline constexpr int16_t max_x() const { return origin.x + size.width - 1; }
-        __forceinline constexpr int16_t max_y() const { return origin.y + size.height - 1; }
+        __forceinline constexpr Type max_x() const { return origin.x + size.width - 1; }
+        __forceinline constexpr Type max_y() const { return origin.y + size.height - 1; }
         constexpr bool operator==(const Type& r) const {
             return origin == r.origin && size == r.size;
         }
@@ -93,6 +93,23 @@ namespace toybox {
             if (origin.x < rect.origin.x || origin.y < rect.origin.y) return false;
             if (max_x() > rect.max_x()) return false;
             if (max_y() > rect.max_y()) return false;
+            return true;
+        }
+        constexpr bool intersects(const base_rect_s& rect) const {
+            using namespace rel_ops;
+            return (origin.x < rect.origin.x + rect.size.width) &&
+                   (origin.x + size.width > rect.origin.x) &&
+                   (origin.y < rect.origin.y + rect.size.height) &&
+                   (origin.y + size.height > rect.origin.y);
+        }
+        constexpr bool intersection(const base_rect_s& rect, base_rect_s& intersection_out) const {
+            const auto x1 = max(origin.x, rect.origin.x);
+            const auto x2 = min(origin.x + size.width, rect.origin.x + rect.size.width);
+            if (x2 <= x1) return false;
+            const auto y1 = max(origin.y, rect.origin.y);
+            const auto y2 = min(origin.y + size.height, rect.origin.y + rect.size.height);
+            if (y2 <= y1) return false;
+            intersection_out = base_rect_s(x1, y1, x2 - x1, y2 - y1);
             return true;
         }
         /// Clip this rect to the bounds of clip_bounds, adjusting at accordingly.
@@ -161,11 +178,6 @@ namespace toybox {
 
     using frect_s = base_rect_s<fix16_t>;
     static_assert(sizeof(frect_s) == 8);
-
-    struct fcrect_s {
-        fpoint_s center;
-        fsize_s size;
-    };
     
 }
 

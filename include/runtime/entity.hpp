@@ -15,12 +15,13 @@ namespace toybox {
 
     struct entity_s {
         static constexpr const uint16_t flag_hidden = 1 << 0;
+        uint8_t index = 0;
         uint8_t type = 0;
         uint8_t group = 0;
         uint8_t action = 0;
         uint8_t frame_index = 0;
-        uint16_t flags = 0;
-        fcrect_s position;
+        uint8_t flags = 0;
+        frect_s position;
         uint8_t edata[4];
         uint8_t adata[14];
         template<class T> requires (sizeof(T) <= 4)
@@ -38,6 +39,5 @@ namespace toybox {
         tileset_c* tileset;
         vector_c<frame_def_s, 0> frame_defs; //
     };
-        
     
 }
