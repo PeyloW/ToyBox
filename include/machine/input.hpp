@@ -23,6 +23,7 @@ namespace toybox {
     /**
      A `mouse_c` is an abstraction for mouse input.
      The mouse is a lazy initialized singleton.
+     Aquiring a mouse disables joystick controller inputs
      */
     class mouse_c : public nocopy_c {
     public:
@@ -51,7 +52,7 @@ namespace toybox {
     /**
      A `controller_c` is an abstraction for joystick/joypad input.
      The joysticks are lazy initialized singleton.
-     TODO: Implement this
+     Aquiring a joystick controller disables mouse inputs
      */
     class controller_c : public nocopy_c {
     public:
