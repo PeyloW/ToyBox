@@ -397,6 +397,94 @@ void canvas_c::imp_draw_color(const image_c& srcImage, const rect_s& rect, point
     } while_dbra(i);
 }
 
+void canvas_c::imp_init_draw_tile(const tileset_c& srcTileset) {
+    assert(srcTileset.tile_size() == size_s(16,16) && "Only 16x16 tiles supported");
+    _tileset_line_words = srcTileset.image()->_line_words;
+
+    auto blitter = pBlitter;
+
+    // Source configuration (constant for tileset)
+    // We fake srcIncX for lines, and srcIncY to step back to next bitplane
+    blitter->srcIncX = _tileset_line_words * 8;
+    blitter->srcIncY = -(_tileset_line_words * 15 * 8) + 2;
+
+    // Destination configuration (constant for canvas)
+    blitter->dstIncX = _image._line_words * 8;
+    blitter->dstIncY = -(_image._line_words * 15 * 8) + 2;
+
+    // Masks (16-pixel aligned = no edge masking)
+    blitter->endMask[0] = 0xFFFF;
+    blitter->endMask[1] = 0xFFFF;
+    blitter->endMask[2] = 0xFFFF;
+
+    // Counts (16x16 tile = 1 word wide)
+    // But we use X for lines, and Y to step back
+    blitter->countX = 16;
+
+    // Operation (HOP always src for both draw and fill)
+    blitter->HOP = blitter_s::hop_e::src;
+    blitter->skew = 0;
+}
+
+void canvas_c::imp_fill_tile(uint8_t ci, point_s at) const {
+    assert(_tileset_line_words != 0 && "fill_tile called without correct with_tileset");
+    assert((at.x & 0xf) == 0 && "Tile must be aligned to 16px boundary");
+
+    auto blitter = pBlitter;
+
+    // Destination address
+    const int16_t dst_word_offset = (at.y * _image._line_words) + (at.x / 16);
+    uint16_t* dst_bitmap = _image._bitmap + dst_word_offset * 4;
+    blitter->pDst = dst_bitmap;
+
+    // Fill each bitplane based on color bits
+    int i;
+    do_dbra(i, 3) {
+        // LOP: zero clears bit, one sets bit
+        if ((ci & 1) == 0) {
+            blitter->LOP = blitter_s::lop_e::zero;
+        } else {
+            blitter->LOP = blitter_s::lop_e::one;
+        }
+
+        blitter->countY = 1;
+        blitter->start(true);
+
+        ci >>= 1;
+    } while_dbra(i);
+}
+
+void canvas_c::imp_draw_tile(const image_c& srcImage, const rect_s& rect, point_s at) const {
+    assert(srcImage._line_words == _tileset_line_words && "draw_tile called without correct with_tileset");
+    assert(rect.size == size_s(16,16) && "Only 16x16 tiles supported");
+    assert((rect.origin.x & 0xf) == 0 && "Tile must be aligned to 16px boundary");
+    assert((at.x & 0xf) == 0 && "Destination must be aligned to 16px boundary");
+
+    auto blitter = pBlitter;
+
+    // Calculate source address (tile in tileset)
+    const int16_t src_word_offset = (rect.origin.y * _tileset_line_words)
+                                  + (rect.origin.x / 16);
+    uint16_t* src_bitmap = srcImage._bitmap + src_word_offset * 4;
+    blitter->pSrc = src_bitmap;
+
+    // Calculate destination address (screen position)
+    const int16_t dst_word_offset = (at.y * _image._line_words)
+                                  + (at.x / 16);
+    uint16_t* dst_bitmap = _image._bitmap + dst_word_offset * 4;
+    blitter->pDst = dst_bitmap;
+
+    // LOP for straight copy
+    blitter->LOP = blitter_s::lop_e::src;
+
+    // Draw all 4 bitplanes
+    int i;
+    do_dbra(i, 3) {
+        blitter->countY = 1;
+        blitter->start(true);
+    } while_dbra(i);
+}
+
 void canvas_c::imp_draw_rect_SLOW(const image_c& srcImage, const rect_s& rect, point_s at) const {
     assert(!rect.size.is_empty() && "Rect size must not be empty");
     assert(rect_s(at, rect.size).contained_by(clip_rect()) && "Destination rect must be within canvas bounds");

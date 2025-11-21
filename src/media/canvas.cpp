@@ -262,3 +262,25 @@ size_s canvas_c::draw(const font_c& font, const char* text, const rect_s& in, ui
     return  max_size;
 }
 
+void canvas_c::fill_tile(uint8_t ci, point_s at) {
+    assert(_tileset_line_words != 0 && "fill_tile must be called within with_tileset()");
+    assert((at.x & 0xf) == 0 && "Tile must be aligned to 16px boundary");
+    assert(rect_s(at, size_s(16, 16)).contained_by(_clip_rect) && "Tile must be within canvas bounds");
+    imp_fill_tile(ci, at);
+}
+
+void canvas_c::draw_tile(const tileset_c& src, int idx, point_s at) {
+    assert(_tileset_line_words != 0 && "draw_tile must be called within with_tileset()");
+    assert(src.image()->_line_words == _tileset_line_words && "Tileset must match with_tileset() tileset");
+    assert((at.x & 0xf) == 0 && "Tile must be aligned to 16px boundary");
+    assert(rect_s(at, size_s(16, 16)).contained_by(_clip_rect) && "Tile must be within canvas bounds");
+    imp_draw_tile(*src.image(), src[idx], at);
+}
+
+void canvas_c::draw_tile(const tileset_c& src, point_s tile, point_s at) {
+    assert(_tileset_line_words != 0 && "draw_tile must be called within with_tileset()");
+    assert(src.image()->_line_words == _tileset_line_words && "Tileset must match with_tileset() tileset");
+    assert((at.x & 0xf) == 0 && "Tile must be aligned to 16px boundary");
+    assert(rect_s(at, size_s(16, 16)).contained_by(_clip_rect) && "Tile must be within canvas bounds");
+    imp_draw_tile(*src.image(), src[tile], at);
+}

@@ -127,7 +127,7 @@ void tilemap_level_c::update_actions() {
 
 void tilemap_level_c::draw_tiles() {
     auto& viewport = active_viewport();
-    viewport.with_clipping(false, [&](){
+    viewport.with_tileset(*_tileset, [&](){
         // Need to capture the dirty map here, so we have one.
         // And then do the restore without dirtymap so we do not dirty it when restoring.
         auto dirtymap = viewport.dirtymap();
@@ -152,18 +152,16 @@ void tilemap_level_c::draw_tiles() {
                 for (int y = tile_rect.origin.y; y <= tile_rect.max_y(); ++y) {
                     at.x = rect.origin.x;
                     if (y >= tilemap_height) {
-                        // Tilemap smaller than view port, so clear with black
                         // TODO: Should the tilemap_level_c be forced to have a viewport size as min?
-                        viewport.fill(0, rect_s(at, size_s(rect.size.width, 16)));
                     } else {
                         for (int x = tile_rect.origin.x; x <= tile_rect.max_x(); ++x) {
                             const auto& tile = (*this)[x, y];
                             if (tile.index <= 0) {
                                 debug_cpu_color(0x043);
-                                viewport.fill(-tile.index, rect_s(at, size_s(16, 16)));
+                                viewport.fill_tile(-tile.index, at);
                             } else {
                                 debug_cpu_color(0x240);
-                                viewport.draw_aligned(*_tileset, tile.index, at);
+                                viewport.draw_tile(*_tileset, tile.index, at);
                             }
                             debug_cpu_color(0x040);
                             at.x += 16;

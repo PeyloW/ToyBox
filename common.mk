@@ -7,7 +7,7 @@ LIBCMINIOBJ=$(LIBCMINILIB)/objs
 TOYBOX?=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
-FLAGS=-DTOYBOX_TARGET_ATARI=2 -flto
+FLAGS=-DTOYBOX_TARGET_ATARI=2
 CFLAGS=-std=c++23 -c -MMD -MP -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
@@ -26,6 +26,7 @@ endif
 	CFLAGS+=-Wno-vla-cxx-extension -Werror
 	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
 else ifeq ($(HOST),none)
+	FLAGS+=-flto
 	STRIP?=on
 	INFO=Building for atari target
 	CC=/opt/cross-mint/bin/m68k-atari-mintelf-c++

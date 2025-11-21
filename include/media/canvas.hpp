@@ -109,11 +109,23 @@ namespace toybox {
         size_s draw(const font_c& font, const char* text, point_s at, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX);
         size_s draw(const font_c& font, const char* text, const rect_s& in, uint16_t line_spacing = 0, alignment_e alignment = alignment_e::center, int color = image_c::MASKED_CIDX);
 
+        template<invocable<> Commands>
+        void with_tileset(const tileset_c& tileset, Commands commands) {
+            assert(_tileset_line_words == 0 && "Cannot nest with_tileset()");
+            imp_init_draw_tile(tileset);
+            commands();
+            _tileset_line_words = 0;
+        }
+        void fill_tile(uint8_t ci, point_s at);
+        void draw_tile(const tileset_c& src, int idx, point_s at);
+        void draw_tile(const tileset_c& src, point_s tile, point_s at);
+
     protected:
         image_c& _image;
         dirtymap_c* _dirtymap = nullptr;
         const stencil_t* _stencil = nullptr;
         rect_s _clip_rect;
+        uint16_t _tileset_line_words;
         bool _clipping = true;
         
         void imp_fill(uint8_t ci, const rect_s& rect) const;
@@ -121,8 +133,13 @@ namespace toybox {
         void imp_draw(const image_c& srcImage, const rect_s& rect, point_s point) const;
         void imp_draw_masked(const image_c& srcImage, const rect_s& rect, point_s point) const;
         void imp_draw_color(const image_c& srcImage, const rect_s& rect, point_s point, uint16_t color) const;
-        
+
+        void imp_init_draw_tile(const tileset_c& srcTileset);
+        void imp_fill_tile(uint8_t ci, point_s point) const;
+        void imp_draw_tile(const image_c& srcImage, const rect_s& rect, point_s point) const;
+
         void imp_draw_rect_SLOW(const image_c& srcImage, const rect_s& rect, point_s point) const;
+        
         
     };
     
