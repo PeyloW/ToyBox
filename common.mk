@@ -7,7 +7,7 @@ LIBCMINIOBJ=$(LIBCMINILIB)/objs
 TOYBOX?=../toybox
 TOYBOXINC=$(TOYBOX)/include
 
-FLAGS=-DTOYBOX_TARGET_ATARI=2
+FLAGS=-DTOYBOX_TARGET_ATARI=2 -flto
 CFLAGS=-std=c++23 -c -MMD -MP -I $(TOYBOXINC)
 LDFLAGS=-L$(TOYBOX)/build -ltoybox
 
@@ -29,7 +29,7 @@ else ifeq ($(HOST),none)
 	STRIP?=on
 	INFO=Building for atari target
 	CC=/opt/cross-mint/bin/m68k-atari-mintelf-c++
-	AR=/opt/cross-mint/bin/m68k-atari-mintelf-ar
+	AR=/opt/cross-mint/bin/m68k-atari-mintelf-gcc-ar
 	FLAGS+=-m68000 -mshort -mfastcall
 	FLAGS+=-DNDEBUG
 ifeq ($(STRIP),on)
