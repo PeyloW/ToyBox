@@ -34,10 +34,14 @@ else ifeq ($(HOST),none)
 	FLAGS+=-DNDEBUG
 ifeq ($(STRIP),on)
 	FLAGS+=-s
+else
+	CFLAGS+=-g3 -ggdb \
+		-fvar-tracking-assignments \
+		-fno-eliminate-unused-debug-symbols
 endif
 #	FLAGS+=-S
-	FLAGS+=-DTOYBOX_DEBUG_CPU=0
-	CFLAGS+=-Os -fomit-frame-pointer -fno-threadsafe-statics
+	FLAGS+=-DTOYBOX_DEBUG_CPU=1
+	CFLAGS+=-O3 -fomit-frame-pointer -fno-threadsafe-statics
 	CFLAGS+=-fgcse-after-reload -fpredictive-commoning -ftree-partial-pre -funswitch-loops
 	CFLAGS+=-fno-exceptions -Wno-write-strings -Wno-pointer-arith -Wno-packed-not-aligned -fno-rtti
 	CFLAGS+=-I $(LIBCMINIINC)
