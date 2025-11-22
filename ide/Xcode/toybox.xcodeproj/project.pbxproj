@@ -325,11 +325,13 @@
 					"-O0",
 					"-DTOYBOX_TARGET_ATARI=2",
 					"-DTOYBOX_HOST=sdl2",
+					"-DHAVE_LIBPSGPLAY=1",
 					"-g",
 					"-std=c++23",
 					"-Wno-vla-cxx-extension",
 					"-I/opt/homebrew/include/SDL2",
 					"-I/opt/homebrew/include",
+					"-I/usr/local/include/psgplay",
 				);
 			};
 			name = Debug;
@@ -343,11 +345,13 @@
 					"-O0",
 					"-DTOYBOX_TARGET_ATARI=2",
 					"-DTOYBOX_HOST=sdl2",
+					"-DHAVE_LIBPSGPLAY=1",
 					"-g",
 					"-std=c++23",
 					"-Wno-vla-cxx-extension",
 					"-I/opt/homebrew/include/SDL2",
 					"-I/opt/homebrew/include",
+					"-I/usr/local/include/psgplay",
 				);
 			};
 			name = Release;

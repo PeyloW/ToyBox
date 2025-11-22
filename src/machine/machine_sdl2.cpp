@@ -16,6 +16,11 @@
 #include <mutex>
 #include <libgen.h>
 #include <unistd.h>
+#if HAVE_LIBPSGPLAY
+extern "C" {
+#include <psgplay.h>
+}
+#endif
 
 using namespace toybox;
 
@@ -35,7 +40,7 @@ public:
         desired.channels = 1;                // Mono audio
         desired.samples = 4096;              // Buffer size (can be tuned)
         desired.callback = nullptr;          // No callback, we'll use SDL_QueueAudio
-        _device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
+        _effectts_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
         
         // Initialize joystick if available
         for (int i = 0; i < SDL_NumJoysticks(); ++i) {
@@ -48,8 +53,19 @@ public:
         set_shared(this);
     }
     ~sdl2_host_bridge() {
+#if HAVE_LIBPSGPLAY
+        if (_psg) {
+            if (_music_device_id) {
+                SDL_PauseAudioDevice(_music_device_id, 1);
+                SDL_CloseAudioDevice(_music_device_id);
+                _music_device_id = 0;
+            }
+            psgplay_free(_psg);
+            _psg = nullptr;
+        }
+#endif
         if (_controller) SDL_GameControllerClose(_controller);
-        if (_device_id) SDL_CloseAudioDevice(_device_id);
+        if (_effectts_device_id) SDL_CloseAudioDevice(_effectts_device_id);
         if (_texture) SDL_DestroyTexture(_texture);
         if (_renderer) SDL_DestroyRenderer(_renderer);
         if (_window) SDL_DestroyWindow(_window);
@@ -75,17 +91,87 @@ public:
         uint32_t sample_length = sound.length();
         uint16_t sample_rate = sound.rate();
         
-        if (!sample_data || sample_length == 0 || sample_rate == 0 || _device_id == 0) {
+        if (!sample_data || sample_length == 0 || sample_rate == 0 || _effectts_device_id == 0) {
             return; // Invalid sound sample, exit early
         }
         
         // Unpause the audio device to start playback
-        SDL_PauseAudioDevice(_device_id, 0);
+        SDL_PauseAudioDevice(_effectts_device_id, 0);
         
         // Queue the audio sample for playback
-        SDL_QueueAudio(_device_id, sample_data, sample_length);
+        SDL_QueueAudio(_effectts_device_id, sample_data, sample_length);
+    }
+    
+#if HAVE_LIBPSGPLAY
+    void fill_music_buffer(uint8_t* stream, int len) {
+        if (!_psg) {
+            memset(stream, 0, len);
+            return;
+        }
+
+        // Calculate number of stereo samples needed
+        const int sample_count = len / sizeof(psgplay_stereo);
+        struct psgplay_stereo buffer[sample_count];
+
+        // Read stereo samples from libpsgplay
+        const ssize_t read = psgplay_read_stereo(_psg, buffer, sample_count);
+
+        if (read <= 0) {
+            // End of music or error - fill with silence
+            memset(stream, 0, len);
+            return;
+        }
+
+        // Convert psgplay_stereo to interleaved int16_t format for SDL with volume scaling
+        int16_t* output = reinterpret_cast<int16_t*>(stream);
+        int i;
+        do_dbra(i, read - 1) {
+            output[i * 2] = static_cast<int16_t>(buffer[i].left * _music_volume);
+            output[i * 2 + 1] = static_cast<int16_t>(buffer[i].right * _music_volume);
+        } while_dbra(i);
+
+        // Fill remaining with silence if we got fewer samples than requested
+        if (read < sample_count) {
+            const int remaining_bytes = (sample_count - read) * sizeof(psgplay_stereo);
+            memset(stream + (read * sizeof(psgplay_stereo)), 0, remaining_bytes);
+        }
     }
 
+    static void music_callback(void* userdata, uint8_t* stream, int len) {
+        auto* bridge = static_cast<sdl2_host_bridge*>(userdata);
+        bridge->fill_music_buffer(stream, len);
+    }
+
+    virtual void play(const music_c& music, int track) override {
+        const ymmusic_c& ymmusic = *reinterpret_cast<const ymmusic_c*>(&music);
+        _psg = psgplay_init(ymmusic.data(), ymmusic.length(), track, 22050);
+
+        if (!_psg) return;
+
+        // Setup audio spec for music playback
+        SDL_AudioSpec desired;
+        SDL_zero(desired);
+        desired.freq = 22050;
+        desired.format = AUDIO_S16SYS;
+        desired.channels = 2;
+        desired.samples = 4096;
+        desired.callback = music_callback;
+        desired.userdata = this;
+
+        // Open music audio device
+        _music_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
+
+        if (_music_device_id == 0) {
+            psgplay_free(_psg);
+            _psg = nullptr;
+            return;
+        }
+
+        // Start playback
+        SDL_PauseAudioDevice(_music_device_id, 0);
+    }
+#endif
+    
     void draw_display_list(const display_list_c* display) {
         std::lock_guard<std::recursive_mutex> lock(_timer_mutex);
 
@@ -276,7 +362,12 @@ private:
     SDL_Renderer* _renderer = nullptr;
     SDL_Texture* _texture = nullptr;
     SDL_Thread* _thread = nullptr;
-    SDL_AudioDeviceID _device_id;
+    SDL_AudioDeviceID _effectts_device_id;
+#if HAVE_LIBPSGPLAY
+    struct psgplay* _psg = nullptr;
+    SDL_AudioDeviceID _music_device_id = 0;
+    static constexpr float _music_volume = 0.5f;
+#endif
     SDL_GameController* _controller = nullptr;
     machine_c& _machine;
     std::recursive_mutex _timer_mutex;

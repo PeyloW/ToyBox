@@ -64,6 +64,8 @@ void audio_mixer_c::play(const music_c& _music, int track) {
         // add VBL
         clock.add_func((timer_c::func_t)music._music_play_code, music._freq);
     });
+#else
+    host_bridge_c::shared().play(music, track);
 #endif
     _active_music = &music;
     _active_track = track;

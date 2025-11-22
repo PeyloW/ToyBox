@@ -47,6 +47,16 @@ endif
 	CFLAGS+=$(shell $(HB_PATH)/sdl2-config --cflags)
 	CFLAGS+=-Wno-vla-cxx-extension -Werror
 	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
+	# Check for libpsgplay (use static linking)
+	PKG_CONFIG ?= pkgconf
+	HAVE_LIBPSGPLAY := $(shell $(PKG_CONFIG) --exists libpsgplay 2>/dev/null && echo yes)
+	ifeq ($(HAVE_LIBPSGPLAY),yes)
+$(info Found libpsgplay via pkg-config)
+		CFLAGS += $(shell $(PKG_CONFIG) --cflags libpsgplay)
+		CFLAGS += -DHAVE_LIBPSGPLAY=1
+		PSGPLAY_LIBDIR := $(shell $(PKG_CONFIG) --variable=libdir libpsgplay)
+		LDFLAGS += $(PSGPLAY_LIBDIR)/libpsgplay.a
+	endif
 else ifeq ($(HOST),none)
 	FLAGS+=-flto
 	STRIP?=on

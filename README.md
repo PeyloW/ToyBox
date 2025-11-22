@@ -4,8 +4,15 @@ A minimal C++ framework for writing Atari ST<sup>E</sup> entertainment software.
 
 ### Project Requirements
 
-* GCC-15.2 with fastcall support (https://tho-otto.de/crossmint.php)
-* libcmini (tip of tree) (https://github.com/freemint/libcmini)
+* GCC-15.2 (https://tho-otto.de/crossmint.php)
+    * For fastcall support, and link time optimizations
+* libcmini (top of tree) (https://github.com/freemint/libcmini)
+    * Because we need a small libc alternative!
+
+### Optional Project Requirements
+
+* PSG play v0.7 (https://github.com/frno7/psgplay/tree/main)
+    * If static library is available SNDH music can be played on host machine
 
 ## Project Philosophy
 

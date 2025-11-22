@@ -72,6 +72,9 @@ namespace toybox {
         __forceinline int track_count() const override { return _track_count; }
         __forceinline uint8_t replay_freq() const override { return _freq; }
 
+        __forceinline const void* data() const { return _sndh.get(); }
+        __forceinline uint32_t length() const { return (uint32_t)_length; }
+
     private:
         unique_ptr_c<uint8_t> _sndh;
         size_t _length;
