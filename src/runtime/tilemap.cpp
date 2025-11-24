@@ -9,10 +9,8 @@
 
 using namespace toybox;
 
-tilemap_c::tilemap_c(const rect_s& bounds) :
-    _tilespace_bounds(rect_s(
-        bounds.origin.x / 16, bounds.origin.y / 16,
-        bounds.size.width / 16, bounds.size.height / 16))
+tilemap_c::tilemap_c(const rect_s& tilespace_bounds) :
+    _tilespace_bounds(tilespace_bounds)
 {
     _tiles.resize(_tilespace_bounds.size.width * _tilespace_bounds.size.height);
 }

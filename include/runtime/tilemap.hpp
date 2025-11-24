@@ -15,10 +15,11 @@ namespace toybox {
 
     struct tile_s {
         enum class type_e : uint8_t {
-            none     = 0,
-            water    = 1,
-            platform = 2,
-            solid    = 3,
+            none      = 0,
+            water     = 1,
+            climbable = 2,
+            platform  = 3,
+            solid     = 4,
         };
         using enum type_e;
 
@@ -29,12 +30,6 @@ namespace toybox {
         template<class T>
         requires (sizeof(T) <= 4)
         T& data_as() { return (T&)(&data[0]); }
-        
-        enum class flag_e : uint16_t {
-            climbable = 1 << 0,
-        };
-        using enum flag_e;
-        
     };
     static_assert(sizeof(tile_s) == 8);
     

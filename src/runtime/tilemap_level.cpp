@@ -40,10 +40,16 @@ static_assert(sizeof(tlmp_header_s) == 12);
  }
  */
 
-tilemap_level_c::tilemap_level_c(rect_s bounds, tileset_c* tileset) : tilemap_c(bounds), _tileset(tileset) {
-    assert(bounds.origin == point_s() && "Bounds origin must be {0,0}.");
+tilemap_level_c::tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset) : tilemap_c(tilespace_bounds), _tileset(tileset) {
+    assert(tilespace_bounds.origin == point_s() && "Bounds origin must be {0,0}.");
     // And we should probably only dirty the visible region is the level is larger than the display size.
     // Size here is depending on the size of the viewport to draw in later. Is max screen size good enough?
+    rect_s bounds = rect_s(
+        tilespace_bounds.origin.x * 16,
+        tilespace_bounds.origin.y * 16,
+        tilespace_bounds.size.width * 16,
+        tilespace_bounds.size.height * 16
+    );
     _tiles_dirtymap = dirtymap_c::create(bounds.size);
     set_visible_bounds(bounds);
 }

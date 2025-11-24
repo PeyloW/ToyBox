@@ -85,7 +85,7 @@ tilemap_level_c* make_tilemaplevel() {
         "       #######            ",
     };
     const size_s size((int16_t)strlen(recipe[0]), 11);
-    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(size.width*16,size.height*16)), &asset_manager_c::shared().tileset(TILESET_WALL));
+    auto level_ptr = new tilemap_level_c(rect_s(point_s(), size_s(size.width,size.height)), &asset_manager_c::shared().tileset(TILESET_WALL));
     auto& level = *level_ptr;
         
     // Setup available actions
@@ -113,7 +113,7 @@ tilemap_level_c* make_tilemaplevel() {
             switch (line[x]) {
                 case ' ':
                     tile.index = EMPTY;
-                    break;;
+                    break;
                 case '#':
                     tile.index = WALL;
                     tile.type = tile_s::solid;

@@ -32,7 +32,9 @@ void blitter_s::start(bool hog) {
         buffer <<= 16;
     };
     const auto read_src = [this, &buffer] {
-        buffer |= *pSrc;
+        if (LOP != lop_e::zero && LOP != lop_e::one && HOP >= hop_e::src) {
+            buffer |= *pSrc;
+        }
     };
     const auto inc_src = [this, &buffer] (bool is_last) {
         pSrc += (is_last ? srcIncY : srcIncX) / 2;
