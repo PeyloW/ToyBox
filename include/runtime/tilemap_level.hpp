@@ -37,9 +37,9 @@ namespace toybox {
             return *_viewport;
         };
 
-        bool collides_with_level(int index) const;
-        bool collides_with_level(fpoint_s at) const;
-        bool collides_with_level(const frect_s& rect) const;
+        tile_s::type_e collides_with_level(int index) const;
+        tile_s::type_e collides_with_level(fpoint_s at) const;
+        tile_s::type_e collides_with_level(const frect_s& rect) const;
         bool collides_with_entity(int index, uint8_t in_group, int* index_out) const;
         bool collides_with_entity(const frect_s& rect, uint8_t in_group, int* index_out) const;
 

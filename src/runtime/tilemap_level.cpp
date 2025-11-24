@@ -208,19 +208,19 @@ void tilemap_level_c::mark_tiles_dirtymap(rect_s rect) {
     _tiles_dirtymap->mark(rect);
 }
 
-bool tilemap_level_c::collides_with_level(int index) const {
+tile_s::type_e tilemap_level_c::collides_with_level(int index) const {
     assert(index >= 0 && index < _all_entities.size() && "Entity index out of bounds");
     const auto& entity = _all_entities[index];
     return collides_with_level(entity.position);
 }
 
-bool tilemap_level_c::collides_with_level(fpoint_s at) const {
+tile_s::type_e tilemap_level_c::collides_with_level(fpoint_s at) const {
     point_s iat(at);
     const auto& tile = (*this)[iat.x >> 4, iat.y >> 4];
-    return tile.type >= tile_s::type_e::platform;
+    return tile.type;
 }
 
-bool tilemap_level_c::collides_with_level(const frect_s& rect) const {
+tile_s::type_e tilemap_level_c::collides_with_level(const frect_s& rect) const {
     const auto pixel_rect = static_cast<rect_s>(rect);
     assert(pixel_rect.contained_by(_visible_bounds) && "Rect must be in visible bounds");
     // Tile coordinate bounds
@@ -229,15 +229,14 @@ bool tilemap_level_c::collides_with_level(const frect_s& rect) const {
     const auto tile_x_max = pixel_rect.max_x() >> 4;
     const auto tile_y_max = pixel_rect.max_y() >> 4;
     // Check each tile in the rect's coverage area
+    tile_s::type_e max_type = tile_s::none;
     for (int16_t y = tile_y_min; y <= tile_y_max; ++y) {
         for (int16_t x = tile_x_min; x <= tile_x_max; ++x) {
             const auto& tile = (*this)[x, y];
-            if (tile.type >= tile_s::type_e::platform) {
-                return true;
-            }
+            max_type = max(max_type, tile.type);
         }
     }
-    return false;
+    return max_type;
 }
 
 bool tilemap_level_c::collides_with_entity(int index, uint8_t in_group, int* index_out) const {
