@@ -314,8 +314,8 @@ public:
                                 update_joy = true;
                                 break;
                             default:
-                                break;
                         }
+                        break;
                     }
                     case SDL_CONTROLLERBUTTONDOWN:
                         if (event.cbutton.button == 0) {
