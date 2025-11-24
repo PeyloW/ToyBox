@@ -74,7 +74,9 @@ public:
     }
     
     virtual void yield() override {
+        resume_timers();
         SDL_Delay(1);
+        pause_timers();
     }
 
     virtual void pause_timers() override {
@@ -173,13 +175,10 @@ public:
 #endif
     
     void draw_display_list(const display_list_c* display) {
-        std::lock_guard<std::recursive_mutex> lock(_timer_mutex);
-
-        
         const viewport_c* active_viewport = nullptr;
         const palette_c* active_palette = nullptr;
         for (const auto& entry : *display) {
-            switch (entry.item.display_type()) {
+            switch (entry.item().display_type()) {
                 case display_item_c::viewport:
                     active_viewport = &entry.viewport();
                     break;
@@ -251,13 +250,16 @@ public:
         struct Payload {
             int (*game_func)(machine_c&);
             machine_c* machine_inst;
+            sdl2_host_bridge* host_bridge;
         };
-        Payload payload{f, &_machine};
+        Payload payload{f, &_machine, this};
 
         _thread = SDL_CreateThread(
             [](void* data) -> int {
                 auto* p = static_cast<Payload*>(data);
+                p->host_bridge->pause_timers();
                 s_status = p->game_func(*p->machine_inst);
+                p->host_bridge->resume_timers();
                 s_should_quit.store(true);
                 return s_status;
             },
@@ -335,13 +337,14 @@ public:
                 }
             }
 
-            pause_timers();
-            auto display_list = _machine.active_display_list();
-            if (display_list != previous_display_list) {
-                draw_display_list(display_list);
-                previous_display_list = display_list;
+            {
+                std::lock_guard<std::recursive_mutex> lock(_timer_mutex);
+                auto display_list = _machine.active_display_list();
+                if (display_list != previous_display_list) {
+                    draw_display_list(display_list);
+                    previous_display_list = display_list;
+                }
             }
-            resume_timers();
 
             SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
             SDL_RenderClear(_renderer);

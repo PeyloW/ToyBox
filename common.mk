@@ -40,15 +40,20 @@ ifeq ($(HOST),sdl2)
 	HB_PATH=/opt/homebrew/bin
 	CC=clang++
 	AR=ar
-	FLAGS+=-Og -g -DTOYBOX_HOST=sdl2
+	FLAGS+=-O0 -g -DTOYBOX_HOST=sdl2
 ifeq ($(STRIP),on)
 	FLAGS+=-s
 endif
 	CFLAGS+=$(shell $(HB_PATH)/sdl2-config --cflags)
 	CFLAGS+=-Wno-vla-cxx-extension -Werror
+	ifeq ($(DEBUG),asan)
+		# Enable AddressSanitizer
+		CFLAGS += -fsanitize=address -fno-omit-frame-pointer
+		LDFLAGS += -fsanitize=address
+	endif
 	LDFLAGS+=$(shell $(HB_PATH)/sdl2-config --libs)
 	# Check for libpsgplay (use static linking)
-	PKG_CONFIG ?= pkgconf
+	PKG_CONFIG ?= $(shell command -v pkgconf 2>/dev/null || echo /opt/homebrew/bin/pkgconf)
 	HAVE_LIBPSGPLAY := $(shell $(PKG_CONFIG) --exists libpsgplay 2>/dev/null && echo yes)
 	ifeq ($(HAVE_LIBPSGPLAY),yes)
 $(info Found libpsgplay via pkg-config)

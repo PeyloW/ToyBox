@@ -70,6 +70,7 @@ __forceinline static int __instance_size(size_s size) {
 }
 
 dirtymap_c* dirtymap_c::create(size_s size) {
+    assert(size.width > 0 && size.height > 0);
     assert(offsetof(dirtymap_c, _data) % 1 == 0);
     int bytes = __instance_size(size);
     return new (_calloc(1, bytes)) dirtymap_c(size);
@@ -85,6 +86,9 @@ dirtymap_c::dirtymap_c(const size_s size) :
 
 template<dirtymap_c::mark_type_e mark_type>
 void dirtymap_c::mark(const rect_s& rect) {
+    assert(rect.origin.x >= 0 && rect.origin.y >= 0 && "Must mark in dirtymap bounds");
+    assert(__tilespace_size(size_s(rect.max_x(), rect.max_y())).width <= _tilespace_size.width);
+    assert(__tilespace_size(size_s(rect.max_x(), rect.max_y())).height <= _tilespace_size.height);
     if constexpr (mark_type == mark_type_e::mask) {
         assert((rect.origin.x & 0xf) == 0 && (rect.origin.y & 0xf) == 0);
         assert((rect.size.width & 0xf) == 0 && (rect.size.width & 0xf) == 0);

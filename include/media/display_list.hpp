@@ -8,6 +8,7 @@
 #pragma once
 
 #include "core/list.hpp"
+#include "core/memory.hpp"
 
 namespace toybox {
 
@@ -21,6 +22,7 @@ namespace toybox {
         };
         using enum type_e;
         virtual type_e display_type() const __pure = 0;
+        virtual ~display_item_c() = default;
     };
 
     enum {
@@ -30,14 +32,28 @@ namespace toybox {
     struct display_list_entry_s {
         int id;
         int row;
-        display_item_c& item;
+        shared_ptr_c<display_item_c> item_ptr;
+        __forceinline display_item_c& item() const {
+            assert(item_ptr != nullptr);
+            return *item_ptr;
+        }
+        __forceinline const shared_ptr_c<viewport_c>& viewport_ptr() const {
+            assert(item_ptr->display_type() == display_item_c::viewport && "Display item is not a viewport");
+            return reinterpret_pointer_cast<viewport_c>(item_ptr);
+        }
         __forceinline viewport_c& viewport() const {
-            assert(item.display_type() == display_item_c::viewport && "Display item is not a viewport");
-            return (viewport_c&)item;
+            assert(item_ptr != nullptr);
+            assert(item_ptr->display_type() == display_item_c::viewport && "Display item is not a viewport");
+            return (viewport_c&)*item_ptr;
+        }
+        __forceinline const shared_ptr_c<palette_c>& palette_ptr() const {
+            assert(item_ptr->display_type() == display_item_c::palette && "Display item is not a palette");
+            return reinterpret_pointer_cast<palette_c>(item_ptr);
         }
         __forceinline palette_c& palette() const {
-            assert(item.display_type() == display_item_c::palette && "Display item is not a palette");
-            return (palette_c&)item;
+            assert(item_ptr != nullptr);
+            assert(item_ptr->display_type() == display_item_c::palette && "Display item is not a palette");
+            return (palette_c&)*item_ptr;
         }
         __forceinline bool operator<(const display_list_entry_s& rhs) const {
             return row < rhs.row;
@@ -46,6 +62,7 @@ namespace toybox {
     
     class display_list_c : public list_c<display_list_entry_s> {
     public:
+        ~display_list_c();
         const_iterator insert_sorted(const_reference value) {
             auto pos = iterator_before(value.row);
             return insert_after(pos, value);

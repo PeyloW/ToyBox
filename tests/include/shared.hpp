@@ -16,10 +16,15 @@ struct non_trivial_s {
     int value;
     int generation;
     bool moved;
-
+    inline static int s_destructors = 0;
+    
     non_trivial_s() : value(0), generation(0), moved(false) {}
 
     explicit non_trivial_s(int v) : value(v), generation(0), moved(false) {}
+    
+    virtual ~non_trivial_s() {
+        ++s_destructors;
+    }
 
     non_trivial_s(const non_trivial_s& other)
         : value(other.value), generation(other.generation + 1), moved(false) {}
@@ -58,3 +63,4 @@ void test_algorithms();
 void test_math();
 void test_math_functions();
 void test_lifetime();
+void test_shared_ptr();

@@ -13,8 +13,10 @@
 __neverinline void test_display_list() {
     printf("== Start: test_display_list\n\r");
     display_list_c list;
-    viewport_c viewport(size_s(320, 16));
-    palette_c p1, p2, p3;
+    auto viewport = new viewport_c(size_s(320, 16));
+    auto p1 = new palette_c();
+    auto p2 = new palette_c();
+    auto p3 = new palette_c();
     hard_assert(is_sorted(list.begin(), list.end()) && "Empty list should be sorted");
     list.insert_sorted({PRIMARY_VIEWPORT, 2, viewport});
     hard_assert(is_sorted(list.begin(), list.end()) && "List should remain sorted after first insert");
@@ -31,7 +33,7 @@ __neverinline void test_display_list() {
     int i = 0;
     for (const auto& item : list) {
         hard_assert(item.row == expections[i].first && "Display list item order incorrect");
-        hard_assert(item.item.display_type() == expections[i].second && "Display list item type incorrect");
+        hard_assert(item.item().display_type() == expections[i].second && "Display list item type incorrect");
         i++;
     }
     printf("test_display_list pass.\n\r");

@@ -26,6 +26,9 @@ int main(int argc, const char* argv[]) {
     // Test copy/move works as expected to lifetimes
     test_lifetime();
 
+    // Test shared_ptr
+    test_shared_ptr();
+
     printf("All pass.\n\r");
 #ifndef TOYBOX_HOST
     while (getc(stdin) != ' ');

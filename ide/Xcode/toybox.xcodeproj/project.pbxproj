@@ -38,6 +38,7 @@
 				src/test_display.cpp,
 				src/test_lifetime.cpp,
 				src/test_math.cpp,
+				src/test_memory.cpp,
 			);
 			target = A68D49DD2EA1343F00174946 /* toybox_index */;
 		};
@@ -169,7 +170,7 @@
 				A68D499F2EA132E700174946 /* product.mk */,
 			);
 			path = build;
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		A68D49DF2EA1343F00174946 /* Products */ = {
 			isa = PBXGroup;
@@ -319,7 +320,7 @@
 		A68D49712EA1314600174946 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../include/**";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../include";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				OTHER_CFLAGS = (
 					"-O0",
@@ -339,7 +340,7 @@
 		A68D49722EA1314600174946 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../include/**";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../include";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				OTHER_CFLAGS = (
 					"-O0",

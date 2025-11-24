@@ -20,6 +20,7 @@ namespace toybox {
         template<typename T>
         class  basic_ptr_c {
         public:
+            using element_type = T;
             basic_ptr_c(T* ptr = nullptr) : _ptr(ptr) {}
             
             T* get() const __pure { return _ptr; }
@@ -138,5 +139,31 @@ namespace toybox {
         }
     };
     static_assert(sizeof(shared_ptr_c<void*>) == sizeof(void*) * 2, "shared_ptr_c size mismatch.");
+
+    template<typename U, typename T>
+    requires has_virtual_destructor<T>::value
+    shared_ptr_c<U>& static_pointer_cast(shared_ptr_c<T>& r) {
+        return static_cast<shared_ptr_c<U>&>(r);
+    }
+    template<typename U, typename T>
+    requires has_virtual_destructor<T>::value
+    const shared_ptr_c<U>& static_pointer_cast(const shared_ptr_c<T>& r) {
+        return static_cast<const shared_ptr_c<U>&>(r);
+    }
+    template<typename U, typename T>
+    requires has_virtual_destructor<T>::value
+    shared_ptr_c<U>& reinterpret_pointer_cast(shared_ptr_c<T>& r) {
+        return *reinterpret_cast<shared_ptr_c<U>*>(&r);
+    }
+    template<typename U, typename T>
+    requires has_virtual_destructor<T>::value
+    const shared_ptr_c<U>& reinterpret_pointer_cast(const shared_ptr_c<T>& r) {
+        return *reinterpret_cast<const shared_ptr_c<U>*>(&r);
+    }
+    template<typename U, typename T>
+    requires is_same<typename remove_cv<U>::type, typename remove_cv<T>::type>::value
+    shared_ptr_c<U>& const_pointer_cast(const shared_ptr_c<T>& r) {
+        return const_cast<shared_ptr_c<U>&>(r);
+    }
 
 }

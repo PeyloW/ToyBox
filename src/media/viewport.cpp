@@ -59,6 +59,7 @@ viewport_c::viewport_c(size_s viewport_size) :
 viewport_c::~viewport_c() {
     assert(_dirtymap && "Dirtymap must not be null");
     _free(_dirtymap);
+    _dirtymap = nullptr;
 }
 
 void viewport_c::set_offset(point_s offset) {

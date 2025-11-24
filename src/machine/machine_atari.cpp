@@ -17,9 +17,9 @@ using namespace toybox;
 
 extern "C" {
     const palette_c* g_active_palette = nullptr;
+    const viewport_c* g_active_viewport = nullptr;
     detail::display_config_t g_active_display_config = {0,0,0};
 }
-
 
 machine_c* machine_c::_shared_machine = nullptr;
 
@@ -138,50 +138,47 @@ const display_list_c* machine_c::active_display_list() const {
 }
 
 void machine_c::set_active_display_list(const display_list_c* display_list) {
-    s_active_display_list = display_list;
-    if (display_list) {
-        assert(is_sorted(display_list->begin(), display_list->end()) && "Display list must be sorted");
-        for (const auto& entry : *display_list) {
-            switch (entry.item.display_type()) {
-                case display_item_c::viewport: {
-                    auto config = entry.viewport().display_config();
-                    set_active_viewport(&entry.viewport());
-                    break;
+    timer_c::with_paused_timers([&] {
+        s_active_display_list = display_list;
+        if (display_list) {
+            //assert(is_sorted(display_list->begin(), display_list->end()) && "Display list must be sorted");
+            for (const auto& entry : *display_list) {
+                switch (entry.item().display_type()) {
+                    case display_item_c::viewport: {
+                        auto config = entry.viewport().display_config();
+                        set_active_viewport(&entry.viewport());
+                        break;
+                    }
+                    case display_item_c::palette:
+                        set_active_palette(&entry.palette());
+                        break;
                 }
-                case display_item_c::palette:
-                    set_active_palette(&entry.palette());
-                    break;
             }
+        } else {
+            set_active_viewport(nullptr);
+            set_active_palette(nullptr);
         }
-    } else {
-        set_active_viewport(nullptr);
-        set_active_palette(nullptr);
-    }
+    });
 }
 
 
 void machine_c::set_active_viewport(const viewport_c* viewport) {
-    timer_c::with_paused_timers([this, viewport] {
-        if (viewport) {
-            g_active_display_config = viewport->display_config();
-        } else {
-            g_active_display_config = { 0, 0, 0 };
-        }
-    });
+    g_active_viewport = viewport;
+    if (viewport) {
+        g_active_display_config = viewport->display_config();
+    } else {
+        g_active_display_config = { 0, 0, 0 };
+    }
 }
 
 void machine_c::set_active_palette(const palette_c* palette) {
+    g_active_palette = palette;
 #ifdef __M68000__
 #   if TOYBOX_TARGET_ATARI
-    copy(palette->begin(), palette->end(), reinterpret_cast<color_c*>(0xffff8240));
+copy(palette->begin(), palette->end(), reinterpret_cast<color_c*>(0xffff8240));
 #   else
 #       error "Unsupported target"
 #   endif
-    g_active_palette = palette;
-#else
-    timer_c::with_paused_timers([palette]{
-        g_active_palette = palette;
-    });
 #endif
 }
 

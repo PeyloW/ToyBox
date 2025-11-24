@@ -90,7 +90,8 @@ void scene_manager_c::run(scene_c* rootscene, transition_c* transition) {
                     update_scene(scene, ticks);
                 }
             }
-            _deletion_stack.clear();
+            _deletion_scenes.clear();
+            _deletion_display_lists.clear();
         }
         debug_cpu_color(DEBUG_CPU_DONE);
         timer_c::with_paused_timers([&] {
@@ -139,23 +140,27 @@ void scene_manager_c::replace(scene_c* scene, transition_c* transition) {
 
 display_list_c& scene_manager_c::display_list(display_list_e id) const {
     if (id == display_list_e::clear) {
-        return (display_list_c&)_display_lists[2];
+        return (display_list_c&)*_display_lists[2];
     } else {
         int idx = ((int)id + _active_display_list) & 0x1;
-        return (display_list_c&)_display_lists[idx];
+        return (display_list_c&)*_display_lists[idx];
     }
 }
 
 void scene_manager_c::configure_display_lists(const scene_c::configuration_s& configuration) {
+    for (auto p : _display_lists) {
+        _deletion_display_lists.emplace_back(p);
+    }
     _display_lists.clear();
     for (int i = 0; i < 3; i++) {
-        auto& list = _display_lists.emplace_back();
-        palette_c& pal = *new palette_c();
+        auto listptr = new display_list_c();
+        auto& list = *_display_lists.emplace_back(listptr);
+        auto pal = new palette_c();
         if (configuration.palette) {
-            copy(configuration.palette->begin(), configuration.palette->end(), pal.begin());
+            copy(configuration.palette->begin(), configuration.palette->end(), pal->begin());
         }
-        viewport_c& vpt = *new viewport_c(configuration.viewport_size);
-        vpt.set_offset(point_s(0,0));
+        auto vpt = new viewport_c(configuration.viewport_size);
+        vpt->set_offset(point_s(0,0));
         list.emplace_front(PRIMARY_PALETTE, -1, pal);
         list.emplace_front(PRIMARY_VIEWPORT, -1, vpt);
     }
@@ -168,9 +173,9 @@ void scene_manager_c::swap_display_lists() {
 
 viewport_c& scene_manager_c::update_clear() {
     viewport_c* viewports[3] = {
-        &_display_lists[0].get(PRIMARY_VIEWPORT).viewport(),
-        &_display_lists[1].get(PRIMARY_VIEWPORT).viewport(),
-        &_display_lists[2].get(PRIMARY_VIEWPORT).viewport(),
+        &_display_lists[0]->get(PRIMARY_VIEWPORT).viewport(),
+        &_display_lists[1]->get(PRIMARY_VIEWPORT).viewport(),
+        &_display_lists[2]->get(PRIMARY_VIEWPORT).viewport(),
     };
     viewports[0]->dirtymap()->merge(*viewports[2]->dirtymap());
     viewports[1]->dirtymap()->merge(*viewports[2]->dirtymap());

@@ -136,6 +136,10 @@ namespace toybox {
   
     template<typename T> struct is_polymorphic : public bool_constant<__is_polymorphic(T)> {};
     
+    template<typename T> struct has_virtual_destructor : public bool_constant<__has_virtual_destructor(T)> {};
+
+    template<typename T> struct is_standard_layout : public bool_constant<__is_standard_layout(T)> {};
+    
 #pragma mark - Iterator traits
     
     template<typename I>

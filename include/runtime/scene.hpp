@@ -95,9 +95,9 @@ namespace toybox {
         __forceinline scene_c& top_scene() const {
             return *_scene_stack.back();
         };
-        void push(scene_c* scene, transition_c* transition = transition_c::create(color_c()));
-        void pop(transition_c* transition  = transition_c::create(color_c()), int count = 1);
-        void replace(scene_c* scene, transition_c* transition = transition_c::create(canvas_c::stencil_e::random));
+        void push(scene_c* scene, transition_c* transition = nullptr);
+        void pop(transition_c* transition = nullptr, int count = 1);
+        void replace(scene_c* scene, transition_c* transition = nullptr);
 
         timer_c& vbl;
         timer_c& clock;
@@ -110,7 +110,7 @@ namespace toybox {
 
         transition_c* _transition;
         vector_c<scene_c*, 8> _scene_stack;
-        vector_c<unique_ptr_c<scene_c>, 8> _deletion_stack;
+        vector_c<unique_ptr_c<scene_c>, 8> _deletion_scenes;
 
         void configure_display_lists(const scene_c::configuration_s& configuration);
         
@@ -120,13 +120,14 @@ namespace toybox {
         inline void update_scene(scene_c& scene, int32_t ticks);
 
         __forceinline void enqueue_delete(scene_c* scene) {
-            _deletion_stack.emplace_back(scene);
+            _deletion_scenes.emplace_back(scene);
         }
         inline void begin_transition(transition_c* transition, const scene_c* from, scene_c* to, bool obscured);
         inline void update_transition(int32_t ticks);
         inline void end_transition();
 
-        vector_c<display_list_c, 3> _display_lists;
+        vector_c<display_list_c*, 3> _display_lists;
+        vector_c<unique_ptr_c<display_list_c>, 3> _deletion_display_lists;
         int _active_display_list;
     };
     
