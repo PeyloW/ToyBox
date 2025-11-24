@@ -214,6 +214,12 @@ bool tilemap_level_c::collides_with_level(int index) const {
     return collides_with_level(entity.position);
 }
 
+bool tilemap_level_c::collides_with_level(fpoint_s at) const {
+    point_s iat(at);
+    const auto& tile = (*this)[iat.x >> 4, iat.y >> 4];
+    return tile.type >= tile_s::type_e::platform;
+}
+
 bool tilemap_level_c::collides_with_level(const frect_s& rect) const {
     const auto pixel_rect = static_cast<rect_s>(rect);
     assert(pixel_rect.contained_by(_visible_bounds) && "Rect must be in visible bounds");
