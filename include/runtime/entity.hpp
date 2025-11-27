@@ -25,9 +25,9 @@ namespace toybox {
         uint8_t edata[4];
         uint8_t adata[14];
         template<class T> requires (sizeof(T) <= 4)
-        T& edata_as() { return (T&)(&edata[0]); }
+        T& edata_as() { return (T&)(edata[0]); }
         template<class T> requires (sizeof(T) <= 14)
-        T& adata_as() { return (T&)(&adata[0]); }
+        T& adata_as() { return (T&)(adata[0]); }
     };
     static_assert(sizeof(entity_s) == 32);
 

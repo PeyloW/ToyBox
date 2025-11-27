@@ -72,6 +72,7 @@ namespace toybox {
         size_s size;
         __forceinline constexpr Type max_x() const { return origin.x + size.width - 1; }
         __forceinline constexpr Type max_y() const { return origin.y + size.height - 1; }
+        constexpr base_point_s<Type> center() const { return base_point_s<Type>(origin.x + size.width / 2, origin.y + size.height / 2); }
         constexpr bool operator==(const Type& r) const {
             return origin == r.origin && size == r.size;
         }

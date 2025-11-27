@@ -35,7 +35,7 @@ namespace toybox {
 #   endif
 #endif
         }
-        void get(uint8_t* r_out, uint8_t* g_out, uint8_t* b_out) const {
+        constexpr void get(uint8_t* r_out, uint8_t* g_out, uint8_t* b_out) const {
             *r_out = from_ste(color, 8);
             *g_out = from_ste(color, 4);
             *b_out = from_ste(color, 0);
@@ -62,9 +62,9 @@ namespace toybox {
     template<int Count>
     class basic_palette_c : public array_s<color_c, Count>, public nocopy_c {
     public:
-        basic_palette_c() = default;
-        basic_palette_c(uint16_t* cs) { copy(cs, cs + Count, this->begin()); }
-        basic_palette_c(uint8_t* c) {
+        constexpr basic_palette_c() = default;
+        constexpr basic_palette_c(uint16_t* cs) { copy(cs, cs + Count, this->begin()); }
+        constexpr basic_palette_c(uint8_t* c) {
             c += 3 * Count;
             int i;
             do_dbra(i, Count - 1) {
@@ -82,9 +82,9 @@ namespace toybox {
     class palette_c : public display_item_c, public basic_palette_c<16> {
     public:
         type_e display_type() const override { return palette; }
-        palette_c() : basic_palette_c<16>() {}
-        palette_c(uint16_t* cs) : basic_palette_c<16>(cs) {}
-        palette_c(uint8_t* c) : basic_palette_c<16>(c) {}
+        constexpr palette_c() : basic_palette_c<16>() {}
+        constexpr palette_c(uint16_t* cs) : basic_palette_c<16>(cs) {}
+        constexpr palette_c(uint8_t* c) : basic_palette_c<16>(c) {}
     };
     
 }

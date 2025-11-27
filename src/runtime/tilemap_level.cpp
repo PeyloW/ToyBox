@@ -68,10 +68,39 @@ tilemap_level_c::~tilemap_level_c() {
     assert(0 && "Why?");
 }
 
-void tilemap_level_c::update_entity_indexes() {
+void tilemap_level_c::update_entity_indexes(int from) {
     assert(_all_entities.size() <= 255 && "Too many entities");
-    for (int i = 0; i < _all_entities.size(); ++i) {
+    for (int i = from; i < _all_entities.size(); ++i) {
         _all_entities[i].index = (uint8_t)i;
+    }
+}
+
+entity_s& tilemap_level_c::spawn_entity(uint8_t type, uint8_t group, frect_s position) {
+    const int idx = _all_entities.size();
+    auto& entity = _all_entities.emplace_back();
+    entity.index = idx;
+    entity.type = type;
+    entity.group = group;
+    entity.position = position;
+    return entity;
+};
+
+void tilemap_level_c::destroy_entity(int index) {
+    auto& entity = _all_entities[index];
+    entity.action = 0;  // If destroyed by world, no need to also run actions.
+    entity.group = 0;   // Move to no group to disable collision detection.
+    _destroy_entities.push_back(index);
+}
+
+void tilemap_level_c::erase_destroyed_entities() {
+    if (_destroy_entities.size() > 0) {
+        sort(_destroy_entities.begin(), _destroy_entities.end());
+        for (int i = _destroy_entities.size() - 1; i >= 0; --i) {
+            const int j = _destroy_entities[i];
+            _all_entities.erase(j);
+        }
+        update_entity_indexes(_destroy_entities[0]);
+        _destroy_entities.clear();
     }
 }
 
@@ -85,35 +114,49 @@ static bool verify_entity_indexes(const tilemap_level_c& level) {
 
 void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
     _viewport = &viewport;
-    // Update the AI for the level world, and entities
-    // NOTE: How to handle AI if dropping frames?
-    debug_cpu_color(0x010);
-    update_level();
-    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
-    debug_cpu_color(0x020);
-    update_actions();
-    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
-    // AI may update tiles, so we need to dirty viewports to redraw them
-    debug_cpu_color(0x030);
-#if TOYBOX_DEBUG_DIRTYMAP
-    _tiles_dirtymap->print_debug("tilemap_level_c::update() _tiles_dirtymap");
-#endif
-    if (_tiles_dirtymap->is_dirty()) {
-        auto& manager = scene_manager_c::shared();
-        for (int idx = (int)scene_manager_c::front; idx <= (int)scene_manager_c::back; ++idx) {
-            auto& viewport = manager.display_list((scene_manager_c::display_list_e)idx).get(display_id).viewport();
-            viewport.dirtymap()->merge(*_tiles_dirtymap);
-        }
+    {
+        // Update the AI for the level world.
+        // This may dirty the tiles dirty map, and both add and remove entities.
+        debug_cpu_color(0x010);
+        update_level();
+        erase_destroyed_entities();
+        assert(verify_entity_indexes(*this) && "Invalid entity index detected");
     }
-    _tiles_dirtymap->clear();
-    // Draw all the tiles, both updates, and previously dirtied by drawing sprites
-    debug_cpu_color(0x040);
-    draw_tiles();
-    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
-    // And lastly draw all the sprites needed
-    debug_cpu_color(0x050);
-    draw_entities();
-    assert(verify_entity_indexes(*this) && "Invalid entity index detected");
+    {
+        // Update the AI for entities.
+        // This may dirty the tiles dirty map, and both add and remove entities.
+        debug_cpu_color(0x020);
+        update_actions();
+        erase_destroyed_entities();
+        assert(verify_entity_indexes(*this) && "Invalid entity index detected");
+    }
+    {
+        // AI may update tiles, so we need to dirty viewports to redraw them
+        debug_cpu_color(0x030);
+#if TOYBOX_DEBUG_DIRTYMAP
+        _tiles_dirtymap->print_debug("tilemap_level_c::update() _tiles_dirtymap");
+#endif
+        if (_tiles_dirtymap->is_dirty()) {
+            auto& manager = scene_manager_c::shared();
+            for (int idx = (int)scene_manager_c::front; idx <= (int)scene_manager_c::back; ++idx) {
+                auto& viewport = manager.display_list((scene_manager_c::display_list_e)idx).get(display_id).viewport();
+                viewport.dirtymap()->merge(*_tiles_dirtymap);
+            }
+        }
+        _tiles_dirtymap->clear();
+    }
+    {
+        // Draw all the tiles, both updates, and previously dirtied by drawing sprites
+        debug_cpu_color(0x040);
+        draw_tiles();
+        assert(verify_entity_indexes(*this) && "Invalid entity index detected");
+    }
+    {
+        // And lastly draw all the sprites needed
+        debug_cpu_color(0x050);
+        draw_entities();
+        assert(verify_entity_indexes(*this) && "Invalid entity index detected");
+    }
     _viewport = nullptr;
 }
 

@@ -23,40 +23,40 @@ namespace toybox {
 
         Type _data[Count];
         
-        __forceinline iterator begin() __pure { return &_data[0]; }
-        __forceinline const_iterator begin() const __pure { return &_data[0]; }
-        __forceinline iterator end() __pure { return &_data[Count]; }
-        __forceinline const_iterator end() const __pure { return &_data[Count]; }
-        __forceinline int size() const __pure { return Count; }
-        __forceinline pointer data() { return _data[0].ptr(); }
-        __forceinline const_pointer data() const { return _data[0].ptr(); }
+        __forceinline constexpr iterator begin() __pure { return &_data[0]; }
+        __forceinline constexpr const_iterator begin() const __pure { return &_data[0]; }
+        __forceinline constexpr iterator end() __pure { return &_data[Count]; }
+        __forceinline constexpr const_iterator end() const __pure { return &_data[Count]; }
+        __forceinline constexpr int size() const __pure { return Count; }
+        __forceinline constexpr pointer data() { return _data[0].ptr(); }
+        __forceinline constexpr const_pointer data() const { return _data[0].ptr(); }
 
-        __forceinline reference operator[](int i) __pure {
+        __forceinline constexpr reference operator[](int i) __pure {
             assert(i >= 0 && i < Count && "Index out of bounds");
             return _data[i];
         }
-        __forceinline const_reference operator[](int i) const __pure {
+        __forceinline constexpr const_reference operator[](int i) const __pure {
             assert(i >= 0 && i < Count && "Index out of bounds");
             return _data[i];
         }
-        __forceinline reference front() __pure {
+        __forceinline constexpr reference front() __pure {
             assert(Count > 0 && "Vector is empty");
             return _data[0];
         }
-        __forceinline const_reference front() const __pure {
+        __forceinline constexpr const_reference front() const __pure {
             assert(Count > 0 && "Vector is empty");
             return _data[0];
         }
-        __forceinline reference back() __pure {
+        __forceinline constexpr reference back() __pure {
             assert(Count > 0 && "Vector is empty");
             return _data[Count - 1];
         }
-        __forceinline const_reference back() const __pure {
+        __forceinline constexpr const_reference back() const __pure {
             assert(Count > 0 && "Vector is empty");
             return _data[Count - 1];
         }
         
-        bool operator==(const array_s& other) const {
+        constexpr bool operator==(const array_s& other) const {
             if (this == &other) {
                 return true;
             } else {

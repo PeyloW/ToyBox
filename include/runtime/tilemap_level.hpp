@@ -49,9 +49,12 @@ namespace toybox {
         vector_c<entity_type_def_s, 0>& entity_type_defs() { return _entity_type_defs; };
         const vector_c<entity_type_def_s, 0>& entity_type_defs() const { return _entity_type_defs; };
 
-        void update_entity_indexes();
+        void update_entity_indexes(int from = 0);
         vector_c<entity_s, 0>& all_entities() { return _all_entities; }
         const vector_c<entity_s, 0>& all_entities() const { return _all_entities; }
+        entity_s& spawn_entity(uint8_t type, uint8_t group, frect_s position);
+        void destroy_entity(int index);
+        void erase_destroyed_entities();
 
         const rect_s&visible_bounds() const { return _visible_bounds; };
         void set_visible_bounds(const rect_s& bounds);
@@ -66,6 +69,7 @@ namespace toybox {
         vector_c<tilemap_c, 0> _subtilemaps;
         vector_c<action_f, 0> _actions;
         vector_c<entity_type_def_s, 0> _entity_type_defs;
+        vector_c<int, 16> _destroy_entities;
     };
     
 }

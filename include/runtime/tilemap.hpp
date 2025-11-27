@@ -29,7 +29,7 @@ namespace toybox {
         uint8_t data[4];
         template<class T>
         requires (sizeof(T) <= 4)
-        T& data_as() { return (T&)(&data[0]); }
+        T& data_as() { return (T&)(data[0]); }
     };
     static_assert(sizeof(tile_s) == 8);
     
@@ -44,6 +44,8 @@ namespace toybox {
         __forceinline tile_s& operator[](int x, int y) __pure { return _tiles[x + y * _tilespace_bounds.size.width]; }
         __forceinline const tile_s& operator[](int x, int y) const __pure { return _tiles[x + y * _tilespace_bounds.size.width]; }
 
+        __forceinline rect_s tilespace_bounds() const { return _tilespace_bounds; }
+        
     protected:
         rect_s _tilespace_bounds;
         vector_c<tile_s, 0> _tiles;
