@@ -60,17 +60,17 @@ namespace toybox {
      */
     static_assert(!is_polymorphic<nocopy_c>::value);
     template<int Count>
-    class basic_palette_c : public array_s<color_c, Count>, public nocopy_c {
+    class basic_palette_c : public array_s<color_c, Count> {
     public:
         constexpr basic_palette_c() = default;
         constexpr basic_palette_c(uint16_t* cs) { copy(cs, cs + Count, this->begin()); }
         constexpr basic_palette_c(uint8_t* c) {
             c += 3 * Count;
-            int i;
-            do_dbra(i, Count - 1) {
+            int i = Count - 1;
+            do {
                 c -= 3;
                 this->_data[i] = color_c(c[0], c[1], c[2]);
-            } while_dbra(i);
+            }  while (--i != ~0);
         }
     };
         
@@ -79,7 +79,7 @@ namespace toybox {
      NOTE: Should Amiga target allow for 32?
      */
     static_assert(!is_polymorphic<basic_palette_c<16>>::value);
-    class palette_c : public display_item_c, public basic_palette_c<16> {
+    class palette_c : public display_item_c, public basic_palette_c<16>, public nocopy_c {
     public:
         type_e display_type() const override { return palette; }
         constexpr palette_c() : basic_palette_c<16>() {}
