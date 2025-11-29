@@ -14,7 +14,10 @@
 namespace toybox {
 
     struct entity_s {
-        static constexpr const uint16_t flag_hidden = 1 << 0;
+        static constexpr const uint8_t flag_disabled = 1 << 7;  // Draw no graphics, run no actions, as if it did not exist.
+        static constexpr const uint8_t flag_event = 1 << 6;     // If set action is not called per frame, only on target trigger
+        static constexpr const int edata_size = 4;
+        static constexpr const int adata_size = 14;
         uint8_t index = 0;
         uint8_t type = 0;
         uint8_t group = 0;
@@ -24,16 +27,16 @@ namespace toybox {
         frect_s position;
         uint8_t edata[4];
         uint8_t adata[14];
-        template<class T> requires (sizeof(T) <= 4)
+        template<class T> requires (sizeof(T) <= edata_size)
         T& edata_as() { return (T&)(edata[0]); }
-        template<class T> requires (sizeof(T) <= 14)
+        template<class T> requires (sizeof(T) <= adata_size)
         T& adata_as() { return (T&)(adata[0]); }
     };
     static_assert(sizeof(entity_s) == 32);
 
     struct entity_type_def_s {
         struct frame_def_s {
-            int index;
+            int index;      // -1 do not draw
             point_s offset;
         };
         tileset_c* tileset;

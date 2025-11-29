@@ -168,7 +168,7 @@ void tilemap_level_c::update_level() {
 void tilemap_level_c::update_actions() {
     // NOTE: Will need some optimisation to not run them all eventually.
     for (auto& entity : _all_entities) {
-        if (entity.action != 0) {
+        if (entity.action != 0 && !(entity.flags & entity_s::flag_disabled) && !(entity.flags & entity_s::flag_event)) {
             _actions[entity.action](*this, entity);
         }
     }
@@ -230,15 +230,17 @@ void tilemap_level_c::draw_entities() {
     // NOTE: This will need to be a list of visible entities eventually
     for (auto& entity : _all_entities) {
         // Draw entity if not explicitly hidden, and have frame definitions.
-        if (!(entity.flags & entity_s::flag_hidden)) {
+        if (!(entity.flags & entity_s::flag_disabled)) {
             const auto& ent_def = _entity_type_defs[entity.type];
             if (ent_def.frame_defs.size() > 0) {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
-                const point_s origin = static_cast<point_s>(entity.position.origin);
-                const point_s at = origin + frame_def.offset;
-                debug_cpu_color(0x053);
-                viewport.draw(*ent_def.tileset, frame_def.index, at);
-                debug_cpu_color(0x050);
+                if (frame_def.index >= 0) {
+                    const point_s origin = static_cast<point_s>(entity.position.origin);
+                    const point_s at = origin + frame_def.offset;
+                    debug_cpu_color(0x053);
+                    viewport.draw(*ent_def.tileset, frame_def.index, at);
+                    debug_cpu_color(0x050);
+                }
             }
         }
     }
@@ -291,7 +293,7 @@ bool tilemap_level_c::collides_with_entity(int index, uint8_t in_group, int* ind
         if (idx == index) continue; // Skip self
         const auto& entity = _all_entities[idx];
         if (entity.group != in_group) continue;
-        if (entity.flags & entity_s::flag_hidden) continue;
+        if (entity.flags & entity_s::flag_disabled) continue;
         if (source_position.intersects(entity.position)) {
             *index_out = idx;
             return true;
@@ -306,7 +308,7 @@ bool tilemap_level_c::collides_with_entity(const frect_s& rect, uint8_t in_group
     for (int idx = 0; idx < _all_entities.size(); ++idx) {
         const auto& entity = _all_entities[idx];
         if (entity.group != in_group) continue;
-        if (entity.flags & entity_s::flag_hidden) continue;
+        if (entity.flags & entity_s::flag_disabled) continue;
         if (rect.intersects(entity.position)) {
             *index_out = idx;
             return true;
