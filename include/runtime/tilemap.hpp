@@ -20,10 +20,11 @@ namespace toybox {
             climbable = 2,
             platform  = 3,
             solid     = 4,
+            invalid   = 255     // Invalid type, tile is not copied when splicing
         };
         using enum type_e;
 
-        int16_t index = 0;  // tileset index to draw with, 0 to -15 
+        int16_t index = 0;  // tileset index to draw with
         type_e type = none;    // Tile type
         uint8_t flags = 0;
         uint8_t data[4];
@@ -49,7 +50,7 @@ namespace toybox {
     protected:
         rect_s _tilespace_bounds;
         vector_c<tile_s, 0> _tiles;
-        vector_c<int,0> _activate_entity_idxs;
+        vector_c<int8_t,0> _activate_entity_idxs;
     };
     
 }

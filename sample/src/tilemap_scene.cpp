@@ -31,7 +31,7 @@ static bool move_entity_if_possible(tilemap_level_c& level, entity_s& entity, fp
     // Move entity, if not posissible we adjust back on exit
     entity.position.origin = entity.position.origin + delta;
     // Collision with level is always fail
-    if (!level.collides_with_level(entity.index)) {
+    if (level.collides_with_level(entity.index) < tile_s::solid) {
         int box_index;
         if (!level.collides_with_entity(entity.index, BOX, &box_index)) {
             return true;

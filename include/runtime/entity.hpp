@@ -26,13 +26,13 @@ namespace toybox {
         uint8_t flags = 0;
         frect_s position;
         uint8_t edata[4];
-        uint8_t adata[14];
         template<class T> requires (sizeof(T) <= edata_size)
         T& edata_as() { return (T&)(edata[0]); }
+        uint8_t adata[6];
         template<class T> requires (sizeof(T) <= adata_size)
         T& adata_as() { return (T&)(adata[0]); }
     };
-    static_assert(sizeof(entity_s) == 32);
+    static_assert(sizeof(entity_s) == 24);
 
     struct entity_type_def_s {
         struct frame_def_s {
