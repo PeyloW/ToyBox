@@ -270,7 +270,7 @@ public:
         timer_c& vbl = timer_c::shared(timer_c::timer_e::vbl);
         _vbl_timer = SDL_AddTimer(1000 / vbl.base_freq(), vbl_cb, this);
         _clock_timer = SDL_AddTimer(5, clock_cb, this);
-        controller_c::direcrions_e joy_directions = controller_c::none;
+        directions_e joy_directions = controller_c::none;
         bool joy_fire = false;
         
         while (!s_should_quit.load()) {

@@ -40,7 +40,7 @@ namespace toybox {
         // Host must call when mouse state changes
         void update_mouse(point_s position, bool left, bool right);
                 
-        void update_joystick(controller_c::direcrions_e directions, bool fire);
+        void update_joystick(directions_e directions, bool fire);
         
         // Host must provide a yield function
         virtual void yield() = 0;

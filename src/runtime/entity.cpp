@@ -6,3 +6,4 @@
 //
 
 #include "runtime/entity.hpp"
+#include "runtime/tilemap_level.hpp"

@@ -63,19 +63,13 @@ namespace toybox {
         
         static controller_c& shared(port_e port = joy_1);
         
-        enum class direcrions_e : uint8_t {
-            none = 0,
-            up = 1 << 0, down = 1 << 1, left = 1 << 2, right = 1 << 3,
-            up_left = up | left, up_righ = up | right,
-            down_left = down | left, down_right = down | right
-        };
-        using enum direcrions_e;
+        using enum directions_e;
         enum class button_e : uint8_t {
             fire = 1 << 7
         };
         using enum button_e;
         
-        direcrions_e directions() const;
+        directions_e directions() const;
         
         bool is_pressed(button_e button) const;
         button_state_e state(button_e button = fire) const;
@@ -85,8 +79,6 @@ namespace toybox {
         port_e _port;
         mutable uint32_t _update_tick;
     };
-    template<>
-    class is_optionset<controller_c::direcrions_e> : public true_type {};
     template<>
     class is_optionset<controller_c::button_e> : public true_type {};
 

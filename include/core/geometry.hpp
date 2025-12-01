@@ -10,11 +10,21 @@
 #include "core/cincludes.hpp"
 #include "core/utility.hpp"
 #include "core/math.hpp"
+#include "core/optionset.hpp"
 
 namespace toybox {
 
 #pragma mark - Base geometric types
     
+    enum class directions_e : uint8_t {
+        none = 0,
+        up = 1 << 0, down = 1 << 1, left = 1 << 2, right = 1 << 3,
+        up_left = up | left, up_righ = up | right,
+        down_left = down | left, down_right = down | right
+    };
+    template<>
+    class is_optionset<directions_e> : public true_type {};
+
     template<typename Type>
     struct base_point_s {
         constexpr base_point_s() : x(0), y(0) {}

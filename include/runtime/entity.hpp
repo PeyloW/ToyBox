@@ -10,6 +10,8 @@
 #include "core/geometry.hpp"
 #include "core/memory.hpp"
 #include "media/tileset.hpp"
+#include "machine/input.hpp"
+#include "runtime/tilemap.hpp"
 
 namespace toybox {
 
@@ -43,7 +45,7 @@ namespace toybox {
     struct entity_type_def_s {
         struct frame_def_s {
             int index;      // -1 do not draw
-            point_s offset;
+            rect_s rect;    // Rect of relative to graphics tile
         };
         tileset_c* tileset;
         vector_c<frame_def_s, 0> frame_defs; //

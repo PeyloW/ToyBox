@@ -236,7 +236,7 @@ void tilemap_level_c::draw_entities() {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
                 if (frame_def.index >= 0) {
                     const point_s origin = static_cast<point_s>(entity.position.origin);
-                    const point_s at = origin + frame_def.offset;
+                    const point_s at = origin - frame_def.rect.origin;
                     debug_cpu_color(0x053);
                     viewport.draw(*ent_def.tileset, frame_def.index, at);
                     debug_cpu_color(0x050);

@@ -83,6 +83,7 @@
 				media/viewport.cpp,
 				runtime/actions.cpp,
 				runtime/assets.cpp,
+				runtime/entity_helpers.cpp,
 				runtime/entity.cpp,
 				runtime/scene_transition.cpp,
 				runtime/scene.cpp,

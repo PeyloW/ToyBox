@@ -95,13 +95,13 @@ tilemap_level_c* make_tilemaplevel() {
     // Setup entity type defs:
     auto& player = level.entity_type_defs().emplace_back();
     player.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    player.frame_defs.push_back({ 2, {-2,-2} }); // Up
-    player.frame_defs.push_back({ 1, {-2,-2} }); // Down
-    player.frame_defs.push_back({ 4, {-2,-2} }); // Left
-    player.frame_defs.push_back({ 3, {-2,-2} }); // Right
+    player.frame_defs.push_back({ 2, {{2,2},{12,12}} }); // Up
+    player.frame_defs.push_back({ 1, {{2,2},{12,12}} }); // Down
+    player.frame_defs.push_back({ 4, {{2,2},{12,12}} }); // Left
+    player.frame_defs.push_back({ 3, {{2,2},{12,12}} }); // Right
     auto& box = level.entity_type_defs().emplace_back();
     box.tileset = &asset_manager_c::shared().tileset(TILESET_SPR);
-    box.frame_defs.push_back({ 5, {0, 0} });
+    box.frame_defs.push_back({ 5, {{0,0},{16,16}} });
 
     for (int y = 0; y < size.height; ++y) {
         const char* line = recipe[y];
