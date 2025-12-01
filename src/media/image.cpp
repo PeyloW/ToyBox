@@ -197,7 +197,7 @@ static void image_read_packbits(iffstream_c& file, uint16_t line_words, int heig
     }
 }
 
-image_c::image_c(const char* path, int masked_cidx) :
+image_c::image_c(const char* path, int masked_cidx, const iffstream_c::unknown_reader& unknown_reader) :
     _palette(nullptr), _bitmap(nullptr), _maskmap(nullptr), _size(), _line_words(0)
 {
     bool masked = false;
@@ -270,10 +270,16 @@ image_c::image_c(const char* path, int masked_cidx) :
                 }
             }
         } else {
+            bool skip = true;
+            if (unknown_reader) {
+               skip = !unknown_reader(file, chunk);
+            }
+            if (skip) {
 #ifndef __M68000__
-            printf("Skipping '%s'\n", chunk.id.cstring());
+                printf("Skipping '%s'\n", chunk.id.cstring());
 #endif
-            file.skip(chunk);
+                file.skip(chunk);
+            }
         }
     }
 }
@@ -411,69 +417,75 @@ static void image_write_packbits(iffstream_c& file, uint16_t line_words, uint16_
 }
 
 
-bool image_c::save(const char* path, image_c::compression_type_e compression, bool masked, int masked_cidx) {
+bool image_c::save(const char* path, image_c::compression_type_e compression, bool masked, int masked_cidx, const iffstream_c::unknown_writer& unknown_writer) {
     // DeluxePain ST format and custom deflate not supported
     assert(compression < compression_type_e::vertical && "DeluxePaint ST vertical compression not supported");
 
     iffstream_c ilbm(path, fstream_c::openmode_e::input | fstream_c::openmode_e::output);
     if (ilbm.tell() >= 0) {
         ilbm.set_assert_on_error(true);
-            iff_group_s form;
-            iff_chunk_s chunk;
-            ilbm_header_s header;
-            ilbm.begin(cc4::FORM, form);
-            ilbm.write(&::cc4::ILBM);
-            {
-                memset(&header, 0, sizeof(ilbm_header_s));
-                header.size = _size;
-                header.plane_count = 4;
-                header.mask_type = masked_cidx != MASKED_CIDX ? mask_type_e::color : (masked && _maskmap) ? mask_type_e::plane : mask_type_e::none;
-                header.compression_type = compression;
-                if (header.mask_type == mask_type_e::color) {
-                    header.mask_color = masked_cidx;
-                }
-                header.aspect[0] = 10;
-                header.aspect[1] = 11;
-                header.page_size = {320, 200};
-                ilbm.begin(::cc4::BMHD, chunk);
-                ilbm.write(&header);
-                ilbm.end(chunk);
+        iff_group_s form;
+        iff_chunk_s chunk;
+        ilbm_header_s header;
+        ilbm.begin(cc4::FORM, form);
+        ilbm.write(&::cc4::ILBM);
+        {
+            memset(&header, 0, sizeof(ilbm_header_s));
+            header.size = _size;
+            header.plane_count = 4;
+            header.mask_type = masked_cidx != MASKED_CIDX ? mask_type_e::color : (masked && _maskmap) ? mask_type_e::plane : mask_type_e::none;
+            header.compression_type = compression;
+            if (header.mask_type == mask_type_e::color) {
+                header.mask_color = masked_cidx;
             }
-            /* if (_offset.x != 0 || _offset.y != 0) {
-                ilbm.begin(::cc4::GRAB, chunk);
-                ilbm.write(_offset);
-                ilbm.end(chunk);
-            } */
-            if (_palette) {
-                uint8_t cmap[48];
-                for (int i = 0; i < 16; i++) {
-                    (*_palette)[i].get(&cmap[i * 3 + 0], &cmap[i * 3 + 1], &cmap[i * 3 + 2]);
-                }
-                ilbm.begin(::cc4::CMAP, chunk);
-                ilbm.write(cmap, 48);
-                ilbm.end(chunk);
+            header.aspect[0] = 10;
+            header.aspect[1] = 11;
+            header.page_size = {320, 200};
+            ilbm.begin(::cc4::BMHD, chunk);
+            ilbm.write(&header);
+            ilbm.end(chunk);
+        }
+        /* if (_offset.x != 0 || _offset.y != 0) {
+         ilbm.begin(::cc4::GRAB, chunk);
+         ilbm.write(_offset);
+         ilbm.end(chunk);
+         } */
+        if (_palette) {
+            uint8_t cmap[48];
+            for (int i = 0; i < 16; i++) {
+                (*_palette)[i].get(&cmap[i * 3 + 0], &cmap[i * 3 + 1], &cmap[i * 3 + 2]);
             }
-            {
-                ilbm.begin(::cc4::BODY, chunk);
-                switch (compression) {
-                    case compression_type_e::none:
-                        image_write(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(),  header.mask_type == mask_type_e::plane ? _maskmap : nullptr);
-                        break;
-                    case compression_type_e::packbits:
-                        image_write_packbits(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_e::plane ? _maskmap : nullptr);
-                        break;
+            ilbm.begin(::cc4::CMAP, chunk);
+            ilbm.write(cmap, 48);
+            ilbm.end(chunk);
+        }
+        if (unknown_writer) {
+            if (!unknown_writer(ilbm)) {
+                return false;
+            }
+        }
+        {
+            ilbm.begin(::cc4::BODY, chunk);
+            switch (compression) {
+                case compression_type_e::none:
+                    image_write(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(),  header.mask_type == mask_type_e::plane ? _maskmap : nullptr);
+                    break;
+                case compression_type_e::packbits:
+                    image_write_packbits(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_e::plane ? _maskmap : nullptr);
+                    break;
 #if TOYBOX_ILBM_SUPPORTS_DEFLATE
-                    case compression_type_e::deflate:
-                        image_write_deflate(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_plane ? _maskmap : nullptr);
-                        break;
+                case compression_type_e::deflate:
+                    image_write_deflate(ilbm, (_size.width + 15) / 16, _line_words, _size.height, _bitmap.get(), header.mask_type == mask_type_plane ? _maskmap : nullptr);
+                    break;
 #endif
-                    default:
-                        assert(0 && "Unsupported compression type");
-                        break;
-                }
-                ilbm.end(chunk);
+                default:
+                    assert(0 && "Unsupported compression type");
+                    break;
             }
-            ilbm.end(form);
+            ilbm.end(chunk);
+        }
+        ilbm.end(form);
+        return true;
     }
     return false;
 }

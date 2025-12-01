@@ -312,6 +312,7 @@ namespace toybox {
     template<typename R, typename... Args>
     class function_c<R(Args...)> {
     public:
+        constexpr function_c() : _invoker(nullptr), _target(nullptr) {}
         constexpr function_c(R(*func)(Args...))
             : _invoker(invoke_func_ptr), _target(reinterpret_cast<void*>(func))
         {}
@@ -323,6 +324,8 @@ namespace toybox {
         __forceinline R operator()(Args... args) const {
             return _invoker(_target, static_cast<Args&&>(args)...);
         }
+        
+        __forceinline operator bool() const { return _invoker != nullptr; }
     private:
         // Type-erased invoke function
         using invoke_ptr_t = R(*)(void*, Args...);

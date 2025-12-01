@@ -53,4 +53,32 @@ namespace toybox {
         vector_c<int8_t,0> _activate_entity_idxs;
     };
     
+    // Shared file format structures for level editor and game runtime
+    namespace detail {
+        // EA IFF 85 chunk IDs
+        namespace cc4 {
+            static constexpr toybox::cc4_t TMAP("TMAP");
+            static constexpr toybox::cc4_t TMHD("TMHD");
+            static constexpr toybox::cc4_t ENTA("ENTA");
+            static constexpr toybox::cc4_t BODY("BODY");
+        }
+        
+        // Tilemap header for EA IFF 85 TMAP chunk
+        struct tilemap_header_s {
+            rect_s bounds;          // Bounds of tilemap in tiles
+        };
+        static_assert(sizeof(tilemap_header_s) == 8);
+    }
+
+    // struct_layout for byte-order swapping
+    template<>
+    struct struct_layout<tile_s> {
+        static constexpr const char* value = "1w6b";  // index(w), type(b), flags(b), data[4](4b)
+    };
+
+    template<>
+    struct struct_layout<detail::tilemap_header_s> {
+        static constexpr const char* value = "4w";  // bounds: origin.x, origin.y, size.width, size.height
+    };
+
 }

@@ -34,6 +34,12 @@ namespace toybox {
     };
     static_assert(sizeof(entity_s) == 24);
 
+    // struct_layout for byte-order swapping
+    template<>
+    struct struct_layout<entity_s> {
+        static constexpr const char* value = "6b4w10b";  // index, type, group, action, frame_index, flags, position(4w), edata[4], adata[6]
+    };
+
     struct entity_type_def_s {
         struct frame_def_s {
             int index;      // -1 do not draw
