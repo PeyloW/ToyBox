@@ -1,0 +1,7 @@
+script print("Loaded project .lldbinit")
+
+# Toybox LLDB formatters
+# Note: Set LLDB_INIT_FILE environment variable in Xcode scheme to point to this file,
+# then the relative import will work from this file's directory.
+command script import --relative-to-command-file toybox_printers.py
+

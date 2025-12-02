@@ -23,6 +23,7 @@ fullscreen_scene_c::fullscreen_scene_c() :
 
 scene_c::configuration_s &fullscreen_scene_c::configuration() const {
     static scene_c::configuration_s config{default_configuration.viewport_size, asset_manager_c::shared().image(BACKGROUND).palette(), 2, true};
+    palette_c* pal = config.palette.get();
     return config;
 }
 

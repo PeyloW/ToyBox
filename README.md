@@ -14,6 +14,16 @@ A minimal C++ framework for writing Atari ST<sup>E</sup> entertainment software.
 * PSG play v0.7 (https://github.com/frno7/psgplay/tree/main)
     * If static library is available SNDH music can be played on host machine
 
+### LLDB setup
+
+If using lldb you can add to you `~/.lldbinit`:
+
+```
+command source <root_path>/toybox/ide/Xcode/.lldbinit
+```
+
+This will make the debugger treat custom classes like `vector_c` and `rect_s` render as standard C++ and system library types for easier debugging.
+
 ## Project Philosophy
 
 ToyBox should be small, fast and convenient. In order to be small, toybox shall use a bare minimum of libcmini, and not include or implement anything not directly needed by a client program. In order to be fast, toybox shall rely on C++ compiler optimizations, and rely on error checking on host machine not M68k target. In order to be convenient, API shall be designed similar to C++ standard library and/or boost.
