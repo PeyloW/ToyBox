@@ -6,6 +6,7 @@
 //
 
 #include "media/audio.hpp"
+#include <errno.h>
 
 #if TOYBOX_TARGET_ATARI
 
@@ -14,7 +15,12 @@ using namespace toybox;
 
 ymmusic_c::ymmusic_c(const char* path) {
     fstream_c file(path);
-    hard_assert(file.good() && "Failed to open SNDH file");
+    if (!file.good()) {
+        if (errno == 0) {
+            errno = EINVAL;
+        }
+        return;
+    }
     file.seek(0, stream_c::seekdir_e::end);
     size_t size = file.tell();
     file.seek(0, stream_c::seekdir_e::beg);

@@ -7,6 +7,7 @@
 
 #include "core/iffstream.hpp"
 #include "core/util_stream.hpp"
+#include "core/expected.hpp"
 
 using namespace toybox;
 
@@ -31,13 +32,13 @@ iffstream_c::iffstream_c(stream_c* stream) :
     assert(stream && "Stream must not be null");
 }
 
-iffstream_c::iffstream_c(const char* path, fstream_c::openmode_e mode) :
-    stream_c(), _stream(new fstream_c(path, mode))
-{}
-
-void iffstream_c::set_assert_on_error(bool assert) {
-    stream_c::set_assert_on_error(assert);
-    _stream->set_assert_on_error(assert);
+iffstream_c::iffstream_c(const char* path, fstream_c::openmode_e mode) {
+    auto fstream = new expected_c<fstream_c>(failable, path, mode);
+    if (fstream) {
+        new (static_cast<void*>(this)) iffstream_c(expected_cast(fstream));
+    } else {
+        errno = fstream->error();
+    }
 }
 
 bool iffstream_c::good() const { return _stream->good(); }
@@ -51,9 +52,6 @@ bool iffstream_c::first(cc4_t id, iff_chunk_s& chunk_out) {
             result = chunk_out.id.matches(id);
         }
     }
-    if (_assert_on_error) {
-        hard_assert(result);
-    }
     return result;
 }
 
@@ -63,9 +61,6 @@ bool iffstream_c::first(cc4_t id, cc4_t subtype, iff_group_s& group_out) {
         if (read(group_out)) {
             result = group_out.id.matches(id) && group_out.subtype.matches(subtype);
         }
-    }
-    if (_assert_on_error) {
-        hard_assert(result);
     }
     return result;
 }

@@ -7,6 +7,7 @@
 
 #include "media/audio.hpp"
 #include "core/iffstream.hpp"
+#include <errno.h>
 
 using namespace toybox;
 
@@ -67,14 +68,17 @@ sound_c::sound_c(const char* path) :
     iffstream_c file(path);
     iff_group_s form;
     if (!file.good() || !file.first(cc4::FORM, ::cc4::AIFF, form)) {
-        hard_assert(0 && "Failed to load AIFF file");
-        return; // Not a AIFF
+        if (errno == 0) {
+            errno = EINVAL;
+        }
+        return; // Not an AIFF file
     }
     iff_chunk_s chunk;
     aiff_common_s common;
     while (file.next(form, cc4::ANY, chunk)) {
         if (chunk.id == ::cc4::COMM) {
             if (!file.read(&common)) {
+                errno = EINVAL;
                 return;
             }
             assert(common.num_channels == 1 && "Only mono audio is supported");
@@ -85,6 +89,7 @@ sound_c::sound_c(const char* path) :
         } else if (chunk.id == ::cc4::SSND) {
             aiff_ssnd_data_s data;
             if (!file.read(&data)) {
+                errno = EINVAL;
                 return;
             }
             assert(data.offset == 0 && "SSND offset must be zero");

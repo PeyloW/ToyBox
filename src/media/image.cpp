@@ -8,6 +8,7 @@
 #include "media/image.hpp"
 #include "media/canvas.hpp"
 #include "core/iffstream.hpp"
+#include <errno.h>
 
 using namespace toybox;
 
@@ -204,7 +205,9 @@ image_c::image_c(const char* path, int masked_cidx, const iffstream_c::unknown_r
     iffstream_c file(path);
     iff_group_s form;
     if (!file.good() || !file.first(cc4::FORM, ::cc4::ILBM, form)) {
-        hard_assert(0 && "Failed to load ILBM file");
+        if (errno == 0) {
+            errno = EINVAL;
+        }
         return; // Not a ILBM
     }
     iff_chunk_s chunk;
@@ -212,6 +215,7 @@ image_c::image_c(const char* path, int masked_cidx, const iffstream_c::unknown_r
     while (file.next(form, cc4::ANY, chunk)) {
         if (chunk.id == ::cc4::BMHD) {
             if (!file.read(&bmhd)) {
+                errno = EINVAL;
                 return;
             }
             _size = bmhd.size;
@@ -233,6 +237,7 @@ image_c::image_c(const char* path, int masked_cidx, const iffstream_c::unknown_r
         } else if (chunk.id == ::cc4::CMAP) {
             uint8_t cmpa[48];
             if (file.read(cmpa, 48) != 48) {
+                errno = EINVAL;
                 return; // Could not read palette
             }
             _palette.reset(new palette_c(&cmpa[0]));
@@ -423,7 +428,6 @@ bool image_c::save(const char* path, image_c::compression_type_e compression, bo
 
     iffstream_c ilbm(path, fstream_c::openmode_e::input | fstream_c::openmode_e::output);
     if (ilbm.tell() >= 0) {
-        ilbm.set_assert_on_error(true);
         iff_group_s form;
         iff_chunk_s chunk;
         ilbm_header_s header;

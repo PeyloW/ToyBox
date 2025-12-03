@@ -6,6 +6,7 @@
 //
 
 #include "media/font.hpp"
+#include "core/expected.hpp"
 
 using namespace toybox;
 
@@ -67,4 +68,21 @@ font_c::font_c(const shared_ptr_c<image_c> &image, size_s max_size, uint8_t spac
         }
         _rects[i] = rect;
     } while_dbra(i);
+}
+
+font_c::font_c(const char* path, size_s character_size) {
+    auto image = new expected_c<image_c>(failable, path);
+    if (*image) {
+        new (static_cast<void*>(this)) font_c(expected_cast(image), character_size);
+    } else {
+        errno = image->error();
+    }
+}
+font_c::font_c(const char* path, size_s max_size, uint8_t space_width, uint8_t lead_req_space, uint8_t trail_req_space) {
+    auto image = new expected_c<image_c>(failable, path);
+    if (*image) {
+        new (static_cast<void*>(this)) font_c(expected_cast(image), max_size, space_width, lead_req_space, trail_req_space);
+    } else {
+        errno = image->error();
+    }
 }

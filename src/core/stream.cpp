@@ -10,11 +10,7 @@
 
 using namespace toybox;
 
-stream_c::stream_c() : _assert_on_error(false), _width(0), _fill(' ') {};
-
-void stream_c::set_assert_on_error(bool assert) {
-    _assert_on_error = assert;
-}
+stream_c::stream_c() : _width(0), _fill(' ') {};
 
 bool stream_c::good() const { return true; };
 bool stream_c::flush() { return true; }
@@ -123,7 +119,6 @@ fstream_c::fstream_c(const char* path, openmode_e mode) :
 }
 
 fstream_c::~fstream_c() {
-    set_assert_on_error(false);
     if (is_open() && _path) {
         close();
     }
@@ -145,9 +140,6 @@ bool fstream_c::open() {
         _file = fopen(_path, mode_for_mode(_mode));
         r = _file != nullptr;
     }
-    if (_assert_on_error) {
-        hard_assert(r);
-    }
     return r;
 }
 
@@ -157,9 +149,6 @@ bool fstream_c::close() {
         r = fclose(_file) == 0;
         _file = nullptr;
     }
-    if (_assert_on_error) {
-        hard_assert(r);
-    }
     return r;
 }
 
@@ -167,17 +156,11 @@ bool fstream_c::good() const { return is_open(); };
 
 ptrdiff_t fstream_c::tell() const {
     auto r = ftell(_file);
-    if (_assert_on_error) {
-        hard_assert(r >= 0);
-    }
     return r;
 }
 
 ptrdiff_t fstream_c::seek(ptrdiff_t pos, stream_c::seekdir_e way) {
     auto r = fseek(_file, pos, (int)way);
-    if (_assert_on_error) {
-        hard_assert(r >= 0);
-    }
     return r;
 }
 bool fstream_c::flush() { return true; }

@@ -6,6 +6,7 @@
 //
 
 #include "media/tileset.hpp"
+#include "core/expected.hpp"
 
 using namespace toybox;
 
@@ -13,7 +14,7 @@ using namespace toybox;
 tileset_c::tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size) :
     _image(image),
     _max_tile(image->size().width / tile_size.width, image->size().height / tile_size.height),
-    _rects()
+    _rects(), _data()
 {
     assert(_max_tile.x > 0 && _max_tile.y > 0 && "Tileset must have at least one tile");
     _rects.reset((rect_s*)_malloc(sizeof(rect_s) * max_index()));
@@ -30,7 +31,7 @@ tileset_c::tileset_c(const shared_ptr_c<image_c> &image, size_s tile_size) :
 }
 
 detail::tileset_header_s s_header;
-static image_c* load_image(const char* path, size_s tile_size) {
+static expected_c<image_c*> load_image(const char* path, size_s tile_size) {
     s_header = { .tile_size = tile_size, .reserved = {0} };
     auto chunk_handler = [&](iffstream_c& stream, iff_chunk_s& chunk) {
         if (chunk.id == cc4_t("TSHD")) {
@@ -39,12 +40,16 @@ static image_c* load_image(const char* path, size_s tile_size) {
         }
         return false;
     };
-    auto image = new image_c(path, image_c::MASKED_CIDX, chunk_handler);
-    return image;
+    return new image_c(path, image_c::MASKED_CIDX, chunk_handler);
 }
 
-tileset_c::tileset_c(const char* path, size_s tile_size) :
-    tileset_c(shared_ptr_c<image_c>(load_image(path, tile_size)), s_header.tile_size)
+tileset_c::tileset_c(const char* path, size_s tile_size)
 {
-    copy(&s_header.reserved[0], &s_header.reserved[12], _data.begin());
+    auto image = load_image(path, tile_size);
+    if (image) {
+        new (static_cast<void*>(this)) tileset_c(*image, s_header.tile_size);
+        copy(&s_header.reserved[0], &s_header.reserved[12], _data.begin());
+    } else {
+        errno = image.error();
+    }
 }

@@ -34,7 +34,9 @@ Make no assumption of integer/pointer size. Host may use 32 bit integers, target
 
 Try to avoid multiple inheritance, and when done only the first inherited class can be polymorphic. Add static asserts before the class definition to ensure this.
 
-Rely on `static_assert` to ensure expected sizes for structs are correct. Asserts are enabled on host, but not on Atari target. Asserts with `hard_assert` are used liberally to ensure correctness.
+Rely on `static_assert` to ensure expected sizes for structs are correct. Asserts are enabled on host, but not on Atari target. Asserts are used liberally to ensure correctness, with `assert` that is not compiled on Atari target, and `hard_assert` for critical errors that must be caught on all targets.
+
+For known failable methods, such as IO we rely on `errno`, and `expected_c` helper class.
     
 ### Game Setup
 

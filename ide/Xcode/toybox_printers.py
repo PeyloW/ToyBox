@@ -86,6 +86,12 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(
         'type synthetic add -x "^(toybox::)?list_c<.+>::detail::iterator_s<.+>$" -l toybox_printers.ListIteratorSyntheticProvider'
     )
+    debugger.HandleCommand(
+        'type summary add -x "^(toybox::)?expected_c<.+>$" -F toybox_printers.expected_c_summary'
+    )
+    debugger.HandleCommand(
+        'type synthetic add -x "^(toybox::)?expected_c<.+>$" -l toybox_printers.ExpectedSyntheticProvider'
+    )
     print("Toybox LLDB formatters loaded.")
 
 
@@ -378,7 +384,7 @@ def unique_ptr_c_summary(valobj, internal_dict):
         addr = ptr.GetValueAsUnsigned()
         if addr == 0:
             return "nullptr"
-        return f"{addr:#x} (u)"
+        return f"0x{addr:x} (u)"
     except Exception as e:
         return f"<error: {e}>"
 
@@ -398,7 +404,7 @@ def shared_ptr_c_summary(valobj, internal_dict):
             count = count_obj.GetChildMemberWithName('count').GetValueAsUnsigned()
         else:
             count = 0
-        return f"{addr:#x} (s={count})"
+        return f"0x{addr:x} (s={count})"
     except Exception as e:
         return f"<error: {e}>"
 
@@ -621,7 +627,7 @@ def list_iterator_summary(valobj, internal_dict):
                 return "nullptr"
             return "<invalid>"
         value_addr = value.GetLoadAddress()
-        return f"{value_addr:#x}"
+        return f"0x{value_addr:x}"
     except Exception as e:
         return f"<error: {e}>"
 
@@ -633,3 +639,67 @@ class ListIteratorSyntheticProvider(NamedSyntheticProvider):
         self.children = []
         value, _ = get_list_iterator_value(self.valobj)
         self.children = collect_children(value)
+
+
+# =============================================================================
+# Expected support
+# =============================================================================
+
+def expected_c_summary(valobj, internal_dict):
+    """Format expected_c as error=N or show value summary."""
+    try:
+        valobj_non_synth = valobj.GetNonSyntheticValue()
+        error = valobj_non_synth.GetChildMemberWithName('_error')
+        if not error or not error.IsValid():
+            return "<invalid>"
+        error_val = error.GetValueAsSigned()
+        if error_val != 0:
+            return f"error={error_val}"
+        value = valobj_non_synth.GetChildMemberWithName('_value')
+        if value and value.IsValid():
+            summary = value.GetSummary()
+            if summary:
+                return summary
+            # Handle pointer types without leading zeros
+            if value.GetType().IsPointerType():
+                addr = value.GetValueAsUnsigned()
+                if addr == 0:
+                    return "nullptr"
+                return f"0x{addr:x}"
+            val_str = value.GetValue()
+            if val_str:
+                return val_str
+        return "<valid>"
+    except Exception as e:
+        return f"<error: {e}>"
+
+
+class ExpectedSyntheticProvider(NamedSyntheticProvider):
+    """Synthetic children provider for expected_c - shows value's children when no error."""
+
+    def update(self):
+        self.children = []
+        valobj_non_synth = self.valobj.GetNonSyntheticValue()
+        error = valobj_non_synth.GetChildMemberWithName('_error')
+        if not error or not error.IsValid():
+            return
+        if error.GetValueAsSigned() != 0:
+            return
+        value = valobj_non_synth.GetChildMemberWithName('_value')
+        if not value or not value.IsValid():
+            return
+        children = collect_children(value)
+        if children:
+            self.children = children
+        else:
+            # For primitive types, show the value itself
+            self.children = [value.CreateChildAtOffset(
+                '*', 0, value.GetType()
+            )]
+
+    def has_children(self):
+        valobj_non_synth = self.valobj.GetNonSyntheticValue()
+        error = valobj_non_synth.GetChildMemberWithName('_error')
+        if error and error.IsValid() and error.GetValueAsSigned() == 0:
+            return True
+        return False

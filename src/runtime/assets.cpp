@@ -10,6 +10,7 @@
 #include "media/tileset.hpp"
 #include "media/font.hpp"
 #include "media/audio.hpp"
+#include "core/expected.hpp"
 
 using namespace toybox;
 
@@ -104,16 +105,16 @@ asset_c* asset_manager_c::create_asset(int id, const asset_def_s& def) const {
     } else {
         switch (def.type) {
             case asset_c::image:
-                return new image_c(path.get());
+                return expected_cast(new expected_c<image_c>(failable, path.get()));
             case asset_c::tileset:
-                return new tileset_c(new image_c(path.get()), size_s(16, 16));
+                return expected_cast(new expected_c<tileset_c>(failable, path.get(), size_s(16, 16)));
             case asset_c::font:
-                return new font_c(new image_c(path.get()), size_s(8, 8));
+                return expected_cast(new expected_c<font_c>(failable, path.get(), size_s(16, 16)));
             case asset_c::sound:
-                return new sound_c(path.get());
+                return expected_cast(new expected_c<sound_c>(failable, path.get()));
             case asset_c::music:
 #if TOYBOX_TARGET_ATARI
-                return new ymmusic_c(path.get());
+                return expected_cast(new expected_c<ymmusic_c>(failable, path.get()));
 #endif
             case asset_c::tilemap_level:
                 // TODO: Implement file format and loading.

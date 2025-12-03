@@ -29,8 +29,6 @@ namespace toybox {
         stream_c();
         virtual ~stream_c() { flush(); }
             
-        virtual void set_assert_on_error(bool assert);
-
         virtual bool good() const __pure;
         virtual ptrdiff_t tell() const __pure = 0;
         virtual ptrdiff_t seek(ptrdiff_t pos, seekdir_e way) = 0;
@@ -59,8 +57,6 @@ namespace toybox {
         stream_c& operator<<(uint32_t i);
 
     protected:
-        __forceinline bool assert_on_error() const __pure { return _assert_on_error; }
-        bool _assert_on_error;
         int _width;
         char _fill;
     };
