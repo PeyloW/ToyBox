@@ -20,7 +20,7 @@ static asset_manager_c& setup_assets() {
 
         // Sprites are loaded from image, but uses lambda to rempa colors
         { SPRITES, asset_manager_c::asset_def_s(asset_c::tileset, 1, "sprites.iff", [](const asset_manager_c& manager, const char* path) -> asset_c* {
-            auto image = image_c::load(path, 0);
+            auto image = new image_c(path, 0);
             constexpr auto table = canvas_c::remap_table_c({
                 {1, 10}, {2, 11}, {3, 11}, {4, 12}, {5, 13}, {6, 14}
             });
@@ -33,11 +33,11 @@ static asset_manager_c& setup_assets() {
         { MUSIC, asset_manager_c::asset_def_s(asset_c::music, 1, "music.snd") },
         
         { TILESET_WALL, asset_manager_c::asset_def_s(asset_c::tileset, 2, "wall.iff", [](const asset_manager_c& manager, const char* path) -> asset_c* {
-            auto image = image_c::load(path);
+            auto image = new image_c(path);
             return new tileset_c(image, size_s(16, 16));
         })},
         { TILESET_SPR, asset_manager_c::asset_def_s(asset_c::tileset, 2, "player.iff", [](const asset_manager_c& manager, const char* path) -> asset_c* {
-            auto image = image_c::load(path,0); // Color #0 is transparent
+            auto image = new image_c(path,0); // Color #0 is transparent
             return new tileset_c(image, size_s(16, 16));
         })},
 

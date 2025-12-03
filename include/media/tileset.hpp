@@ -22,15 +22,11 @@ namespace toybox {
     class tileset_c : public asset_c {
     public:
         tileset_c() = delete;
+        tileset_c(const char* path, size_s tile_size);
         tileset_c(const shared_ptr_c<image_c>& image, size_s tile_size);
         virtual ~tileset_c() {};
 
         __forceinline type_e asset_type() const override final { return tileset; }
-
-        // TODO: Make this more robust
-        static tileset_c* load(const char* path, size_s tile_size = size_s(16, 16)) {
-            return new tileset_c(path, tile_size);
-        }
         
         __forceinline const shared_ptr_c<image_c>& image() const __pure {
             return _image;
@@ -56,7 +52,6 @@ namespace toybox {
         __forceinline array_s<uint8_t, 12> data() { return _data; }
         __forceinline const array_s<uint8_t, 12> data() const { return _data; }
     private:
-        tileset_c(const char* path, size_s tile_size);
         const shared_ptr_c<image_c> _image;
         const point_s _max_tile;
         unique_ptr_c<rect_s> _rects;

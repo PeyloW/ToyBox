@@ -26,13 +26,6 @@ namespace toybox {
         virtual ~font_c() {};
 
         __forceinline type_e asset_type() const override { return font; }
-
-        static font_c* load(const char* path, size_s character_size) {
-            return new font_c(image_c::load(path), character_size);
-        }
-        static font_c* load(const char* path, size_s max_size, uint8_t space_width, uint8_t lead_req_space, uint8_t trail_req_space) {
-            return new font_c(image_c::load(path), max_size, space_width, lead_req_space, trail_req_space);
-        }
         
         __forceinline const shared_ptr_c<image_c>& image() const {
             return _image;

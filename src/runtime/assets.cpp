@@ -104,16 +104,16 @@ asset_c* asset_manager_c::create_asset(int id, const asset_def_s& def) const {
     } else {
         switch (def.type) {
             case asset_c::image:
-                return image_c::load(path.get());
+                return new image_c(path.get());
             case asset_c::tileset:
-                return tileset_c::load(path.get());
+                return new tileset_c(new image_c(path.get()), size_s(16, 16));
             case asset_c::font:
-                return font_c::load(path.get(), size_s(8, 8));
+                return new font_c(new image_c(path.get()), size_s(8, 8));
             case asset_c::sound:
-                return sound_c::load(path.get());
+                return new sound_c(path.get());
             case asset_c::music:
 #if TOYBOX_TARGET_ATARI
-                return ymmusic_c::load(path.get());
+                return new ymmusic_c(path.get());
 #endif
             case asset_c::tilemap_level:
                 // TODO: Implement file format and loading.

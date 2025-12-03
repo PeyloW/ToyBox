@@ -24,19 +24,16 @@ namespace toybox {
         friend class audio_mixer_c;
     public:
         sound_c() = delete;
+        sound_c(const char* path);
         virtual ~sound_c() {};
 
         __forceinline type_e asset_type() const override { return sound; }
-
-        // TODO: Make this more robust
-        static sound_c* load(const char* path) { return new sound_c(path); }
 
         __forceinline const int8_t* sample() const { return _sample.get(); }
         __forceinline uint32_t length() const { return _length; }
         __forceinline uint16_t rate() const { return _rate; }
         
     private:
-        sound_c(const char* path);
         unique_ptr_c<int8_t> _sample;
         uint32_t _length;
         uint16_t _rate;
@@ -68,11 +65,8 @@ namespace toybox {
     class ymmusic_c final : public music_c {
         friend class audio_mixer_c;
     public:
+        ymmusic_c(const char* path);
         virtual ~ymmusic_c() {};
-
-        static ymmusic_c* load(const char* path) {
-            return new ymmusic_c(path);
-        }
         
         __forceinline const char* title() const override { return _title; }
         __forceinline const char* composer() const override  { return _composer; }
@@ -83,7 +77,6 @@ namespace toybox {
         __forceinline uint32_t length() const { return (uint32_t)_length; }
 
     private:
-        ymmusic_c(const char* path);
         unique_ptr_c<uint8_t> _sndh;
         size_t _length;
         char* _title;

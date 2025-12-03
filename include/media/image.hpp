@@ -42,16 +42,12 @@ namespace toybox {
         };
         
         image_c() = delete;
+        image_c(const char* path, int masked_cidx = MASKED_CIDX, const iffstream_c::unknown_reader& unknown_reader = iffstream_c::null_reader);
         image_c(const size_s size, bool masked, shared_ptr_c<palette_c> palette);
 
         virtual ~image_c() {};
         
         __forceinline type_e asset_type() const override { return image; }
-
-        // TODO: Make this more robust
-        static image_c* load(const char* path, int masked_cidx = MASKED_CIDX, const iffstream_c::unknown_reader& unknown_reader = iffstream_c::null_reader) {
-            return new image_c(path, masked_cidx, unknown_reader);
-        }
 
         bool save(const char* path, compression_type_e compression, bool masked, int masked_cidx = MASKED_CIDX, const iffstream_c::unknown_writer& unknown_writer = iffstream_c::null_writer);
                 
@@ -69,7 +65,6 @@ namespace toybox {
         void put_pixel(int ci, point_s) const;
         
     private:
-        image_c(const char* path, int masked_cidx, const iffstream_c::unknown_reader& unknown_reader);
         int imp_get_pixel(point_s at) const;
         shared_ptr_c<palette_c> _palette;
         unique_ptr_c<uint16_t> _bitmap;

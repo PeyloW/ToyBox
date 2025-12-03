@@ -39,7 +39,7 @@ static image_c* load_image(const char* path, size_s tile_size) {
         }
         return false;
     };
-    auto image = image_c::load(path, -1, chunk_handler);
+    auto image = new image_c(path, image_c::MASKED_CIDX, chunk_handler);
     return image;
 }
 
