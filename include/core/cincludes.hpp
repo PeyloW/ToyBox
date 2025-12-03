@@ -32,15 +32,13 @@ extern "C" {
 #   define ABS(X) (((X) < 0) ? -(X) : (X))
 #endif
       
-#ifdef __M68000__
-#define hard_assert(expr)\
-    ((void)((expr)||(fprintf(stderr, \
-    "\nHard assert [%d]: (%s), in %s: %d\n", errno,\
-     #expr, __FILE__, __LINE__ ),\
-     fgetc(stdin))))
-#else
-#define hard_assert assert
-#endif
+    extern "C" {
+        bool __hard_assert(const char* message);
+    }
+#define STRINGIFY2(x) #x
+#define STRINGIFY(x) STRINGIFY2(x)
+#define hard_assert(expr) \
+    ((void)((expr)?false:__hard_assert("\nHard assert [" STRINGIFY(expr) "]: (" #expr "), in " __FILE__ ": " STRINGIFY(__LINE__) "\n")))
 
 #include <stdint.h>
 #include <stdlib.h>

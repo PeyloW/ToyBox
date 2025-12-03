@@ -7,6 +7,7 @@
 
 #include "core/cincludes.hpp"
 #include "core/memory.hpp"
+#include <errno.h>
 
 extern "C" {
     FILE* log_file() {
@@ -16,6 +17,15 @@ extern "C" {
         }
         return log;
     }
+    bool __hard_assert(const char* message) {
+#if __M68000__
+        __asm__ volatile ("move.w #0xf00,0xffff8240.w" :  :  : );
+        fprintf(log_file(), message, errno);
+#else
+        fprintf(stderr, message, errno);
+#endif
+        exit(errno);
+    };
 }
 
 void* operator new (size_t n) {

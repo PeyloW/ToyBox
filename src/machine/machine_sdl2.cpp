@@ -145,8 +145,7 @@ public:
     }
 
     virtual void play(const music_c& music, int track) override {
-        const ymmusic_c& ymmusic = *reinterpret_cast<const ymmusic_c*>(&music);
-        _psg = psgplay_init(ymmusic.data(), ymmusic.length(), track, 22050);
+        _psg = psgplay_init(music.data(), music.length(), track, 22050);
 
         if (!_psg) return;
 

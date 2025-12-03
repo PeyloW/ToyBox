@@ -1,6 +1,6 @@
 //
 //  entity_helpers.cpp
-//  toybox_index
+//  toybox
 //
 //  Created by Fredrik on 2025-12-01.
 //

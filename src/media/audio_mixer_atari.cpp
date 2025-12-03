@@ -7,6 +7,7 @@
 
 #include "media/audio_mixer.hpp"
 #include "machine/timer.hpp"
+#include "core/system_helpers.hpp"
 #ifndef __M68000__
 #include "machine/host_bridge.hpp"
 #endif
@@ -50,19 +51,26 @@ void audio_mixer_c::stop(const sound_c& sound) {
     // No-op for now.
 }
 
-void audio_mixer_c::play(const music_c& _music, int track) {
-    ymmusic_c& music = (ymmusic_c&)_music;
+void audio_mixer_c::play(const music_c& music, int track) {
     if (_active_music) {
         stop(*_active_music);
     }
     assert(track > 0 && "Track number must be positive");
+    assert(music.format() == music_c::sndh && "Only SNDH supported");
 #ifdef __M68000__
-    timer_c::with_paused_timers([this, &music, track] {
+    // Generate trampolines for this music, if new song
+    if (_active_music != &music) {
+        uint8_t* data = const_cast<uint8_t*>(music.data());
+        codegen_s::make_trampoline(_music_init_code, data + 0, false);
+        codegen_s::make_trampoline(_music_exit_code, data + 4, false);
+        codegen_s::make_trampoline(_music_play_code, data + 8, false);
+    }
+    timer_c::with_paused_timers([this, track, &music] {
         timer_c& clock = timer_c::shared(timer_c::timer_e::clock);
         // init driver
-        ((timer_c::func_i_t)music._music_init_code)(track);
+        ((timer_c::func_i_t)_music_init_code)(track);
         // add VBL
-        clock.add_func((timer_c::func_t)music._music_play_code, music._freq);
+        clock.add_func((timer_c::func_t)_music_play_code, music.replay_freq());
     });
 #else
     host_bridge_c::shared().play(music, track);
@@ -71,16 +79,15 @@ void audio_mixer_c::play(const music_c& _music, int track) {
     _active_track = track;
 }
 
-void audio_mixer_c::stop(const music_c& _music) {
-    ymmusic_c& music = (ymmusic_c&)_music;
-    assert(_active_music == &music && "Music being stopped must be the active music");
+void audio_mixer_c::stop(const music_c& music) {
+    assert(_active_music == &music && "Music being stopped must be active");
 #ifdef __M68000__
-    timer_c::with_paused_timers([this, &music] {
+    timer_c::with_paused_timers([this] {
         timer_c& clock = timer_c::shared(timer_c::timer_e::clock);
         // Exit driver
-        ((timer_c::func_t)music._music_exit_code)();
+        ((timer_c::func_t)_music_exit_code)();
         // remove timer func
-        clock.remove_func((timer_c::func_t)music._music_play_code);
+        clock.remove_func((timer_c::func_t)_music_play_code);
     });
 #endif
     _active_music = nullptr;

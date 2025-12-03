@@ -113,9 +113,7 @@ asset_c* asset_manager_c::create_asset(int id, const asset_def_s& def) const {
             case asset_c::sound:
                 return expected_cast(new expected_c<sound_c>(failable, path.get()));
             case asset_c::music:
-#if TOYBOX_TARGET_ATARI
-                return expected_cast(new expected_c<ymmusic_c>(failable, path.get()));
-#endif
+                return expected_cast(new expected_c<music_c>(failable, path.get()));
             case asset_c::tilemap_level:
                 // TODO: Implement file format and loading.
                 return nullptr;

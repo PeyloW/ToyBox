@@ -85,9 +85,9 @@ namespace toybox {
     class iffstream_c final : public stream_c {
     public:
         using unknown_reader = function_c<bool(iffstream_c& stream,iff_chunk_s& chunk)>;
-        static const constexpr unknown_reader null_reader;
+        inline static const constexpr unknown_reader null_reader{};
         using unknown_writer = function_c<bool(iffstream_c& stream)>;
-        static const constexpr unknown_writer null_writer;
+        inline static const constexpr unknown_writer null_writer{};
 
         iffstream_c(stream_c* stream);
         iffstream_c(const char* path, fstream_c::openmode_e mode = fstream_c::openmode_e::input);

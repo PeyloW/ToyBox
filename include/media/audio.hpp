@@ -30,65 +30,49 @@ namespace toybox {
         __forceinline type_e asset_type() const override { return sound; }
 
         __forceinline const int8_t* sample() const { return _sample.get(); }
-        __forceinline uint32_t length() const { return _length; }
+        __forceinline size_t length() const { return _length; }
         __forceinline uint16_t rate() const { return _rate; }
         
     private:
         unique_ptr_c<int8_t> _sample;
-        uint32_t _length;
+        size_t _length;
         uint16_t _rate;
     };
     
     /**
-     A `music_c` is an abstract collection of music, containing one or more songs.
-     TODO: Support mods.
+     A `music_c` is a collection of music, containing one or more songs.
+     Supports SNDH files, with MOD support planned.
      */
-    class music_c : public asset_c {
+    class music_c final : public asset_c {
         friend class audio_mixer_c;
     public:
-        music_c() {};
-        virtual ~music_c() {};
+        enum class format_e : uint8_t {
+            sndh,
+            mod
+        };
+        using enum format_e;
 
-        __forceinline type_e asset_type() const override { return music; }
-        
-        virtual const char* title() const = 0;
-        virtual const char* composer() const = 0;
-        virtual int track_count() const = 0;
-        virtual uint8_t replay_freq() const = 0;
-    };
-    
-#if TOYBOX_TARGET_ATARI
-    /**
-     `ymmusic_c` is a concrete `music_c` representing YM-Music for Atari target.
-     YB-music can be loaded from SNDH files.
-     */
-    class ymmusic_c final : public music_c {
-        friend class audio_mixer_c;
-    public:
-        ymmusic_c(const char* path);
-        virtual ~ymmusic_c() {};
-        
-        __forceinline const char* title() const override { return _title; }
-        __forceinline const char* composer() const override  { return _composer; }
-        __forceinline int track_count() const override { return _track_count; }
-        __forceinline uint8_t replay_freq() const override { return _freq; }
+        music_c(const char* path);
+        ~music_c() {};
 
-        __forceinline const void* data() const { return _sndh.get(); }
-        __forceinline uint32_t length() const { return (uint32_t)_length; }
+        __forceinline asset_c::type_e asset_type() const override { return music; }
+
+        __forceinline format_e format() const { return _format; }
+        __forceinline const char* title() const { return _title; }
+        __forceinline const char* composer() const { return _composer; }
+        __forceinline int track_count() const { return _track_count; }
+        __forceinline uint8_t replay_freq() const { return _freq; }
+        __forceinline const uint8_t* data() const { return _data.get(); }
+        __forceinline size_t length() const { return _length; }
 
     private:
-        unique_ptr_c<uint8_t> _sndh;
+        unique_ptr_c<uint8_t> _data;
         size_t _length;
         char* _title;
         char* _composer;
         int _track_count;
+        format_e _format;
         uint8_t _freq;
-#ifdef __M68000__
-        uint16_t _music_init_code[8];
-        uint16_t _music_exit_code[8];
-        uint16_t _music_play_code[8];
-#endif
     };
-#endif
 
 }
