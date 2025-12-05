@@ -72,7 +72,7 @@ namespace toybox {
     }
     template<>
     struct struct_layout<detail::tileset_header_s> {
-        static constexpr const char* value = "2b";  // tilecount_static, tilecount_animated
+        static constexpr const char* value = "2w12b";  // tilecount_static, tilecount_animated
     };
     
 }

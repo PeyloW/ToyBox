@@ -23,14 +23,20 @@ tilemap_c(rect_s()), _is_initialized(false)
     detail::level_header_s header;
     while (file.next(form, cc4::ANY, chunk)) {
         if (chunk.id == detail::cc4::LVHD) {
-            if (!file.stream_c::read(&header)) {
+            if (!file.read(&header)) {
                 return;
             }
+            assert(header.size.width >= 20);
+            assert(header.size.height >= 12);
             _tilespace_bounds = {{0,0}, header.size};
             rect_s bounds(0,0, header.size.width << 4, header.size.height << 4);
             _tiles_dirtymap = dirtymap_c::create(bounds.size);
             set_visible_bounds(bounds);
             _tileset_index = header.tileset_index;
+            _tiles.resize(header.size.width * header.size.height);
+            for (auto& tile : _tiles) {
+                tile.type = tile_s::type_e::invalid;
+            }
         } else if (chunk.id == detail::cc4::ENTS) {
             assert(header.entity_count * sizeof(entity_s) == chunk.size);
             _all_entities.reserve(header.entity_count + 16);
@@ -56,6 +62,7 @@ tilemap_c(rect_s()), _is_initialized(false)
                             return;
                         }
                         _subtilemaps.emplace_back(header.bounds);
+                        assert(_subtilemaps.back().tilespace_bounds().contained_by(_tilespace_bounds) && "Tilemap must fit in world bound");
                     } else if (chunk.id == detail::cc4::ENTA) {
                         auto& tilemap = _subtilemaps.back();
                         tilemap.activate_entity_idxs().resize(chunk.size);
@@ -64,10 +71,7 @@ tilemap_c(rect_s()), _is_initialized(false)
                         auto& tilemap = _subtilemaps.back();
                         int tile_count = header.bounds.size.width * header.bounds.size.height;
                         assert(tile_count * sizeof(tile_s) == chunk.size);
-                        for (int i = 0; i < tile_count; ++i) {
-                            auto& tile = tilemap.tiles().emplace_back();
-                            file.read(&tile);
-                        }
+                        file.read(tilemap.tiles().data(), tile_count);
                     } else {
                         assert(false && "Unkown chunk");
                         errno = EINVAL;
@@ -77,6 +81,8 @@ tilemap_c(rect_s()), _is_initialized(false)
             }
         }
     }
+    assert(_subtilemaps.size() > 0 && "Must have at least one tilemap.");
+    splice_subtilemap(0);
 }
 
 void tilemap_level_c::init() {

@@ -29,6 +29,7 @@ tilemap_level_c::tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset) : 
 }
 
 tilemap_level_c::~tilemap_level_c() {
+    // TODO: This will be legal eventually.
     assert(0 && "Why?");
 }
 
@@ -170,9 +171,9 @@ void tilemap_level_c::draw_tiles() {
                     } else {
                         for (int x = tile_rect.origin.x; x <= tile_rect.max_x(); ++x) {
                             const auto& tile = (*this)[x, y];
-                            if (tile.index <= 0) {
+                            if (tile.type == tile_s::invalid) {
                                 debug_cpu_color(0x043);
-                                viewport.fill_tile(-tile.index, at);
+                                viewport.fill_tile(0, at);
                             } else {
                                 debug_cpu_color(0x240);
                                 viewport.draw_tile(*_tileset, tile.index, at);
@@ -296,4 +297,22 @@ void tilemap_level_c::set_visible_bounds(const rect_s& bounds) {
 void tilemap_level_c::splice_subtilemap(int index) {
     // TODO: Merge the subtilemap into self, and mark all changes tiles as dirty.
     // NOTE: Stretch goal would be to animate these, but probably not worth the effort.
+    auto& tilemap = _subtilemaps[index];
+    assert(tilemap.tilespace_bounds().contained_by(tilespace_bounds()));
+    point_s at = tilemap.tilespace_bounds().origin;
+    for (int y = 0; y < tilemap.tilespace_bounds().size.height; ++y) {
+        at.x = tilemap.tilespace_bounds().origin.x;
+        for (int x = 0; x < tilemap.tilespace_bounds().size.width; ++x) {
+            auto& tile = tilemap[x,y];
+            splice_tile(tile, at);
+            ++at.x;
+        }
+        ++at.y;
+    }
+}
+
+void tilemap_level_c::splice_tile(tile_s& tile, point_s tilespace_at) {
+    if (tile.type != tile_s::invalid) {
+        (*this)[tilespace_at] = tile;
+    }
 }

@@ -17,8 +17,13 @@ namespace toybox {
     static_assert(!is_polymorphic<tilemap_c>::value);
     class tilemap_level_c : public asset_c, public tilemap_c {
     public:
+        // Creates a tilemap level of given bounds, using a tileset.
+        // All tiles are initialized to empty tiles.
         tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset);
+        
+        // Creates a tilemap by loading the level file, and splicing subtilemap 0 into it.
         tilemap_level_c(const char* path);
+
         ~tilemap_level_c();
         
         __forceinline type_e asset_type() const override final { return tilemap_level; }
@@ -76,6 +81,8 @@ namespace toybox {
         virtual void reset(entity_s& entity);
         virtual void reset(tile_s& tile);
 
+        virtual void splice_tile(tile_s& tile, point_s tilespace_at);
+        
     private:
         viewport_c* _viewport;
         dirtymap_c* _tiles_dirtymap;
