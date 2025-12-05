@@ -171,13 +171,8 @@ void tilemap_level_c::draw_tiles() {
                     } else {
                         for (int x = tile_rect.origin.x; x <= tile_rect.max_x(); ++x) {
                             const auto& tile = (*this)[x, y];
-                            if (tile.type == tile_s::invalid) {
-                                debug_cpu_color(0x043);
-                                viewport.fill_tile(0, at);
-                            } else {
-                                debug_cpu_color(0x240);
-                                viewport.draw_tile(*_tileset, tile.index, at);
-                            }
+                            debug_cpu_color(0x043);
+                            draw_tile(tile, at);
                             debug_cpu_color(0x040);
                             at.x += 16;
                         }
@@ -189,6 +184,14 @@ void tilemap_level_c::draw_tiles() {
             dirtymap->restore(func);
         });
     });
+}
+
+void tilemap_level_c::draw_tile(const tile_s& tile, point_s at) {
+    if (tile.index <= 0) {
+        active_viewport().fill_tile(-tile.index, at);
+    } else {
+        active_viewport().draw_tile(*_tileset, tile.index, at);
+    }
 }
 
 void tilemap_level_c::draw_entities() {

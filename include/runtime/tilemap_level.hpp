@@ -64,6 +64,7 @@ namespace toybox {
 
         const rect_s&visible_bounds() const { return _visible_bounds; };
         void set_visible_bounds(const rect_s& bounds);
+        const tileset_c& tileset() const { return *_tileset; }
         
         void splice_subtilemap(int index);
     
@@ -71,6 +72,7 @@ namespace toybox {
         virtual void update_level();
         virtual void update_actions();
         virtual void draw_tiles();
+        virtual void draw_tile(const tile_s& tile, point_s at);
         virtual void draw_entities();
         
         virtual void setup_actions();
