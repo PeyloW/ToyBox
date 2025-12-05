@@ -85,6 +85,7 @@
 				runtime/entity.cpp,
 				runtime/scene_transition.cpp,
 				runtime/scene.cpp,
+				runtime/tilemap_level_setup.cpp,
 				runtime/tilemap_level.cpp,
 				runtime/tilemap.cpp,
 			);

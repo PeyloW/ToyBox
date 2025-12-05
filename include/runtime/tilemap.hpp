@@ -47,6 +47,9 @@ namespace toybox {
 
         __forceinline rect_s tilespace_bounds() const { return _tilespace_bounds; }
         
+        __forceinline vector_c<int8_t,0>& activate_entity_idxs() { return _activate_entity_idxs; };
+        __forceinline vector_c<tile_s, 0>& tiles() { return _tiles; };
+        
     protected:
         rect_s _tilespace_bounds;
         vector_c<tile_s, 0> _tiles;

@@ -18,7 +18,7 @@ namespace toybox {
     class tilemap_level_c : public asset_c, public tilemap_c {
     public:
         tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset);
-        tilemap_level_c(const char* path, tileset_c* tileset);
+        tilemap_level_c(const char* path);
         ~tilemap_level_c();
         
         __forceinline type_e asset_type() const override final { return tilemap_level; }
@@ -26,11 +26,10 @@ namespace toybox {
         const char* name() const { return _name.get(); }
         
         virtual void update(viewport_c& viewport, int display_id, int ticks);
-        virtual void update_level();
-        virtual void update_actions();
-        virtual void draw_tiles();
-        virtual void draw_entities();
-
+        virtual void init();
+        virtual void reset();
+        
+        dirtymap_c& tiles_dirtymap() { return *_tiles_dirtymap; }
         void mark_tiles_dirtymap(point_s point);
         void mark_tiles_dirtymap(rect_s rect);
 
@@ -62,17 +61,34 @@ namespace toybox {
         void set_visible_bounds(const rect_s& bounds);
         
         void splice_subtilemap(int index);
+    
     protected:
+        virtual void update_level();
+        virtual void update_actions();
+        virtual void draw_tiles();
+        virtual void draw_entities();
+        
+        virtual void setup_actions();
+        virtual void setup_entity_defs();
+        virtual tileset_c* init_tileset(int index);
+        virtual void init(entity_s& entity);
+        virtual void init(tile_s& tile, int subtilemap_index);
+        virtual void reset(entity_s& entity);
+        virtual void reset(tile_s& tile);
+
+    private:
         viewport_c* _viewport;
         dirtymap_c* _tiles_dirtymap;
         rect_s _visible_bounds;
         tileset_c* _tileset;
         unique_ptr_c<const char> _name;
         vector_c<entity_s, 0> _all_entities;
-        vector_c<tilemap_c, 0> _subtilemaps;
+        vector_c<tilemap_c, 32> _subtilemaps;
         vector_c<action_f, 0> _actions;
         vector_c<entity_type_def_s, 0> _entity_type_defs;
         vector_c<int, 16> _destroy_entities;
+        uint8_t _tileset_index;
+        bool _is_initialized;
     };
     
     

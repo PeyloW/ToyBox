@@ -13,55 +13,19 @@
 
 using namespace toybox;
 
-namespace cc4 {
-    static constexpr cc4_t TLMP("TLMP"); // Tilemap
-    static constexpr cc4_t TMHD("TMHD"); // Tilemap Header
-    static constexpr cc4_t TILS("TILS"); // The tiles
-    static constexpr cc4_t ENTS("ENTS"); // The entities
-}
 
-
-struct tlmp_header_s {
-    cc4_t id;      // Map identifier
-    rect_s bounds; // Bounds of tilemap.
-};
-static_assert(sizeof(tlmp_header_s) == 12);
-
-/*
- TODO: The file format needs to be revisited once the programmatic implementation is complete.
- File format is:
- Tilemap = FORM # { TLMP
-    TMHD # { tlmp_header_s }
-    TILS # { sizeof(tile_s) * (bounds.size.width * bounds.size.height) bytes }
-    ENTS # { ?? bytes TODO: When we do AI } ?
-    LIST # { TLMP
-        Tilemap +
-    } ?
- }
- */
-
-tilemap_level_c::tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset) : tilemap_c(tilespace_bounds), _tileset(tileset) {
+tilemap_level_c::tilemap_level_c(rect_s tilespace_bounds, tileset_c* tileset) : tilemap_c(tilespace_bounds), _tileset(tileset), _is_initialized(true) {
     assert(tilespace_bounds.origin == point_s() && "Bounds origin must be {0,0}.");
     // And we should probably only dirty the visible region is the level is larger than the display size.
     // Size here is depending on the size of the viewport to draw in later. Is max screen size good enough?
     rect_s bounds = rect_s(
-        tilespace_bounds.origin.x * 16,
-        tilespace_bounds.origin.y * 16,
+        0,
+        0,
         tilespace_bounds.size.width * 16,
         tilespace_bounds.size.height * 16
     );
     _tiles_dirtymap = dirtymap_c::create(bounds.size);
     set_visible_bounds(bounds);
-}
-
-tilemap_level_c::tilemap_level_c(const char* path, tileset_c* tileset) : tilemap_c(rect_s()), _tileset(tileset) {
-    // TODO: Just needs to implement all of this.
-    iffstream_c file(path);
-    iff_group_s form;
-    if (!file.good() || !file.first(cc4::FORM, ::cc4::TLMP, form)) {
-        hard_assert(0);
-        return; // Not a ILBM
-    }
 }
 
 tilemap_level_c::~tilemap_level_c() {
@@ -113,6 +77,7 @@ static bool verify_entity_indexes(const tilemap_level_c& level) {
 }
 
 void tilemap_level_c::update(viewport_c& viewport, int display_id, int ticks) {
+    hard_assert(_is_initialized && "Must call init() on load construction.");
     _viewport = &viewport;
     {
         // Update the AI for the level world.
@@ -245,6 +210,7 @@ void tilemap_level_c::draw_entities() {
         }
     }
 }
+
 
 void tilemap_level_c::mark_tiles_dirtymap(point_s point) {
     mark_tiles_dirtymap(rect_s(point, size_s(1,1)));

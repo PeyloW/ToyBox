@@ -1,0 +1,123 @@
+//
+//  tilemap_level_load.cpp
+//  FireFlight
+//
+//  Created by Fredrik on 2025-12-03.
+//
+
+#include "runtime/tilemap_level.hpp"
+#include "core/expected.hpp"
+#include "media/dirtymap.hpp"
+
+using namespace toybox;
+
+tilemap_level_c::tilemap_level_c(const char* path) :
+tilemap_c(rect_s()), _is_initialized(false)
+{
+    iffstream_c file(path);
+    iff_group_s form;
+    iff_chunk_s chunk;
+    if (!file.good() || !file.first(cc4::FORM, detail::cc4::LEVL, form)) {
+        return; // Not a ILBM
+    }
+    detail::level_header_s header;
+    while (file.next(form, cc4::ANY, chunk)) {
+        if (chunk.id == detail::cc4::LVHD) {
+            if (!file.stream_c::read(&header)) {
+                return;
+            }
+            _tilespace_bounds = {{0,0}, header.size};
+            rect_s bounds(0,0, header.size.width << 4, header.size.height << 4);
+            _tiles_dirtymap = dirtymap_c::create(bounds.size);
+            set_visible_bounds(bounds);
+            _tileset_index = header.tileset_index;
+        } else if (chunk.id == detail::cc4::ENTS) {
+            assert(header.entity_count * sizeof(entity_s) == chunk.size);
+            _all_entities.reserve(header.entity_count + 16);
+            for (int i = 0; i < header.entity_count; ++i) {
+                auto& entity = _all_entities.emplace_back();
+                file.read(&entity);
+            }
+        } else if (chunk.id == cc4::LIST) {
+            iff_group_s list;
+            if (!file.expand(chunk, list) || list.subtype != detail::cc4::TMAP) {
+                return;
+            }
+            while (file.next(list, cc4::FORM, chunk)) {
+                iff_group_s form;
+                if (!file.expand(chunk, form) || form.subtype != detail::cc4::TMAP) {
+                    return;
+                }
+                detail::tilemap_header_s header;
+                while (file.next(form, cc4::ANY, chunk)) {
+                    if (chunk.id == detail::cc4::TMHD) {
+                        if (!file.read(&header)) {
+                            errno = EINVAL;
+                            return;
+                        }
+                        _subtilemaps.emplace_back(header.bounds);
+                    } else if (chunk.id == detail::cc4::ENTA) {
+                        auto& tilemap = _subtilemaps.back();
+                        tilemap.activate_entity_idxs().resize(chunk.size);
+                        file.read(tilemap.activate_entity_idxs().data(), chunk.size);
+                    } else if (chunk.id == detail::cc4::BODY) {
+                        auto& tilemap = _subtilemaps.back();
+                        int tile_count = header.bounds.size.width * header.bounds.size.height;
+                        assert(tile_count * sizeof(tile_s) == chunk.size);
+                        for (int i = 0; i < tile_count; ++i) {
+                            auto& tile = tilemap.tiles().emplace_back();
+                            file.read(&tile);
+                        }
+                    } else {
+                        assert(false && "Unkown chunk");
+                        errno = EINVAL;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void tilemap_level_c::init() {
+    setup_actions();
+    setup_entity_defs();
+    _tileset = init_tileset(_tileset_index);
+    for (auto& entity : _all_entities) {
+        init(entity);
+    }
+    int idx = 0;
+    for (auto& tilemap : _subtilemaps) {
+        for (auto& tile : tilemap.tiles()) {
+            init(tile, idx);
+        }
+        ++idx;
+    }
+    _is_initialized = true;
+}
+
+void tilemap_level_c::setup_actions() {
+    _actions.emplace_back(actions::idle);
+}
+
+void tilemap_level_c::setup_entity_defs() {
+}
+
+tileset_c* tilemap_level_c::init_tileset(int index) {
+    return &asset_manager_c::shared().tileset(index);
+}
+
+void tilemap_level_c::reset() {
+    for (auto& tile : _tiles) {
+        reset(tile);
+    }
+    // TODO: Should figure out how to destroy all temp entities here.
+    for (auto& entity : _all_entities) {
+        reset(entity);
+    }
+}
+
+void tilemap_level_c::init(entity_s& entity) {}
+void tilemap_level_c::init(tile_s& tile, int subtilemap_index) {}
+void tilemap_level_c::reset(entity_s& entity) {}
+void tilemap_level_c::reset(tile_s& tile) {}
