@@ -103,7 +103,7 @@ void canvas_c::draw(const image_c& src, point_s at, const int color) {
 
 void canvas_c::draw(const image_c& src, const rect_s& rect, point_s at, const int color) {
     assert(_image._maskmap == nullptr && "Canvas image must not have a maskmap");
-    assert(rect.contained_by(size()) && "Rect must be contained within canvas bounds");
+    assert(rect.contained_by(src.size()) && "Rect must be contained within canvas bounds");
     if (_clipping) {
         if (__with_clipped_rect(this, rect, at, [&] (const rect_s& rect, point_s at) {
             draw(src, rect, at, color);

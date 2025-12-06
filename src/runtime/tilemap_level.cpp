@@ -134,7 +134,7 @@ void tilemap_level_c::update_level() {
 void tilemap_level_c::update_actions() {
     // NOTE: Will need some optimisation to not run them all eventually.
     for (auto& entity : _all_entities) {
-        if (entity.action != 0 && !(entity.flags & entity_s::flag_disabled) && !(entity.flags & entity_s::flag_event)) {
+        if (entity.action != 0 && entity.active && !entity.event) {
             _actions[entity.action](*this, entity);
         }
     }
@@ -155,7 +155,7 @@ void tilemap_level_c::draw_tiles() {
 #if TOYBOX_DEBUG_DIRTYMAP
         dirtymap->print_debug("tilemap_level_c::draw_tiles() masked");
 #endif
-        assert(dirtymap->dirty_bounds().contained_by(viewport.clip_rect()));
+        assert((dirtymap->dirty_bounds().size == size_s()) || dirtymap->dirty_bounds().contained_by(viewport.clip_rect()));
         viewport.with_dirtymap(nullptr, [&]() {
             auto restore = [&](const rect_s& rect) {
                 assert(rect.contained_by(viewport.clip_rect()) && "Viewport must not be dirty outside clip rect");
@@ -199,7 +199,7 @@ void tilemap_level_c::draw_entities() {
     // NOTE: This will need to be a list of visible entities eventually
     for (auto& entity : _all_entities) {
         // Draw entity if not explicitly hidden, and have frame definitions.
-        if (!(entity.flags & entity_s::flag_disabled)) {
+        if (entity.active) {
             const auto& ent_def = _entity_type_defs[entity.type];
             if (ent_def.frame_defs.size() > 0) {
                 const auto& frame_def = ent_def.frame_defs[entity.frame_index];
@@ -263,7 +263,7 @@ bool tilemap_level_c::collides_with_entity(int index, uint8_t in_group, int* ind
         if (idx == index) continue; // Skip self
         const auto& entity = _all_entities[idx];
         if (entity.group != in_group) continue;
-        if (entity.flags & entity_s::flag_disabled) continue;
+        if (!entity.active) continue;
         if (source_position.intersects(entity.position)) {
             *index_out = idx;
             return true;
@@ -278,7 +278,7 @@ bool tilemap_level_c::collides_with_entity(const frect_s& rect, uint8_t in_group
     for (int idx = 0; idx < _all_entities.size(); ++idx) {
         const auto& entity = _all_entities[idx];
         if (entity.group != in_group) continue;
-        if (entity.flags & entity_s::flag_disabled) continue;
+        if (!entity.active) continue;
         if (rect.intersects(entity.position)) {
             *index_out = idx;
             return true;
@@ -301,16 +301,22 @@ void tilemap_level_c::splice_subtilemap(int index) {
     // TODO: Merge the subtilemap into self, and mark all changes tiles as dirty.
     // NOTE: Stretch goal would be to animate these, but probably not worth the effort.
     auto& tilemap = _subtilemaps[index];
-    assert(tilemap.tilespace_bounds().contained_by(tilespace_bounds()));
-    point_s at = tilemap.tilespace_bounds().origin;
-    for (int y = 0; y < tilemap.tilespace_bounds().size.height; ++y) {
-        at.x = tilemap.tilespace_bounds().origin.x;
-        for (int x = 0; x < tilemap.tilespace_bounds().size.width; ++x) {
+    const auto& bounds = tilemap.tilespace_bounds();
+    assert(bounds.contained_by(tilespace_bounds()));
+    point_s at = bounds.origin;
+    for (int y = 0; y < bounds.size.height; ++y) {
+        at.x = bounds.origin.x;
+        for (int x = 0; x < bounds.size.width; ++x) {
             auto& tile = tilemap[x,y];
             splice_tile(tile, at);
             ++at.x;
         }
         ++at.y;
+    }
+    rect_s rect(bounds.origin.x << 4, bounds.origin.y << 4, bounds.size.width << 4, bounds.size.height << 4);
+    _tiles_dirtymap->mark(rect);
+    for (const auto idx : tilemap.activate_entity_idxs()) {
+        all_entities()[idx].active = 1;
     }
 }
 

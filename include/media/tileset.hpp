@@ -49,13 +49,13 @@ namespace toybox {
             return _rects[x + _max_tile.x * y];
         }
         
-        __forceinline array_s<uint8_t, 12> data() { return _data; }
-        __forceinline const array_s<uint8_t, 12> data() const { return _data; }
+        __forceinline array_s<uint16_t, 6> data() { return _data; }
+        __forceinline const array_s<uint16_t, 6> data() const { return _data; }
     private:
         const shared_ptr_c<image_c> _image;
         const point_s _max_tile;
         unique_ptr_c<rect_s> _rects;
-        array_s<uint8_t, 12> _data;
+        array_s<uint16_t, 6> _data;
     };
 
     namespace detail {
@@ -66,13 +66,13 @@ namespace toybox {
         // Tileset header for EA IFF 85 TSHD chunk (inside ILBM)
         struct tileset_header_s {
             size_s tile_size;           // Size of tiles.
-            uint8_t reserved[12];            // Custom data
+            uint16_t reserved[6];            // Custom data
         };
         static_assert(sizeof(tileset_header_s) == 16);
     }
     template<>
     struct struct_layout<detail::tileset_header_s> {
-        static constexpr const char* value = "2w12b";  // tilecount_static, tilecount_animated
+        static constexpr const char* value = "8w";  // tilecount_static, tilecount_animated
     };
     
 }

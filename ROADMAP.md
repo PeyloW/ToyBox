@@ -46,8 +46,8 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [x] Source from `tileset_c` and solid color
         - x Optimized batch drawing primitives for repeated 16x16 blocks
     - [x] General tile types; empty, solid, climbable, hurts, etc.
-    - [ ] Subtilemap splicing with dirty tracking
-    - [ ] Tilemap file format loading (Blocked on Editor)
+    - [x] Subtilemap splicing with dirty tracking
+    - [x] Tilemap file format loading (Blocked on Editor)
 - [x] `entity_c` for defining basic game AI
     - [x] User controllable entity
     - [x] Collision detection with tiles
@@ -60,11 +60,11 @@ Support simple horizontally scrolling games controlled with joystick. ETA Summer
     - [ ] Implementations for taps and holds
 - [ ] Implement `keyboard_c`
     - [ ] TAB key background color performance debugging
-- [ ] Tilemap editor
-    - [ ] Generate tileset from multiple images
-    - [ ] Edit subtilemaps
+- [-] Tilemap editor
+    - [x] Generate tileset from multiple images
+    - [x] Edit subtilemaps
     - [ ] Edit entities and entity defs
-    - [ ] Implement file format
+    - [x] Implement file format
 - [ ] Refine core APIs
     - [x] Improve geometry API clarity
     - [ ] Fix stencil mask bug on Atari target 

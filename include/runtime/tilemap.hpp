@@ -28,9 +28,10 @@ namespace toybox {
         type_e type = none;    // Tile type
         uint8_t flags = 0;
         uint8_t data[4];
-        template<class T>
-        requires (sizeof(T) <= 4)
+        template<class T> requires (sizeof(T) <= 4)
         T& data_as() { return (T&)(data[0]); }
+        template<class T> requires (sizeof(T) <= 4)
+        const T& data_as() const { return (const T&)(data[0]); }
     };
     static_assert(sizeof(tile_s) == 8);
     

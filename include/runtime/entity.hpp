@@ -16,23 +16,27 @@
 namespace toybox {
 
     struct entity_s {
-        static constexpr const uint8_t flag_disabled = 1 << 7;  // Draw no graphics, run no actions, as if it did not exist.
-        static constexpr const uint8_t flag_event = 1 << 6;     // If set action is not called per frame, only on target trigger
         static constexpr const int edata_size = 4;
-        static constexpr const int adata_size = 14;
+        static constexpr const int adata_size = 6;
         uint8_t index = 0;
+        uint8_t active:1 = 1;  // Only active entities are drawn, run and actions.
+        uint8_t event:1 = 0;    // If set action is not called per frame, only on target event trigger
+        uint8_t flags:6 = 0;
         uint8_t type = 0;
         uint8_t group = 0;
         uint8_t action = 0;
         uint8_t frame_index = 0;
-        uint8_t flags = 0;
         frect_s position;
-        uint8_t edata[4];
+        uint8_t edata[edata_size];
         template<class T> requires (sizeof(T) <= edata_size)
         T& edata_as() { return (T&)(edata[0]); }
-        uint8_t adata[6];
+        template<class T> requires (sizeof(T) <= edata_size)
+        const T& edata_as() const { return (const T&)(edata[0]); }
+        uint8_t adata[adata_size];
         template<class T> requires (sizeof(T) <= adata_size)
         T& adata_as() { return (T&)(adata[0]); }
+        template<class T> requires (sizeof(T) <= adata_size)
+        const T& adata_as() const { return (const T&)(adata[0]); }
     };
     static_assert(sizeof(entity_s) == 24);
 
